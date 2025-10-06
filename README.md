@@ -12,8 +12,8 @@ Instalar los requisitos
 
 Clonar repositorio
 ```
-git clone https://github.com/gdnacho/nutrilens_backend.git
-cd gdnacho/nutrilens_backend
+git clone https://github.com/Vienna-Code/nutrilens-backend.git
+cd nutrilens-backend
 ```
 
 Crear y Migrar Base de Datos (Edita DATABASE_URL en .env si es necesario)
