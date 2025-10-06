@@ -17,7 +17,7 @@ class ComercioReporte
 
     #[ORM\ManyToOne(inversedBy: 'comercioReportes')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?comercio $comercio = null;
+    private ?Comercio $comercio = null;
 
     #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $fecha = null;
@@ -27,7 +27,7 @@ class ComercioReporte
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?usuario $usuario = null;
+    private ?Usuario $usuario = null;
 
     public function __construct()
     {
@@ -39,12 +39,12 @@ class ComercioReporte
         return $this->id;
     }
 
-    public function getComercio(): ?comercio
+    public function getComercio(): ?Comercio
     {
         return $this->comercio;
     }
 
-    public function setComercio(?comercio $comercio): static
+    public function setComercio(?Comercio $comercio): static
     {
         $this->comercio = $comercio;
 

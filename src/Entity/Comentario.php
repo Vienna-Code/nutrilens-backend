@@ -17,11 +17,11 @@ class Comentario
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?usuario $usuario = null;
+    private ?Usuario $usuario = null;
 
     #[ORM\ManyToOne(inversedBy: 'comentarios')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?publicacion $publicacion = null;
+    private ?Publicacion $publicacion = null;
 
     #[ORM\Column(length: 500)]
     private ?string $contenido = null;
@@ -39,24 +39,24 @@ class Comentario
         return $this->id;
     }
 
-    public function getUsuario(): ?usuario
+    public function getUsuario(): ?Usuario
     {
         return $this->usuario;
     }
 
-    public function setUsuario(?usuario $usuario): static
+    public function setUsuario(?Usuario $usuario): static
     {
         $this->usuario = $usuario;
 
         return $this;
     }
 
-    public function getPublicacion(): ?publicacion
+    public function getPublicacion(): ?Publicacion
     {
         return $this->publicacion;
     }
 
-    public function setPublicacion(?publicacion $publicacion): static
+    public function setPublicacion(?Publicacion $publicacion): static
     {
         $this->publicacion = $publicacion;
 

@@ -21,7 +21,7 @@ class Producto
 
     #[ORM\ManyToOne(inversedBy: 'productos')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?comercio $comercio = null;
+    private ?Comercio $comercio = null;
 
     #[ORM\Column(length: 80)]
     private ?string $nombre = null;
@@ -61,12 +61,12 @@ class Producto
         return $this->id;
     }
 
-    public function getComercio(): ?comercio
+    public function getComercio(): ?Comercio
     {
         return $this->comercio;
     }
 
-    public function setComercio(?comercio $comercio): static
+    public function setComercio(?Comercio $comercio): static
     {
         $this->comercio = $comercio;
 

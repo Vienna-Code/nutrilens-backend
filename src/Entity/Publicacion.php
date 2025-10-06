@@ -20,7 +20,7 @@ class Publicacion
 
     #[ORM\ManyToOne(inversedBy: 'publicaciones')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?usuario $usuario = null;
+    private ?Usuario $usuario = null;
 
     #[ORM\Column(length: 200)]
     private ?string $titulo = null;
@@ -58,12 +58,12 @@ class Publicacion
         return $this->id;
     }
 
-    public function getUsuario(): ?usuario
+    public function getUsuario(): ?Usuario
     {
         return $this->usuario;
     }
 
-    public function setUsuario(?usuario $usuario): static
+    public function setUsuario(?Usuario $usuario): static
     {
         $this->usuario = $usuario;
 

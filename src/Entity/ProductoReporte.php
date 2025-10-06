@@ -17,7 +17,7 @@ class ProductoReporte
 
     #[ORM\ManyToOne(inversedBy: 'productoReportes')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?producto $producto = null;
+    private ?Producto $producto = null;
 
     #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $fecha = null;
@@ -27,7 +27,7 @@ class ProductoReporte
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?usuario $usuario = null;
+    private ?Usuario $usuario = null;
 
     public function __construct()
     {
@@ -39,12 +39,12 @@ class ProductoReporte
         return $this->id;
     }
 
-    public function getProducto(): ?producto
+    public function getProducto(): ?Producto
     {
         return $this->producto;
     }
 
-    public function setProducto(?producto $producto): static
+    public function setProducto(?Producto $producto): static
     {
         $this->producto = $producto;
 
@@ -75,12 +75,12 @@ class ProductoReporte
         return $this;
     }
 
-    public function getUsuario(): ?usuario
+    public function getUsuario(): ?Usuario
     {
         return $this->usuario;
     }
 
-    public function setUsuario(?usuario $usuario): static
+    public function setUsuario(?Usuario $usuario): static
     {
         $this->usuario = $usuario;
 

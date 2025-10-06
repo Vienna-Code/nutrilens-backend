@@ -17,11 +17,11 @@ class Resena
 
     #[ORM\ManyToOne(inversedBy: 'resenas')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?usuario $usuario = null;
+    private ?Usuario $usuario = null;
 
     #[ORM\ManyToOne(inversedBy: 'resenas')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?comercio $comercio = null;
+    private ?Comercio $comercio = null;
 
     #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $fecha = null;
@@ -48,24 +48,24 @@ class Resena
         return $this->id;
     }
 
-    public function getUsuario(): ?usuario
+    public function getUsuario(): ?Usuario
     {
         return $this->usuario;
     }
 
-    public function setUsuario(?usuario $usuario): static
+    public function setUsuario(?Usuario $usuario): static
     {
         $this->usuario = $usuario;
 
         return $this;
     }
 
-    public function getComercio(): ?comercio
+    public function getComercio(): ?Comercio
     {
         return $this->comercio;
     }
 
-    public function setComercio(?comercio $comercio): static
+    public function setComercio(?Comercio $comercio): static
     {
         $this->comercio = $comercio;
 

@@ -17,19 +17,19 @@ class PublicacionEtiqueta
 
     #[ORM\ManyToOne(inversedBy: 'publicacionEtiquetas')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?publicacion $publicacion = null;
+    private ?Publicacion $publicacion = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getPublicacion(): ?publicacion
+    public function getPublicacion(): ?Publicacion
     {
         return $this->publicacion;
     }
 
-    public function setPublicacion(?publicacion $publicacion): static
+    public function setPublicacion(?Publicacion $publicacion): static
     {
         $this->publicacion = $publicacion;
 

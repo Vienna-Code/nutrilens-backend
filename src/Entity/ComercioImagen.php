@@ -17,7 +17,7 @@ class ComercioImagen
 
     #[ORM\ManyToOne(inversedBy: 'comercioImagenes')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?comercio $comercio = null;
+    private ?Comercio $comercio = null;
 
     #[ORM\Column(length: 255)]
     private ?string $ruta = null;
@@ -27,12 +27,12 @@ class ComercioImagen
         return $this->id;
     }
 
-    public function getComercio(): ?comercio
+    public function getComercio(): ?Comercio
     {
         return $this->comercio;
     }
 
-    public function setComercio(?comercio $comercio): static
+    public function setComercio(?Comercio $comercio): static
     {
         $this->comercio = $comercio;
 
