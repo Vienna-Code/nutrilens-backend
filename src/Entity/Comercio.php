@@ -38,8 +38,8 @@ class Comercio
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $contacto = null;
 
-    #[ORM\Column]
-    private ?bool $verificado = null;
+    #[ORM\Column(options: ['default' => false])]
+    private bool $verificado = false;
 
     /**
      * @var Collection<int, Producto>

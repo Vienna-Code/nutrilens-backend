@@ -22,11 +22,16 @@ class Gamificacion
     #[ORM\Column]
     private ?int $puntos = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $evento = null;
+    #[ORM\Column(length: 255, options: ['default' => ''])]
+    private string $evento = '';
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $fecha = null;
+
+    public function __construct()
+    {
+        $this->fecha = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {

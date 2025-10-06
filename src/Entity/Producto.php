@@ -32,8 +32,8 @@ class Producto
     #[ORM\Column(length: 80)]
     private ?string $categoria = null;
 
-    #[ORM\Column]
-    private ?bool $verificado = null;
+    #[ORM\Column(options: ['default' => false])]
+    private bool $verificado = false;
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY, enumType: Condicion::class)]
     private array $condicion = [];

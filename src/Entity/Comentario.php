@@ -26,8 +26,13 @@ class Comentario
     #[ORM\Column(length: 500)]
     private ?string $contenido = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $fecha = null;
+
+    public function __construct()
+    {
+        $this->fecha = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {

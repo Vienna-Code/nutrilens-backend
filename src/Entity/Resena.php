@@ -23,7 +23,7 @@ class Resena
     #[ORM\JoinColumn(nullable: false)]
     private ?comercio $comercio = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $fecha = null;
 
     #[ORM\Column]
@@ -32,11 +32,16 @@ class Resena
     #[ORM\Column(length: 1000)]
     private ?string $contenido = null;
 
-    #[ORM\Column]
-    private ?int $util = null;
+    #[ORM\Column(options: ['default' => 0])]
+    private int $util = 0;
 
-    #[ORM\Column]
-    private ?int $no_util = null;
+    #[ORM\Column(options: ['default' => 0])]
+    private int $no_util = 0;
+
+    public function __construct()
+    {
+        $this->fecha = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {

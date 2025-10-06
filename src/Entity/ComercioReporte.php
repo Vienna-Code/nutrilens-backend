@@ -19,7 +19,7 @@ class ComercioReporte
     #[ORM\JoinColumn(nullable: false)]
     private ?comercio $comercio = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $fecha = null;
 
     #[ORM\Column(length: 1000)]
@@ -28,6 +28,11 @@ class ComercioReporte
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?usuario $usuario = null;
+
+    public function __construct()
+    {
+        $this->fecha = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {

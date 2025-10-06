@@ -35,11 +35,11 @@ class Usuario
     #[ORM\Column(type: Types::SIMPLE_ARRAY, enumType: Condicion::class)]
     private array $condicion = [];
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $fecha_registro = null;
+    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    private ?\DateTimeImmutable $fecha_registro;
 
-    #[ORM\Column(enumType: Rol::class)]
-    private ?Rol $rol = null;
+    #[ORM\Column(enumType: Rol::class, options: ['default' => 'no_verificado'])]
+    private ?Rol $rol = Rol::NO_VERIFICADO;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $foto_perfil = null;
@@ -67,6 +67,8 @@ class Usuario
         $this->gamificaciones = new ArrayCollection();
         $this->publicaciones = new ArrayCollection();
         $this->resenas = new ArrayCollection();
+        $this->fecha_registro = new \DateTimeImmutable();
+        $this->rol = Rol::NO_VERIFICADO;
     }
 
     public function getId(): ?int

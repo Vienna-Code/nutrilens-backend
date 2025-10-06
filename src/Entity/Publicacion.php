@@ -28,11 +28,11 @@ class Publicacion
     #[ORM\Column(type: Types::TEXT)]
     private ?string $contenido = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $fecha = null;
 
-    #[ORM\Column]
-    private ?int $visitas = null;
+    #[ORM\Column(options: ['default' => 0])]
+    private int $visitas = 0;
 
     /**
      * @var Collection<int, PublicacionEtiqueta>
@@ -50,6 +50,7 @@ class Publicacion
     {
         $this->publicacionEtiquetas = new ArrayCollection();
         $this->comentarios = new ArrayCollection();
+        $this->fecha = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
