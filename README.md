@@ -22,7 +22,7 @@ php bin/console doctrine:database:create
 php bin/console doctrine:migrations:migrate
 ```
 
-Instalar dependenias
+Instalar dependencias
 ```
 composer install
 ```
