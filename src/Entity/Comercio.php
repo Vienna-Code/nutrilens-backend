@@ -3,60 +3,84 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata;
 use App\Repository\ComercioRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ComercioRepository::class)]
-#[ApiResource()]
+#[ApiResource(
+    operations: [
+        new Metadata\Get(),
+        new Metadata\GetCollection(),
+        new Metadata\Post(),
+        new Metadata\Patch(),
+        new Metadata\Delete()
+    ],
+    normalizationContext: ['groups' => ['comercio:read']],
+    denormalizationContext: ['groups' => ['comercio:write']]
+)]
 class Comercio
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['comercio:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 80)]
+    #[Groups(['comercio:read', 'comercio:write'])]
     private ?string $nombre = null;
 
     #[ORM\Column(length: 50)]
+    #[Groups(['comercio:read', 'comercio:write'])]
     private ?string $tipo = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['comercio:read', 'comercio:write'])]
     private ?string $coordenadas = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['comercio:read', 'comercio:write'])]
     private ?string $horarios = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['comercio:read'])]
     private ?string $foto_fachada = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['comercio:read', 'comercio:write'])]
     private ?string $metodos_pago = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['comercio:read', 'comercio:write'])]
     private ?string $contacto = null;
 
     #[ORM\Column(options: ['default' => false])]
+    #[Groups(['comercio:read'])]
     private bool $verificado = false;
 
     /**
      * @var Collection<int, Producto>
      */
     #[ORM\OneToMany(targetEntity: Producto::class, mappedBy: 'comercio')]
+    #[Groups(['comercio:read'])]
     private Collection $productos;
 
     /**
      * @var Collection<int, ComercioImagen>
      */
     #[ORM\OneToMany(targetEntity: ComercioImagen::class, mappedBy: 'comercio')]
+    #[Groups(['comercio:read'])]
     private Collection $comercioImagenes;
 
     /**
      * @var Collection<int, Resena>
      */
     #[ORM\OneToMany(targetEntity: Resena::class, mappedBy: 'comercio')]
+    #[Groups(['comercio:read'])]
     private Collection $resenas;
 
     /**

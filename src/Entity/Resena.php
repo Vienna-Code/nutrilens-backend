@@ -7,7 +7,6 @@ use App\Repository\ResenaRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ResenaRepository::class)]
-#[ApiResource()]
 class Resena
 {
     #[ORM\Id]

@@ -3,46 +3,66 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata;
 use App\Repository\PublicacionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: PublicacionRepository::class)]
-#[ApiResource()]
+#[ApiResource(
+    operations: [
+        new Metadata\Get(),
+        new Metadata\GetCollection(),
+        new Metadata\Post(),
+        new Metadata\Patch(),
+        new Metadata\Delete(),
+    ],
+    normalizationContext: ['groups' => ['publicacion:read']],
+    denormalizationContext: ['groups' => ['publicacion:write']]
+)]
 class Publicacion
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['publicacion:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'publicaciones')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['publicacion:read', 'publicacion:write'])]
     private ?Usuario $usuario = null;
 
     #[ORM\Column(length: 200)]
+    #[Groups(['publicacion:read', 'publicacion:write'])]
     private ?string $titulo = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['publicacion:read', 'publicacion:write'])]
     private ?string $contenido = null;
 
     #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    #[Groups(['publicacion:read'])]
     private ?\DateTimeImmutable $fecha = null;
 
     #[ORM\Column(options: ['default' => 0])]
+    #[Groups(['publicacion:read'])]
     private int $visitas = 0;
 
     /**
      * @var Collection<int, PublicacionEtiqueta>
      */
+    #[Groups(['publicacion:read', 'publicacion:write'])]
     #[ORM\OneToMany(targetEntity: PublicacionEtiqueta::class, mappedBy: 'publicacion', orphanRemoval: true)]
     private Collection $publicacionEtiquetas;
 
     /**
      * @var Collection<int, Comentario>
      */
+    #[Groups(['publicacion:read'])]
     #[ORM\OneToMany(targetEntity: Comentario::class, mappedBy: 'publicacion')]
     private Collection $comentarios;
 

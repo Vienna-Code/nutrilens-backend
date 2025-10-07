@@ -2,12 +2,10 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use App\Repository\PublicacionEtiquetaRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PublicacionEtiquetaRepository::class)]
-#[ApiResource()]
 class PublicacionEtiqueta
 {
     #[ORM\Id]
@@ -18,6 +16,9 @@ class PublicacionEtiqueta
     #[ORM\ManyToOne(inversedBy: 'publicacionEtiquetas')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Publicacion $publicacion = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $etiqueta = null;
 
     public function getId(): ?int
     {
@@ -32,7 +33,17 @@ class PublicacionEtiqueta
     public function setPublicacion(?Publicacion $publicacion): static
     {
         $this->publicacion = $publicacion;
+        return $this;
+    }
 
+    public function getEtiqueta(): ?string
+    {
+        return $this->etiqueta;
+    }
+
+    public function setEtiqueta(string $etiqueta): static
+    {
+        $this->etiqueta = $etiqueta;
         return $this;
     }
 }

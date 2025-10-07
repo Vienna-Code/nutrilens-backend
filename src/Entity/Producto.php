@@ -3,45 +3,65 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata;
 use App\Enum\Condicion;
 use App\Repository\ProductoRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ProductoRepository::class)]
-#[ApiResource()]
+#[ApiResource(
+    operations: [
+        new Metadata\Get(),
+        new Metadata\GetCollection(),
+        new Metadata\Post(),
+        new Metadata\Patch(),
+        new Metadata\Delete()
+    ],
+    normalizationContext: ['groups' => ['producto:read']],
+    denormalizationContext: ['groups' => ['producto:write']]
+)]
 class Producto
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['producto:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'productos')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['producto:read', 'producto:write'])]
     private ?Comercio $comercio = null;
 
     #[ORM\Column(length: 80)]
+    #[Groups(['producto:read', 'producto:write'])]
     private ?string $nombre = null;
 
     #[ORM\Column(length: 80)]
+    #[Groups(['producto:read', 'producto:write'])]
     private ?string $marca = null;
 
     #[ORM\Column(length: 80)]
+    #[Groups(['producto:read', 'producto:write'])]
     private ?string $categoria = null;
 
     #[ORM\Column(options: ['default' => false])]
+    #[Groups(['producto:read'])]
     private bool $verificado = false;
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY, enumType: Condicion::class)]
+    #[Groups(['producto:read', 'producto:write'])]
     private array $condicion = [];
 
     /**
      * @var Collection<int, ProductoImagen>
      */
     #[ORM\OneToMany(targetEntity: ProductoImagen::class, mappedBy: 'producto')]
+    #[Groups(['producto:read'])]
     private Collection $productoImagenes;
 
     /**

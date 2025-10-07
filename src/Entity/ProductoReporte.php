@@ -3,30 +3,47 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata;
 use App\Repository\ProductoReporteRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ProductoReporteRepository::class)]
-#[ApiResource()]
+#[ApiResource(
+    operations: [
+        new Metadata\Get(),
+        new Metadata\GetCollection(),
+        new Metadata\Post(),
+        new Metadata\Patch(),
+        new Metadata\Delete()
+    ],
+    normalizationContext: ['groups' => ['preporte:read']],
+    denormalizationContext: ['groups' => ['preporte:write']]
+)]
 class ProductoReporte
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['preporte:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'productoReportes')]
     #[ORM\JoinColumn(nullable: false)]
+     #[Groups(['preporte:read', 'preporte:write'])]
     private ?Producto $producto = null;
 
     #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    #[Groups(['preporte:read'])]
     private ?\DateTimeImmutable $fecha = null;
 
     #[ORM\Column(length: 1000)]
+     #[Groups(['preporte:read', 'preporte:write'])]
     private ?string $contenido = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+     #[Groups(['preporte:read', 'preporte:write'])]
     private ?Usuario $usuario = null;
 
     public function __construct()

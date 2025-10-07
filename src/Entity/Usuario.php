@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata;
 use ApiPlatform\Metadata\ApiResource;
 use App\Enum\Rol;
 use App\Enum\Condicion;
@@ -10,38 +11,56 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UsuarioRepository::class)]
-#[ApiResource()]
+#[ApiResource(
+    operations: [
+        new Metadata\Get(),
+        new Metadata\GetCollection(),
+        new Metadata\Post(),
+        new Metadata\Patch()
+    ],
+    normalizationContext: ['groups' => ['usuario:read']],
+    denormalizationContext: ['groups' => ['usuario:write']]
+)]
 class Usuario
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['usuario:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 40)]
+    #[Groups(['usuario:read', 'usuario:write'])]
     private ?string $nombre_usuario = null;
 
     #[ORM\Column(length: 320)]
+    #[Groups(['usuario:read', 'usuario:write'])]
     private ?string $email = null;
 
     #[ORM\Column(length: 64, nullable: true)]
     private ?string $verificacion_email = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['usuario:write'])]
     private ?string $contrasena = null;
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY, enumType: Condicion::class)]
+    #[Groups(['usuario:read', 'usuario:write'])]
     private array $condicion = [];
 
     #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    #[Groups(['usuario:read'])]
     private ?\DateTimeImmutable $fecha_registro;
 
     #[ORM\Column(enumType: Rol::class, options: ['default' => 'no_verificado'])]
+    #[Groups(['usuario:read'])]
     private ?Rol $rol = Rol::NO_VERIFICADO;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['usuario:read', 'usuario:write'])]
     private ?string $foto_perfil = null;
 
     /**
@@ -263,5 +282,16 @@ class Usuario
         }
 
         return $this;
+    }
+
+    #[Groups(['usuario:read'])]
+    public function getPuntos(): int
+    {
+        $puntos = 0;
+        foreach ($this->gamificaciones as $g) {
+            $puntos += $g->getPuntos();
+        }
+
+        return $puntos;
     }
 }

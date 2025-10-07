@@ -7,7 +7,6 @@ use App\Repository\ComercioImagenRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ComercioImagenRepository::class)]
-#[ApiResource()]
 class ComercioImagen
 {
     #[ORM\Id]

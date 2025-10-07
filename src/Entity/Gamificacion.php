@@ -7,7 +7,6 @@ use App\Repository\GamificacionRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GamificacionRepository::class)]
-#[ApiResource()]
 class Gamificacion
 {
     #[ORM\Id]
