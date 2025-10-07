@@ -16,15 +16,15 @@ git clone https://github.com/Vienna-Code/nutrilens-backend.git
 cd nutrilens-backend
 ```
 
+Instalar dependencias
+```
+composer install
+```
+
 Crear y Migrar Base de Datos (Edita DATABASE_URL en .env si es necesario)
 ```
 php bin/console doctrine:database:create
 php bin/console doctrine:migrations:migrate
-```
-
-Instalar dependencias
-```
-composer install
 ```
 
 Iniciar webserver (En 127.0.0.1:8000)
