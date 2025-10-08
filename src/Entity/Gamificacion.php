@@ -24,7 +24,7 @@ class Gamificacion
     #[ORM\Column(length: 255, options: ['default' => ''])]
     private string $evento = '';
 
-    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    #[ORM\Column(type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $fecha = null;
 
     public function __construct()

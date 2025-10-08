@@ -33,7 +33,7 @@ class ComercioReporte
     #[Groups(['creporte:read', 'creporte:write'])]
     private ?Comercio $comercio = null;
 
-    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    #[ORM\Column(type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'])]
     #[Groups(['creporte:read'])]
     private ?\DateTimeImmutable $fecha = null;
 

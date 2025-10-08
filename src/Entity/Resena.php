@@ -37,7 +37,7 @@ class Resena
     #[Groups(['resena:read', 'resena:write'])]
     private ?Comercio $comercio = null;
 
-    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    #[ORM\Column(type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'])]
     #[Groups(['resena:read'])]
     private ?\DateTimeImmutable $fecha = null;
 

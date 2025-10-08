@@ -32,11 +32,11 @@ class Usuario
     #[Groups(['usuario:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 40)]
+    #[ORM\Column(length: 40, unique: true)]
     #[Groups(['usuario:read', 'usuario:write'])]
     private ?string $nombre_usuario = null;
 
-    #[ORM\Column(length: 320)]
+    #[ORM\Column(length: 320, unique: true)]
     #[Groups(['usuario:read', 'usuario:write'])]
     private ?string $email = null;
 
@@ -51,7 +51,7 @@ class Usuario
     #[Groups(['usuario:read', 'usuario:write'])]
     private array $condicion = [];
 
-    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    #[ORM\Column(type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'])]
     #[Groups(['usuario:read'])]
     private ?\DateTimeImmutable $fecha_registro;
 

@@ -45,7 +45,7 @@ class Publicacion
     #[Groups(['publicacion:read', 'publicacion:write'])]
     private ?string $contenido = null;
 
-    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    #[ORM\Column(type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'])]
     #[Groups(['publicacion:read'])]
     private ?\DateTimeImmutable $fecha = null;
 

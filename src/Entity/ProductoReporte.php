@@ -33,7 +33,7 @@ class ProductoReporte
      #[Groups(['preporte:read', 'preporte:write'])]
     private ?Producto $producto = null;
 
-    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    #[ORM\Column(type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'])]
     #[Groups(['preporte:read'])]
     private ?\DateTimeImmutable $fecha = null;
 
