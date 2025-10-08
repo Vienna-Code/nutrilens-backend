@@ -103,7 +103,7 @@ class Resena
         return $this;
     }
 
-    public function isCalificacion(): ?bool
+    public function getCalificacion(): ?bool
     {
         return $this->calificacion;
     }

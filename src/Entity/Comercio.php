@@ -186,7 +186,7 @@ class Comercio
         return $this;
     }
 
-    public function isVerificado(): ?bool
+    public function getVerificado(): ?bool
     {
         return $this->verificado;
     }
@@ -316,5 +316,19 @@ class Comercio
         }
 
         return $this;
+    }
+
+    #[Groups(['comercio:read'])]
+    public function getCalificacion(): int
+    {
+        $total = count($this->resenas);
+        if ($total === 0) return 0;
+
+        $positivas = 0;
+        foreach ($this->resenas as $resena) {
+            if ($resena->getCalificacion()) $positivas++;
+        }
+
+        return (int) round(($positivas / $total) * 100);
     }
 }

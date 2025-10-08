@@ -129,7 +129,7 @@ class Producto
         return $this;
     }
 
-    public function isVerificado(): ?bool
+    public function getVerificado(): ?bool
     {
         return $this->verificado;
     }
