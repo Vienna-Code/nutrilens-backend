@@ -3,38 +3,58 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata;
 use App\Repository\ResenaRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ResenaRepository::class)]
+#[ApiResource(
+    operations: [
+        new Metadata\GetCollection(),
+        new Metadata\Post(),
+        new Metadata\Patch(),
+        new Metadata\Delete()
+    ],
+    normalizationContext: ['groups' => ['resena:read']],
+    denormalizationContext: ['groups' => ['resena:write']]
+)]
 class Resena
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['resena:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'resenas')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['resena:read', 'resena:write'])]
     private ?Usuario $usuario = null;
 
     #[ORM\ManyToOne(inversedBy: 'resenas')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['resena:read', 'resena:write'])]
     private ?Comercio $comercio = null;
 
     #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    #[Groups(['resena:read'])]
     private ?\DateTimeImmutable $fecha = null;
 
     #[ORM\Column]
+    #[Groups(['resena:read', 'resena:write'])]
     private ?bool $calificacion = null;
 
     #[ORM\Column(length: 1000)]
+    #[Groups(['resena:read', 'resena:write'])]
     private ?string $contenido = null;
 
     #[ORM\Column(options: ['default' => 0])]
+    #[Groups(['resena:read'])]
     private int $util = 0;
 
     #[ORM\Column(options: ['default' => 0])]
+    #[Groups(['resena:read'])]
     private int $no_util = 0;
 
     public function __construct()

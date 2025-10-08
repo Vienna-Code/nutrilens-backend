@@ -21,7 +21,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Metadata\Delete(),
     ],
     normalizationContext: ['groups' => ['publicacion:read']],
-    denormalizationContext: ['groups' => ['publicacion:write']]
+    denormalizationContext: ['groups' => ['publicacion:write']],
+    uriTemplate: '/publicaciones'
 )]
 class Publicacion
 {

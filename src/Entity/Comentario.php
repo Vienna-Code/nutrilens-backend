@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: ComentarioRepository::class)]
 #[ApiResource(
     operations: [
-        new Metadata\Get(),
+        new Metadata\GetCollection(),
         new Metadata\Post(),
         new Metadata\Patch(),
         new Metadata\Delete()
