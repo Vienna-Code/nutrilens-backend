@@ -44,16 +44,18 @@ symfony serve
 
 ## Rutas
 
-``POST /auth/signup``: Registro de usuario
-- username: string
-- email: string
-- password: string
-``POST /auth/login``: Retorna header Set-Cookie con la sesión.
-- username: string
-- password: string
-``POST /auth/logout``: Invalida la cookie enviada en el header, terminando la sesión.
+- ``POST /auth/signup``: Registro de usuario
+  - username: string
+  - email: string
+  - password: string
 
-``GET /commerce``: Obtener lista de comercios
-- lat: string *(Rango de latitud en el mapa, dos floats dividido por una coma)*
-- lon: string *(Rango de longitud en el mapa, dos floats dividido por una coma)*
-- unverified *(Agregar a la query '&unverified' para incluir comercios no verificados)*
+- ``POST /auth/login``: Retorna header Set-Cookie con la sesión.
+  - username: string
+  - password: string
+
+- ``POST /auth/logout``: Invalida la cookie enviada en el header, terminando la sesión.
+
+- ``GET /commerce``: Obtener lista de comercios
+  - lat: string *(Rango de latitud en el mapa, dos floats dividido por una coma)*
+  - lon: string *(Rango de longitud en el mapa, dos floats dividido por una coma)*
+  - unverified *(Agregar a la query '&unverified' para incluir comercios no verificados)*
