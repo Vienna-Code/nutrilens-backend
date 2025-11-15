@@ -25,6 +25,12 @@ class ProductRepository extends ServiceEntityRepository
                 ->setParameter('commerceId', $filters['commerce']);
         }
 
+        // Productos verificados
+        if (!isset($filters['unverified'])) {
+            $qb->andWhere('p.verified = :verified')->setParameter('verified', 1);
+        }
+
+
         return $qb->getQuery()->getResult();
     }
 

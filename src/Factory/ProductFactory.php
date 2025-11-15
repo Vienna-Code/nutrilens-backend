@@ -35,7 +35,7 @@ final class ProductFactory extends PersistentObjectFactory
     {
         return [
             'brand' => self::faker()->company(),
-            'category' => self::faker()->text(50),
+            'category' => self::faker()->words(1, true),
             'commerce' => CommerceFactory::random(),
             'name' => self::faker()->words(2, true),
             'verified' => self::faker()->boolean(90),

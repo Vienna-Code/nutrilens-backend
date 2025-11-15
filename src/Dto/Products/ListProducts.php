@@ -9,4 +9,6 @@ class ListProducts
     use FillFromArray;
 
     public int $id;
+
+    public bool $unverified;
 }
