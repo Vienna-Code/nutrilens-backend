@@ -32,11 +32,11 @@ final class ProductController extends AbstractController
         if ($errors) return $errors;
 
         // Encontrar comercios
-        $commerces = $this->productRepository->findByFilters($data);
+        $products = $this->productRepository->findByFilters($data);
 
         // Responder
         return $this->json([
-            'data' => $commerces
+            'data' => $products
         ], 200, [], ['groups' => ['product:list']]);
     }
 }
