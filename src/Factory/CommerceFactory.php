@@ -39,8 +39,8 @@ final class CommerceFactory extends PersistentObjectFactory
                 'number' => '+598' . self::faker()->numerify('########'),
                 'email' => self::faker()->safeEmail()
             ],
-            'coordsLat' => self::faker()->randomFloat(7, -56.1954000, -56.1123000),
-            'coordsLon' => self::faker()->randomFloat(7, -34.8938000, -34.8242000),
+            'coordsLat' => self::faker()->randomFloat(7, -34.8938000, -34.8242000),
+            'coordsLon' => self::faker()->randomFloat(7, -56.1954000, -56.1123000),
             'name' => self::faker()->company(),
             'paymentMethods' => array_values(array_filter(['efectivo', 'credito', 'debito'], fn() => self::faker()->boolean(80))),
             'type' => self::faker()->randomElement([

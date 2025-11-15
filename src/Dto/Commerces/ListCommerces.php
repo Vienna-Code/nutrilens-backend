@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Dto\Commerce;
+namespace App\Dto\Commerces;
 use App\Dto\FillFromArray;
 use Symfony\Component\Validator\Constraints as Assert;
 

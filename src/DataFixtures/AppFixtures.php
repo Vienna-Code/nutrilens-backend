@@ -24,6 +24,7 @@ class AppFixtures extends Fixture
         $admin = UserFactory::createOne([
             'username' => 'viennacode',
             'email' => 'viennacode@gmail.com',
+            'verification' => null,
             'roles' => ['ROLE_USER', 'ROLE_ADMIN']
         ]);
         $users = UserFactory::createMany(15, function() {
@@ -64,25 +65,25 @@ class AppFixtures extends Fixture
                 'commerce' => $commerce
             ]);
 
+            // Product restrictions
+            foreach ($products as $product) {
+                $restrictions = [];
+                $restrictions = array_filter(AlimentaryRestriction::cases(), function() {
+                    return rand(1, 4) < 4;
+                });
+                if (empty($restrictions)) $restrictions = [AlimentaryRestriction::CELIAC];
+                foreach ($restrictions as $restriction) {
+                    ProductRestrictionFactory::createOne([
+                        'product' => $product,
+                        'restriction' => $restriction
+                    ]);
+                }
+            }
+            
             // Reviews
             ReviewFactory::createMany(rand(0,5), [
                 'commerce' => $commerce
             ]);
-        }
-
-        // Product restrictions
-        foreach ($products as $product) {
-            $restrictions = [];
-            $restrictions = array_filter(AlimentaryRestriction::cases(), function() {
-                return rand(1, 4) < 4;
-            });
-            if (empty($restrictions)) $restrictions = [AlimentaryRestriction::CELIAC];
-            foreach ($restrictions as $restriction) {
-                ProductRestrictionFactory::createOne([
-                    'product' => $product,
-                    'restriction' => $restriction
-                ]);
-            }
         }
     }
 }

@@ -6,6 +6,8 @@ use App\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 class Product
@@ -13,6 +15,7 @@ class Product
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['product:list'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'products')]
@@ -20,18 +23,23 @@ class Product
     private ?Commerce $commerce = null;
 
     #[ORM\Column(length: 50)]
+    #[Groups(['product:list'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 50)]
+    #[Groups(['product:list'])]
     private ?string $brand = null;
 
     #[ORM\Column(length: 50)]
+    #[Groups(['product:list'])]
     private ?string $category = null;
 
     #[ORM\Column]
+    #[Groups(['product:list'])]
     private ?bool $verified = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['product:list'])]
     private ?string $imagePath = null;
 
     /**
@@ -187,5 +195,14 @@ class Product
         }
 
         return $this;
+    }
+
+    #[Groups(['product:list'])]
+    #[SerializedName('aptFor')]
+    public function getAptForValues(): array
+    {
+        return $this->aptFor
+            ->map(fn(ProductRestriction $r) => $r->getRestriction()->value)
+            ->toArray();
     }
 }

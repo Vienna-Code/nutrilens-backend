@@ -16,6 +16,18 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
+    public function findByFilters($filters): array
+    {
+        $qb = $this->createQueryBuilder('p');
+
+        if (!empty($filters['commerce'])) {
+            $qb->andWhere('IDENTITY(p.commerce) = :commerceId')
+                ->setParameter('commerceId', $filters['commerce']);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
     //    /**
     //     * @return Product[] Returns an array of Product objects
     //     */
