@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\Dto\Products;
-use App\Repository\ProductRepository;
+use App\Dto\Reviews;
+use App\Repository\ReviewRepository;
 use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -12,31 +12,31 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-final class ProductController extends AbstractController
+final class ReviewController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $em,
         private ValidationService $validation,
         private LoggerInterface $logger,
-        private ProductRepository $productRepository,
+        private ReviewRepository $reviewRepository,
     ) {}
 
-    #[Route('/products', methods: ['GET'], name: 'app_product_list')]
+    #[Route('/reviews', methods: ['GET'], name: 'app_review_list')]
     public function list(Request $request): JsonResponse
     {
         // Obtener parametros URL
         $data = $request->query->all();
 
         // Validación con DTO
-        $errors = $this->validation->validate(new Products\ListProducts($data));
+        $errors = $this->validation->validate(new Reviews\ListReviews($data));
         if ($errors) return $errors;
 
-        // Encontrar productos
-        $products = $this->productRepository->findByFilters($data);
+        // Encontrar reviews
+        $reviews = $this->reviewRepository->findByFilters($data);
 
         // Responder
         return $this->json([
-            'data' => $products
-        ], 200, [], ['groups' => ['product:list']]);
+            'data' => $reviews
+        ], 200, [], ['groups' => ['review:list']]);
     }
 }

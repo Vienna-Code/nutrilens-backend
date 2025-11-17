@@ -55,11 +55,18 @@ symfony serve
 
 - ``POST /auth/logout``: Invalida la cookie enviada en el header, terminando la sesión.
 
+- ``GET /auth/me``: Retorna información de la cookie enviada
+
 - ``GET /commerces``: Obtener lista de comercios
   - lat: string *(Rango de latitud en el mapa, dos floats dividido por una coma)*
   - lon: string *(Rango de longitud en el mapa, dos floats dividido por una coma)*
   - unverified *(Agregar a la query '&unverified' para incluir comercios no verificados)*
 
+- ``GET /commerces/{id}``: Obtener un comercio & sus imagenes
+
 - ``GET /products``: Obtener lista de productos
   - commerce: int *(Comercio al cual pertenecen los productos)*
   - unverified *(Agregar a la query '&unverified' para incluir productos no verificados)*
+
+- ``GET /reviews``: Obtener lista de reviews
+  - commerce: int *(Comercio al cual pertenecen los reviews)*

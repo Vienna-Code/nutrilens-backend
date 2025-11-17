@@ -22,7 +22,11 @@ class CommerceRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('c')
             ->innerJoin('c.commerceSchedules', 'cs')
-            ->addSelect('cs');
+            ->addSelect('cs')
+            ->leftJoin('c.reviews', 'r')
+            ->addSelect('COUNT(r.id) AS reviewsCount')
+            ->addSelect('SUM(CASE WHEN r.positive = 1 THEN 1 ELSE 0 END) AS positiveCount')
+            ->groupBy('c.id');
 
         // Rango de latitud-longitud
         if (isset($filters['lat'], $filters['lon'])) {
@@ -41,6 +45,18 @@ class CommerceRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getResult();
+    }
+
+    public function findOneById(int $id)
+    {
+        return $this->createQueryBuilder('c')
+            ->leftJoin('c.reviews', 'r')
+            ->addSelect('COUNT(r.id) AS reviewsCount')
+            ->addSelect('SUM(CASE WHEN r.positive = 1 THEN 1 ELSE 0 END) AS positiveCount')
+            ->andWhere('c.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
     //    /**

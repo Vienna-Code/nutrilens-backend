@@ -15,52 +15,56 @@ class Commerce
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private ?string $type = null;
 
     #[ORM\Column]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private ?float $coordsLat = null;
 
     #[ORM\Column]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private ?float $coordsLon = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private ?string $address = null;
 
     #[ORM\Column]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private ?bool $verified = null;
 
     #[ORM\Column]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private array $contactInfo = [];
 
     #[ORM\Column]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private array $paymentMethods = [];
+
+    #[Groups(['commerce:read', 'commerce:list'])]
+    private ?int $rating = null;
 
     /**
      * @var Collection<int, CommerceImage>
      */
     #[ORM\OneToMany(targetEntity: CommerceImage::class, mappedBy: 'commerce', orphanRemoval: true)]
+    #[Groups(['commerce:read'])]
     private Collection $commerceImages;
 
     /**
      * @var Collection<int, CommerceSchedule>
      */
     #[ORM\OneToMany(targetEntity: CommerceSchedule::class, mappedBy: 'commerce', orphanRemoval: true)]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private Collection $commerceSchedules;
 
     /**
@@ -337,6 +341,18 @@ class Commerce
                 $review->setCommerce(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getRating(): ?int
+    {
+        return $this->rating;
+    }
+
+    public function setRating(int $total, int $positive): static
+    {
+        $this->rating = $total === 0 ? 0 : round($positive / $total * 100);
 
         return $this;
     }

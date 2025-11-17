@@ -41,6 +41,7 @@ final class ReviewFactory extends PersistentObjectFactory
             'updatedAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
             'useful' => (int) round(15 * pow(mt_rand() / mt_getrandmax(), 3)),
             'visibility' => Visibility::PUBLIC,
+            'user' => UserFactory::random(),
         ];
     }
 

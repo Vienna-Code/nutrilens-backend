@@ -16,6 +16,20 @@ class ReviewRepository extends ServiceEntityRepository
         parent::__construct($registry, Review::class);
     }
 
+    public function findByFilters($filters): array
+    {
+        $qb = $this->createQueryBuilder('r')
+            ->leftJoin('r.user', 'u')
+            ->addSelect('u');
+
+        if (!empty($filters['commerce'])) {
+            $qb->andWhere('IDENTITY(r.commerce) = :commerceId')
+            ->setParameter('commerceId', $filters['commerce']);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
 //    /**
 //     * @return Review[] Returns an array of Review objects
 //     */

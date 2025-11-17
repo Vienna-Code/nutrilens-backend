@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Dto\Commerces;
+use App\Entity\Commerce;
 use App\Repository\CommerceRepository;
 use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,6 +35,12 @@ final class CommerceController extends AbstractController
         // Encontrar comercios
         $commerces = $this->commerceRepository->findByFilters($data);
 
+        // Setear rating
+        foreach ($commerces as &$commerce) {
+            $commerce[0]->setRating($commerce['reviewsCount'],$commerce['positiveCount']);
+            $commerce = $commerce[0];
+        }
+
         // Responder
         return $this->json([
             'data' => $commerces
@@ -41,9 +48,24 @@ final class CommerceController extends AbstractController
     }
 
     #[Route('/commerces/{id}', methods: ['GET'], name: 'app_commerce_get')]
-    public function get(): JsonResponse
+    public function get(int $id): JsonResponse
     {
-        return $this->json([]);
+        // Encontrar comercio
+        $commerce = $this->commerceRepository->findOneById($id);
+        if (!$commerce) {
+            return $this->json([
+                'error' => ['message' => 'Comercio no encontrado.']
+            ], 404);
+        }
+        
+        // Setear rating
+        $commerce[0]->setRating($commerce['reviewsCount'],$commerce['positiveCount']);
+        $commerce = $commerce[0];
+
+        // Responder
+        return $this->json([
+            'data' => $commerce
+        ], 200, [], ['groups' => ['commerce:read']]);
     }
 
     #[Route('/commerces', methods: ['POST'], name: 'app_commerce_post')]
