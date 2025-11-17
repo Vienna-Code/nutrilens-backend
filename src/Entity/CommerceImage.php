@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\CommerceImageRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CommerceImageRepository::class)]
 class CommerceImage
@@ -18,6 +19,7 @@ class CommerceImage
     private ?Commerce $commerce = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['commerce:read'])]
     private ?string $imagePath = null;
 
     public function getId(): ?int

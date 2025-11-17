@@ -20,15 +20,15 @@ class CommerceSchedule
     private ?Commerce $commerce = null;
 
     #[ORM\Column]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private ?int $weekday = null;
 
     #[ORM\Column(type: Types::TIME_IMMUTABLE, nullable: true)]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private ?\DateTimeImmutable $opensAt = null;
 
     #[ORM\Column(type: Types::TIME_IMMUTABLE, nullable: true)]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private ?\DateTimeImmutable $closesAt = null;
 
     public function getId(): ?int

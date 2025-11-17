@@ -60,6 +60,9 @@ symfony serve
   - lon: string *(Rango de longitud en el mapa, dos floats dividido por una coma)*
   - unverified *(Agregar a la query '&unverified' para incluir comercios no verificados)*
 
+- ``GET /commerces/{id}``: Obtener un comercio & sus imagenes
+
 - ``GET /products``: Obtener lista de productos
   - commerce: int *(Comercio al cual pertenecen los productos)*
   - unverified *(Agregar a la query '&unverified' para incluir productos no verificados)*
+

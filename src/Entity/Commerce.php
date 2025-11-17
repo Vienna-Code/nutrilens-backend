@@ -15,52 +15,53 @@ class Commerce
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private ?string $type = null;
 
     #[ORM\Column]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private ?float $coordsLat = null;
 
     #[ORM\Column]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private ?float $coordsLon = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private ?string $address = null;
 
     #[ORM\Column]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private ?bool $verified = null;
 
     #[ORM\Column]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private array $contactInfo = [];
 
     #[ORM\Column]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private array $paymentMethods = [];
 
     /**
      * @var Collection<int, CommerceImage>
      */
     #[ORM\OneToMany(targetEntity: CommerceImage::class, mappedBy: 'commerce', orphanRemoval: true)]
+    #[Groups(['commerce:read'])]
     private Collection $commerceImages;
 
     /**
      * @var Collection<int, CommerceSchedule>
      */
     #[ORM\OneToMany(targetEntity: CommerceSchedule::class, mappedBy: 'commerce', orphanRemoval: true)]
-    #[Groups(['commerce:list'])]
+    #[Groups(['commerce:read', 'commerce:list'])]
     private Collection $commerceSchedules;
 
     /**
