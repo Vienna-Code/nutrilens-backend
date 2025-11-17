@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'username_unique_idx', columns: ['username'])]
@@ -20,9 +21,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['review:read', 'review:list'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 40)]
+    #[Groups(['review:read', 'review:list'])]
     private ?string $username = null;
 
     #[ORM\Column(length: 320)]
@@ -50,6 +53,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $profile_picture = null;
 
     #[ORM\Column]
+    #[Groups(['review:read', 'review:list'])]
     private ?int $points = null;
 
     /**

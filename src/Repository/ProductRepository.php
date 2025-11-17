@@ -30,7 +30,6 @@ class ProductRepository extends ServiceEntityRepository
             $qb->andWhere('p.verified = :verified')->setParameter('verified', 1);
         }
 
-
         return $qb->getQuery()->getResult();
     }
 

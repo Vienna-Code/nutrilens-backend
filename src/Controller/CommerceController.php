@@ -35,6 +35,12 @@ final class CommerceController extends AbstractController
         // Encontrar comercios
         $commerces = $this->commerceRepository->findByFilters($data);
 
+        // Setear rating
+        foreach ($commerces as &$commerce) {
+            $commerce[0]->setRating($commerce['reviewsCount'],$commerce['positiveCount']);
+            $commerce = $commerce[0];
+        }
+
         // Responder
         return $this->json([
             'data' => $commerces
@@ -44,14 +50,19 @@ final class CommerceController extends AbstractController
     #[Route('/commerces/{id}', methods: ['GET'], name: 'app_commerce_get')]
     public function get(int $id): JsonResponse
     {
-        $commerce = $this->commerceRepository->find($id);
-
+        // Encontrar comercio
+        $commerce = $this->commerceRepository->findOneById($id);
         if (!$commerce) {
             return $this->json([
                 'error' => ['message' => 'Comercio no encontrado.']
             ], 404);
         }
+        
+        // Setear rating
+        $commerce[0]->setRating($commerce['reviewsCount'],$commerce['positiveCount']);
+        $commerce = $commerce[0];
 
+        // Responder
         return $this->json([
             'data' => $commerce
         ], 200, [], ['groups' => ['commerce:read']]);

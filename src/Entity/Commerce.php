@@ -50,6 +50,9 @@ class Commerce
     #[Groups(['commerce:read', 'commerce:list'])]
     private array $paymentMethods = [];
 
+    #[Groups(['commerce:read', 'commerce:list'])]
+    private ?int $rating = null;
+
     /**
      * @var Collection<int, CommerceImage>
      */
@@ -338,6 +341,18 @@ class Commerce
                 $review->setCommerce(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getRating(): ?int
+    {
+        return $this->rating;
+    }
+
+    public function setRating(int $total, int $positive): static
+    {
+        $this->rating = $total === 0 ? 0 : round($positive / $total * 100);
 
         return $this;
     }

@@ -66,3 +66,5 @@ symfony serve
   - commerce: int *(Comercio al cual pertenecen los productos)*
   - unverified *(Agregar a la query '&unverified' para incluir productos no verificados)*
 
+- ``GET /reviews``: Obtener lista de reviews
+  - commerce: int *(Comercio al cual pertenecen los reviews)*

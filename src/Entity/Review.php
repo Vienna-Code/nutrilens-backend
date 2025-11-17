@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ReviewRepository;
 use Doctrine\ORM\Mapping as ORM;
 use \App\Enum\Visibility;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ReviewRepository::class)]
 class Review
@@ -18,24 +19,31 @@ class Review
     private ?Commerce $commerce = null;
 
     #[ORM\ManyToOne(inversedBy: 'reviews')]
+    #[Groups(['review:read', 'review:list'])]
     private ?User $user = null;
 
     #[ORM\Column]
+    #[Groups(['review:read', 'review:list'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
+    #[Groups(['review:read', 'review:list'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\Column]
+    #[Groups(['review:read', 'review:list'])]
     private ?bool $positive = null;
 
     #[ORM\Column(length: 500)]
+    #[Groups(['review:read', 'review:list'])]
     private ?string $content = null;
 
     #[ORM\Column]
+    #[Groups(['review:read', 'review:list'])]
     private ?int $useful = null;
 
     #[ORM\Column(enumType: Visibility::class)]
+    #[Groups(['review:read', 'review:list'])]
     private ?Visibility $visibility = null;
 
     public function getId(): ?int
