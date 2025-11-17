@@ -33,8 +33,10 @@ final class AuthController extends AbstractController
     ) {}
 
     #[Route('/signup', methods: ['POST'], name: 'app_auth_signup')]
-    public function signUp(Request $request): JsonResponse
-    {
+    public function signUp(
+        Request $request,
+        Security $security,
+    ): JsonResponse {
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
         
@@ -70,12 +72,13 @@ final class AuthController extends AbstractController
         }
 
         // TODO: Verificación con mail
+        $security->login($user);
 
         // Responder
         return $this->json([
             'message' => 'Usuario registrado correctamente.',
-            'data' => []
-        ], 201);
+            'data' => $user,
+        ], 201, [], ['groups' => ['user:read']]);
     }
 
     #[Route('/login', methods: ['POST'], name: 'app_auth_login')]
@@ -111,10 +114,27 @@ final class AuthController extends AbstractController
 
         // Responder
         return $this->json([
-            'message' => 'Ingreso exitoso.'
-        ], 200);
+            'message' => 'Ingreso exitoso.',
+            'data' => $user,
+        ], 200, [], ['groups' => ['user:read']]);
     }
 
+    #[Route('/me', methods: ['GET'], name: 'app_auth_me')]
+    public function me(Security $security): JsonResponse
+    {
+        $user = $security->getUser();
+
+        if (!$user) {
+            return $this->json([
+                'error' => ['message' => 'No autenticado.']
+            ], 401);
+        }
+
+        return $this->json([
+            'data' => $user,
+        ], 200, [], ['groups' => ['user:read']]);
+    }
+    
     #[Route('/logout-success', name: 'app_auth_logout_success')]
     public function logOutSuccess(Request $request): Response
     {
@@ -127,4 +147,5 @@ final class AuthController extends AbstractController
             'error' => ['message' => 'Credenciales inválidas.']
         ], 401);
     }
+
 }
