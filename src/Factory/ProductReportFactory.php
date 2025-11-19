@@ -37,6 +37,7 @@ final class ProductReportFactory extends PersistentObjectFactory
         return [
             'date' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
             'product' => ProductFactory::new(),
+            'user' => UserFactory::random(),
             'type' => self::faker()->randomElement(ReportType::cases()),
         ];
     }

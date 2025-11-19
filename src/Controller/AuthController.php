@@ -78,7 +78,7 @@ final class AuthController extends AbstractController
         return $this->json([
             'message' => 'Usuario registrado correctamente.',
             'data' => $user,
-        ], 201, [], ['groups' => ['user:read']]);
+        ], 201, [], ['groups' => ['user:create']]);
     }
 
     #[Route('/login', methods: ['POST'], name: 'app_auth_login')]
@@ -116,7 +116,7 @@ final class AuthController extends AbstractController
         return $this->json([
             'message' => 'Ingreso exitoso.',
             'data' => $user,
-        ], 200, [], ['groups' => ['user:read']]);
+        ], 200, [], ['groups' => ['user:create']]);
     }
 
     #[Route('/me', methods: ['GET'], name: 'app_auth_me')]
@@ -132,7 +132,7 @@ final class AuthController extends AbstractController
 
         return $this->json([
             'data' => $user,
-        ], 200, [], ['groups' => ['user:read']]);
+        ], 200, [], ['groups' => ['user:create']]);
     }
     
     #[Route('/logout-success', name: 'app_auth_logout_success')]

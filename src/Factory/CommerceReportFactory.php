@@ -35,7 +35,8 @@ final class CommerceReportFactory extends PersistentObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'commerce' => CommerceFactory::new(),
+            'commerce' => CommerceFactory::random(),
+            'user' => UserFactory::random(),
             'date' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
             'type' => self::faker()->randomElement(ReportType::cases()),
         ];

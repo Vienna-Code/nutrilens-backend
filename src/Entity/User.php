@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Enum\AlimentaryRestriction;
+use App\Enum\UserRank;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -21,15 +22,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['user:read', 'review:read', 'review:list'])]
+    #[Groups(['user:create', 'review:read', 'review:list'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 40)]
-    #[Groups(['user:read', 'review:read', 'review:list'])]
+    #[Groups(['user:create', 'review:read', 'review:list'])]
     private ?string $username = null;
 
     #[ORM\Column(length: 320)]
-    #[Groups(['user:read'])]
+    #[Groups(['user:create'])]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
@@ -39,26 +40,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $verification = null;
 
     #[ORM\Column]
-    #[Groups(['user:read'])]
+    #[Groups(['user:create'])]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[Groups(['user:create'])]
+    private ?UserRank $userRank = null;
 
     /**
      * @var list<string> The user roles
      */
     #[ORM\Column]
-    #[Groups(['user:read'])]
+    #[Groups(['user:create'])]
     private array $roles = [];
 
     #[ORM\Column(type: Types::JSON, enumType: AlimentaryRestriction::class)]
-    #[Groups(['user:read'])]
+    #[Groups(['user:create'])]
     private array $alimentaryRestrictions = [];
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['user:read'])]
-    private ?string $profile_picture = null;
+    #[Groups(['user:create'])]
+    private ?string $profilePicture = null;
 
     #[ORM\Column]
-    #[Groups(['user:read', 'review:read', 'review:list'])]
+    #[Groups(['user:create', 'review:read', 'review:list'])]
     private ?int $points = null;
 
     /**
@@ -211,12 +215,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getProfilePicture(): ?string
     {
-        return $this->profile_picture;
+        return $this->profilePicture;
     }
 
-    public function setProfilePicture(?string $profile_picture): static
+    public function setProfilePicture(?string $profilePicture): static
     {
-        $this->profile_picture = $profile_picture;
+        $this->profilePicture = $profilePicture;
 
         return $this;
     }
@@ -231,6 +235,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->points = $points;
 
         return $this;
+    }
+
+    public function getUserRank(): ?UserRank
+    {
+        return match (true) {
+            $this->points < 200   => UserRank::BRONZE,
+            $this->points < 500   => UserRank::SILVER,
+            $this->points < 1000  => UserRank::GOLD,
+            default               => UserRank::PLATINUM,
+        };
     }
 
     /**

@@ -4,7 +4,9 @@ namespace App\DataFixtures;
 
 use App\Entity\Product;
 use App\Enum\AlimentaryRestriction;
+use App\Enum\ReportType;
 use App\Factory\CommerceFactory;
+use App\Factory\CommerceReportFactory;
 use App\Factory\CommerceScheduleFactory;
 use App\Factory\ProductFactory;
 use App\Factory\ProductRestrictionFactory;
@@ -47,8 +49,8 @@ class AppFixtures extends Fixture
         // Commerce
         $commerces = CommerceFactory::createMany(20);
 
-        // CommerceSchedule
         foreach ($commerces as $commerce) {
+            // CommerceSchedule
             for ($i = 0 ; $i <= 6 ; $i++) {
                 if (rand(1,7) === 1) continue;
                 CommerceScheduleFactory::createOne([
@@ -56,15 +58,38 @@ class AppFixtures extends Fixture
                     'weekday' => $i
                 ]);
             }
-        }
 
-        foreach ($commerces as $commerce) {
+            // CommerceReports
+            CommerceReportFactory::createOne([
+                'commerce' => $commerce,
+                'user' => $users[array_rand($users)],
+                'type' => ReportType::SUBMISSION,
+                'date' => DateTimeImmutable::createFromTimestamp(time()-100),
+            ]);
+            if ($commerce->isVerified() === false) {
+                CommerceReportFactory::createOne([
+                    'commerce' => $commerce,
+                    'user' => $users[array_rand($users)],
+                    'type' => ReportType::REBUTTAL
+                ]);
+                continue;
+            }
+            CommerceReportFactory::createOne([
+                'commerce' => $commerce,
+                'user' => $users[array_rand($users)],
+                'type' => ReportType::CONFIRMATION
+            ]);
+            CommerceReportFactory::createOne([
+                'commerce' => $commerce,
+                'user' => $admin,
+                'type' => ReportType::VERIFICATION
+            ]);
+
             // Products
-            if ($commerce->isVerified() === false) continue;
             $products = ProductFactory::createMany(rand(1,5), [
                 'commerce' => $commerce
             ]);
-
+    
             // Product restrictions
             foreach ($products as $product) {
                 $restrictions = [];
