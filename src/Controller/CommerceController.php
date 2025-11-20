@@ -43,12 +43,6 @@ final class CommerceController extends AbstractController
         // Encontrar comercios
         $commerces = $this->commerceRepository->findByFilters($data);
 
-        // Setear rating
-        foreach ($commerces as &$commerce) {
-            $commerce[0]->setRating($commerce['reviewsCount'],$commerce['positiveCount']);
-            $commerce = $commerce[0];
-        }
-
         // Responder
         return $this->json([
             'data' => $commerces
@@ -65,10 +59,6 @@ final class CommerceController extends AbstractController
                 'error' => ['message' => 'Comercio no encontrado.']
             ], 404);
         }
-        
-        // Setear rating
-        $commerce[0]->setRating($commerce['reviewsCount'],$commerce['positiveCount']);
-        $commerce = $commerce[0];
 
         // Responder
         return $this->json([

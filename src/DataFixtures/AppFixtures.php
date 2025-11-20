@@ -106,9 +106,17 @@ class AppFixtures extends Fixture
             }
             
             // Reviews
-            ReviewFactory::createMany(rand(0,5), [
+            $reviews = ReviewFactory::createMany(rand(0,5), [
                 'commerce' => $commerce
             ]);
+            foreach ($reviews as $review) {
+                $commerce->setTotalReviews(totalReviews: $commerce->getTotalReviews() + 1);
+                if ($review->isPositive()) {
+                    $commerce->setPositiveReviews($commerce->getPositiveReviews() + 1);
+                }
+            }
+            $manager->persist($commerce);
         }
+        $manager->flush();
     }
 }

@@ -50,9 +50,6 @@ class Commerce
     #[Groups(['commerce:create', 'commerce:read', 'commerce:list'])]
     private array $paymentMethods = [];
 
-    #[Groups(['commerce:read', 'commerce:list'])]
-    private ?int $rating = null;
-
     /**
      * @var Collection<int, CommerceImage>
      */
@@ -84,6 +81,14 @@ class Commerce
      */
     #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'commerce')]
     private Collection $reviews;
+
+    #[ORM\Column]
+    #[Groups(['commerce:read', 'commerce:list'])]
+    private ?int $totalReviews = null;
+
+    #[ORM\Column]
+    #[Groups(['commerce:read', 'commerce:list'])]
+    private ?int $positiveReviews = null;
 
     public function __construct()
     {
@@ -345,14 +350,26 @@ class Commerce
         return $this;
     }
 
-    public function getRating(): ?int
+    public function getTotalReviews(): ?int
     {
-        return $this->rating;
+        return $this->totalReviews;
     }
 
-    public function setRating(int $total, int $positive): static
+    public function setTotalReviews(int $totalReviews): static
     {
-        $this->rating = $total === 0 ? 0 : round($positive / $total * 100);
+        $this->totalReviews = $totalReviews;
+
+        return $this;
+    }
+
+    public function getPositiveReviews(): ?int
+    {
+        return $this->positiveReviews;
+    }
+
+    public function setPositiveReviews(int $positiveReviews): static
+    {
+        $this->positiveReviews = $positiveReviews;
 
         return $this;
     }

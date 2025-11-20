@@ -57,9 +57,14 @@ symfony serve
 
 - ``GET /auth/me``: Retorna información de la cookie enviada
 
-- ``GET /commerces``: Obtener lista de comercios
-  - **lat**: string *(Rango de latitud en el mapa, dos floats dividido por una coma)*
-  - **lon**: string *(Rango de longitud en el mapa, dos floats dividido por una coma)*
+- `GET /commerces`: Obtener lista de comercios
+  - **lat**: string *(Rango de latitud en el mapa, dos floats divididos por una coma)*
+  - **lon**: string *(Rango de longitud en el mapa, dos floats divididos por una coma)*
+  - **name**: string *(Filtrar por nombre del comercio, búsqueda parcial)*
+  - **minPrice**: integer *(Precio mínimo, debe ser ≥ 0)*
+  - **maxPrice**: integer *(Precio máximo, debe ser ≥ 0)*
+  - **restrictions**: string *(Lista de restricciones separadas por comas. Ej: "celiac,diabetic,hypertension", mostraría comercios que ofrecen comida apta para estas restricciones)*
+  - **commerceTypes**: string *(Lista de tipos de comercio separados por comas. Ej: "kiosco,supermercado")*
   - **unverified**: *(Agregar a la query '&unverified' para incluir comercios no verificados)*
 
 - ``GET /commerces/{id}``: Obtener un comercio & sus imagenes

@@ -54,6 +54,10 @@ class Product
     #[ORM\OneToMany(targetEntity: ProductReport::class, mappedBy: 'product', orphanRemoval: true)]
     private Collection $productReports;
 
+    #[ORM\Column]
+    #[Groups(['product:list'])]
+    private ?int $price = null;
+
     public function __construct()
     {
         $this->aptFor = new ArrayCollection();
@@ -204,5 +208,17 @@ class Product
         return $this->aptFor
             ->map(fn(ProductRestriction $r) => $r->getRestriction()->value)
             ->toArray();
+    }
+
+    public function getPrice(): ?int
+    {
+        return $this->price;
+    }
+
+    public function setPrice(int $price): static
+    {
+        $this->price = $price;
+
+        return $this;
     }
 }

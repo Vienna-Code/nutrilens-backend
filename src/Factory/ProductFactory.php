@@ -39,6 +39,7 @@ final class ProductFactory extends PersistentObjectFactory
             'commerce' => CommerceFactory::random(),
             'name' => self::faker()->words(2, true),
             'verified' => self::faker()->boolean(90),
+            'price' => random_int(50, 2500),
         ];
     }
 

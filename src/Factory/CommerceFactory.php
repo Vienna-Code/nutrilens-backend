@@ -46,6 +46,8 @@ final class CommerceFactory extends PersistentObjectFactory
             'type' => self::faker()->randomElement([
                 'kiosco', 'kiosco', 'kiosco', 'supermercado', 'supermercado', 'restaurante'
             ]),
+            'totalReviews' => 0,
+            'positiveReviews' => 0,
             'verified' => self::faker()->boolean(80)
         ];
     }
