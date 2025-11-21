@@ -65,6 +65,7 @@ symfony serve
   - **maxPrice**: integer *(Precio máximo, debe ser ≥ 0)*
   - **restrictions**: string *(Lista de restricciones separadas por comas. Ej: "celiac,diabetic,hypertension", mostraría comercios que ofrecen comida apta para estas restricciones)*
   - **commerceTypes**: string *(Lista de tipos de comercio separados por comas. Ej: "kiosco,supermercado")*
+  - **orderBy**: string *(Por cual atributo y como ordenar los resultados: name_asc, name_desc, rating_asc, rating_desc, price_asc, price_desc)*
   - **unverified**: *(Agregar a la query '&unverified' para incluir comercios no verificados)*
 
 - ``GET /commerces/{id}``: Obtener un comercio & sus imagenes

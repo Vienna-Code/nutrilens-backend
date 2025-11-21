@@ -25,6 +25,7 @@ class CommerceRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('c')
             ->leftJoin('c.commerceSchedules', 'cs')
+            ->leftJoin('c.products', 'p')
             ->addSelect('cs');
 
         // Rango de latitud-longitud
@@ -52,8 +53,6 @@ class CommerceRepository extends ServiceEntityRepository
             isset($filters['maxPrice']) ||
             isset($filters['restrictions'])
         ) {
-            $qb->leftJoin('c.products', 'p');
-
             // Rango de precios
             if (isset($filters['minPrice']) || isset($filters['maxPrice'])) {
                 $minPrice = $filters['minPrice'] ?? 0;
@@ -87,6 +86,27 @@ class CommerceRepository extends ServiceEntityRepository
             $commerceTypes = explode(',', $filters['commerceTypes']);
             $qb->andWhere('c.type IN (:types)')
                 ->setParameter('types', $commerceTypes);
+        }
+
+        // Orden
+        if (isset($filters['orderBy'])) {
+            if (str_contains($filters['orderBy'], 'rating')) {
+                $qb->addSelect('(c.positiveReviews / NULLIF(c.totalReviews, 0)) * 100 AS HIDDEN rating')
+                    ->andWhere('c.positiveReviews > 0');
+            }
+            if (str_contains($filters['orderBy'], 'price')) {
+                $qb->andWhere('p.id IS NOT NULL');
+            }
+            [$attr, $ord] = match ($filters['orderBy'] ?? null) {
+                'name_asc'      => ['c.name', 'ASC'],
+                'name_desc'     => ['c.name', 'DESC'],
+                'rating_asc'   => ['rating', 'ASC'],
+                'rating_desc'   => ['rating', 'DESC'],
+                'price_asc'     => ['p.price', 'ASC'],
+                'price_desc'    => ['p.price', 'DESC'],
+                default         => ['c.id', 'ASC'],
+            };
+            $qb->orderBy($attr, $ord);
         }
         
         // Comercios verificados
