@@ -3,6 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\Commerce;
+use App\Enum\CommerceType;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -43,9 +44,9 @@ final class CommerceFactory extends PersistentObjectFactory
             'coordsLon' => self::faker()->randomFloat(7, -56.1954000, -56.1123000),
             'name' => self::faker()->company(),
             'paymentMethods' => array_values(array_filter(['efectivo', 'credito', 'debito'], fn() => self::faker()->boolean(80))),
-            'type' => self::faker()->randomElement([
-                'kiosco', 'kiosco', 'kiosco', 'supermercado', 'supermercado', 'restaurante'
-            ]),
+            'type' => CommerceType::tryFrom(self::faker()->randomElement([
+                'kiosk', 'kiosk', 'kiosk', 'supermarket', 'supermarket', 'restaurant'
+            ])),
             'totalReviews' => 0,
             'positiveReviews' => 0,
             'verified' => self::faker()->boolean(80)

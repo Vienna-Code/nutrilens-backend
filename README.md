@@ -91,15 +91,19 @@ symfony serve
     - Los administradores pueden cambiar toda la información del comercio
   - La verificación del comercio se hace pasando el atributo '**verified**: bool' en el JSON
 
+- ``DELETE /commerces/{id}``: Eliminar un comercio, solo para administradores
+
 - ``GET /products``: Obtener lista de productos
   - **commerce**: int *(Comercio al cual pertenecen los productos)*
   - **unverified**: *(Agregar a la query '&unverified' para incluir productos no verificados)*
+
+- ``GET /products/{id}``: Obtener un producto
 
 - ``POST /products``: Agregar un producto  
   - **commerceId**: integer *(ID del comercio al que pertenece el producto)*
   - **name**: string *(Nombre del producto)*
   - **brand**: string *(Marca del producto)*
-  - **category**: string *(Categoría del producto, ej: "comida", "bebida", etc.)*
+  - **category**: string *(Categoría del producto, ej: "food", "drink")*
   - **price**: integer *(Precio del producto, debe ser ≥ 0)*
   - **aptFor**: string[] *(Lista de restricciones alimentarias para las que el producto es apto. Ej: ["celiac", "diabetic", "hypertensive"])*
 
@@ -109,6 +113,8 @@ symfony serve
     - Los usuarios de rango Oro o Platino también pueden verificar o desverificar productos
     - Los administradores pueden cambiar toda la información del producto
   - La verificación del producto se hace pasando el atributo '**verified**: bool' en el JSON
+
+- ``DELETE /products/{id}``: Eliminar un producto, solo para administradores
 
 - ``GET /reviews``: Obtener lista de reviews
   - **commerce**: int *(Comercio al cual pertenecen los reviews)*

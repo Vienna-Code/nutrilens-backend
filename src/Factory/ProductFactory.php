@@ -3,6 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\Product;
+use App\Enum\ProductCategory;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -35,7 +36,9 @@ final class ProductFactory extends PersistentObjectFactory
     {
         return [
             'brand' => self::faker()->company(),
-            'category' => self::faker()->words(1, true),
+            'category' => ProductCategory::tryFrom(self::faker()->randomElement([
+                'food', 'food', 'drink'
+            ])),
             'commerce' => CommerceFactory::random(),
             'name' => self::faker()->words(2, true),
             'verified' => self::faker()->boolean(90),

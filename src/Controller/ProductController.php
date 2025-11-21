@@ -8,6 +8,7 @@ use App\Repository\ProductRepository;
 use App\Repository\CommerceRepository;
 use App\Service\ValidationService;
 use App\Service\ProductManager;
+use Closure;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -54,7 +55,7 @@ final class ProductController extends AbstractController
     }
 
     #[Route('/products', methods: ['POST'], name: 'app_product_post')]
-    public function post(Request $request)
+    public function post(Request $request): JsonResponse
     {
         // Control de acceso
         $user = $this->getUser(); /** @var \App\Entity\User $user */
@@ -118,5 +119,25 @@ final class ProductController extends AbstractController
             'message' => 'Producto modificado.',
             'data' => $product
         ], 200, [], ['groups' => ['product:update']]);
+    }
+
+    #[Route('/products/{id}', methods: ['DELETE'], name: 'app_product_delete')]
+    public function delete(Product $product): JsonResponse
+    {
+        // Control de acceso (SOLO ADMINS)
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json(['error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']], 401);
+        }
+        if (!\in_array('ROLE_ADMIN', $user->getRoles())) {
+            return $this->json(['error' => ['message' => 'No tienes permisos suficientes para aceder a este endpoint.']], 403);
+        }
+
+        // Eliminar producto
+        $this->productManager->delete($product);
+
+        return $this->json([
+            'message' => 'Producto eliminado.'
+        ], 200);
     }
 }

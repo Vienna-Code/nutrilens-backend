@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\CommerceType;
 use App\Repository\CommerceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -24,7 +25,7 @@ class Commerce
 
     #[ORM\Column(length: 50)]
     #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update'])]
-    private ?string $type = null;
+    private ?CommerceType $type = null;
 
     #[ORM\Column]
     #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update'])]
@@ -116,12 +117,12 @@ class Commerce
         return $this;
     }
 
-    public function getType(): ?string
+    public function getType(): ?CommerceType
     {
         return $this->type;
     }
 
-    public function setType(string $type): static
+    public function setType(CommerceType $type): static
     {
         $this->type = $type;
 

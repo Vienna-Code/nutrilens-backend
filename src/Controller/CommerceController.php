@@ -118,4 +118,24 @@ final class CommerceController extends AbstractController
             'data' => $commerce
         ], 200, [], ['groups' => ['commerce:update']]);
     }
+
+    #[Route('/commerces/{id}', methods: ['DELETE'], name: 'app_commerces_delete')]
+    public function delete(Commerce $commerce): JsonResponse
+    {
+        // Control de acceso (SOLO ADMINS)
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json(['error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']], 401);
+        }
+        if (!\in_array('ROLE_ADMIN', $user->getRoles())) {
+            return $this->json(['error' => ['message' => 'No tienes permisos suficientes para aceder a este endpoint.']], 403);
+        }
+
+        // Eliminar comercio
+        $this->commerceManager->delete($commerce);
+
+        return $this->json([
+            'message' => 'Comercio eliminado.'
+        ], 200);
+    }
 }

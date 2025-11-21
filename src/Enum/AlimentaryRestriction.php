@@ -9,5 +9,5 @@ enum AlimentaryRestriction: string
 {
     case CELIAC = 'celiac';
     case DIABETIC = 'diabetic';
-    case HYPERTENSION = 'hypertense';
+    case HYPERTENSION = 'hypertensive';
 }

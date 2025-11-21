@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\ProductCategory;
 use App\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -32,7 +33,7 @@ class Product
 
     #[ORM\Column(length: 50)]
     #[Groups(['product:read', 'product:create', 'product:list', 'product:update'])]
-    private ?string $category = null;
+    private ?ProductCategory $category = null;
 
     #[ORM\Column]
     #[Groups(['product:read', 'product:create', 'product:list', 'product:update'])]
@@ -105,12 +106,12 @@ class Product
         return $this;
     }
 
-    public function getCategory(): ?string
+    public function getCategory(): ?ProductCategory
     {
         return $this->category;
     }
 
-    public function setCategory(string $category): static
+    public function setCategory(ProductCategory $category): static
     {
         $this->category = $category;
 

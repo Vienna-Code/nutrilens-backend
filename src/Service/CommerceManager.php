@@ -6,6 +6,7 @@ use App\Entity\Commerce;
 use App\Entity\CommerceReport;
 use App\Entity\CommerceSchedule;
 use App\Entity\User;
+use App\Enum\CommerceType;
 use App\Enum\ReportType;
 use App\Enum\UserRank;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,7 +22,8 @@ class CommerceManager
         $data['verifiedUser'] =
             $user->getUserRank() === UserRank::PLATINUM || // Usuario con rango platino
             \in_array('ROLE_ADMIN', $user->getRoles()); // Administrador
-
+        
+        $data['type'] = CommerceType::tryFrom($data['type'] ?? null);
         $commerce = new Commerce();
         $commerce->setName($data['name']);
         $commerce->setType($data['type']);
@@ -61,16 +63,16 @@ class CommerceManager
     {
         $userRank = $user->getUserRank();
         $isAdmin = \in_array('ROLE_ADMIN', $user->getRoles());
-
+        
         // Usuario no es Gold, Platinum, o admin
         if (!(\in_array($userRank, [UserRank::PLATINUM, UserRank::GOLD]) || $isAdmin)) {
             return false;
         }
-
+        
         $submissionReport = new CommerceReport();
         $submissionReport->setUser($user);
         $submissionReport->setType(ReportType::MODIFICATION);
-
+        
         $commerce->setContactInfo($data['contactInfo'] ?? $commerce->getContactInfo());
         $commerce->setPaymentMethods($data['paymentMethods'] ?? $commerce->getPaymentMethods());
         if (isset($data['commerceSchedules'])) {
@@ -88,6 +90,7 @@ class CommerceManager
 
         // Funciones solo para admin
         if ($isAdmin) {
+            $data['type'] = CommerceType::tryFrom($data['type'] ?? null);
             $commerce->setName($data['name'] ?? $commerce->getName());
             $commerce->setType($data['type'] ?? $commerce->getType());
             $commerce->setCoordsLat($data['coordsLat'] ?? $commerce->getCoordsLat());
@@ -115,5 +118,11 @@ class CommerceManager
         $this->em->flush();
 
         return $commerce;
+    }
+
+    public function delete(Commerce $commerce): void
+    {
+        $this->em->remove($commerce);
+        $this->em->flush();
     }
 }

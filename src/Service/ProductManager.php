@@ -10,6 +10,7 @@ use App\Entity\ProductRestriction;
 use App\Enum\ReportType;
 use App\Enum\UserRank;
 use App\Enum\AlimentaryRestriction;
+use App\Enum\ProductCategory;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ProductManager
@@ -28,6 +29,7 @@ class ProductManager
             $userRank === UserRank::GOLD ||
             $isAdmin;
 
+        $data['category'] = ProductCategory::tryFrom($data['category'] ?? null);
         $product = new Product();
         $product->setName($data['name']);
         $product->setBrand($data['brand']);
@@ -87,6 +89,7 @@ class ProductManager
 
         // Funciones solo para admin
         if ($isAdmin) {
+            $data['category'] = ProductCategory::tryFrom($data['category'] ?? null);
             $product->setName($data['name'] ?? $product->getName());
             $product->setBrand($data['brand'] ?? $product->getBrand());
             $product->setCategory($data['category'] ?? $product->getCategory());
@@ -113,5 +116,11 @@ class ProductManager
         $this->em->flush();
 
         return $product;
+    }
+
+    public function delete(Product $product): void
+    {
+        $this->em->remove($product);
+        $this->em->flush();
     }
 }
