@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Dto\Products;
+use App\Entity\Product;
 use App\Repository\ProductRepository;
 use App\Repository\CommerceRepository;
 use App\Service\ValidationService;
@@ -23,6 +24,15 @@ final class ProductController extends AbstractController
         private ProductRepository $productRepository,
         private CommerceRepository $commerceRepository,
     ) {}
+
+    #[Route('/products/{id}', methods: ['GET'], name: 'app_product_get')]
+    public function get(Product $product): JsonResponse
+    {
+        // Responder
+        return $this->json([
+            'data' => $product
+        ], 200, [], ['groups' => ['product:read']]);
+    }
 
     #[Route('/products', methods: ['GET'], name: 'app_product_list')]
     public function list(Request $request): JsonResponse
@@ -60,15 +70,15 @@ final class ProductController extends AbstractController
         // Validacion con DTO
         // TODO
 
-        // Encontrar comercio
+        // Encontrar producto
         $commerce = $this->commerceRepository->findOneById($data['commerceId']);
         if (!$commerce) {
             return $this->json([
-                'error' => ['message' => 'Comercio no encontrado.']
+                'error' => ['message' => 'Producto no encontrado.']
             ], 404);
         }
 
-        // Agregar producto al comercio
+        // Agregar producto al producto
         $product = $this->productManager->create($data, $user, $commerce);
 
         // Responder
@@ -76,5 +86,37 @@ final class ProductController extends AbstractController
             'message' => 'Producto registrado correctamente.',
             'data' => $product,
         ], 201, [], ['groups' => ['product:create']]);
+    }
+
+    #[Route('/products/{id}', methods: ['PATCH'], name: 'app_product_patch')]
+    public function patch(Product $product, Request $request)
+    {
+        // Control de acceso
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json([
+                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
+            ], 401);
+        }
+
+        // Parseo del request JSON
+        $data = json_decode($request->getContent(), true);
+
+        // Validacion con DTO
+        // TODO
+
+        // Modificar producto
+        $product = $this->productManager->update($data, $product, $user);
+        if (!$product) {
+            return $this->json([
+                'error' => ['message' => 'No tiene la autoridad para actualizar este producto.']
+            ], 403);
+        }
+
+        // Responder
+        return $this->json([
+            'message' => 'Producto modificado.',
+            'data' => $product
+        ], 200, [], ['groups' => ['product:update']]);
     }
 }

@@ -15,7 +15,7 @@ class Product
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['product:create', 'product:list'])]
+    #[Groups(['product:read', 'product:create', 'product:list', 'product:update'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'products')]
@@ -23,23 +23,23 @@ class Product
     private ?Commerce $commerce = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['product:create', 'product:list'])]
+    #[Groups(['product:read', 'product:create', 'product:list', 'product:update'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['product:create', 'product:list'])]
+    #[Groups(['product:read', 'product:create', 'product:list', 'product:update'])]
     private ?string $brand = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['product:create', 'product:list'])]
+    #[Groups(['product:read', 'product:create', 'product:list', 'product:update'])]
     private ?string $category = null;
 
     #[ORM\Column]
-    #[Groups(['product:create', 'product:list'])]
+    #[Groups(['product:read', 'product:create', 'product:list', 'product:update'])]
     private ?bool $verified = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['product:create', 'product:list'])]
+    #[Groups(['product:read', 'product:create', 'product:list', 'product:update'])]
     private ?string $imagePath = null;
 
     /**
@@ -55,7 +55,7 @@ class Product
     private Collection $productReports;
 
     #[ORM\Column]
-    #[Groups(['product:create', 'product:list'])]
+    #[Groups(['product:read', 'product:create', 'product:list', 'product:update'])]
     private ?int $price = null;
 
     public function __construct()
@@ -201,7 +201,7 @@ class Product
         return $this;
     }
 
-    #[Groups(['product:create', 'product:list'])]
+    #[Groups(['product:read', 'product:create', 'product:list', 'product:update'])]
     #[SerializedName('aptFor')]
     public function getAptForValues(): array
     {

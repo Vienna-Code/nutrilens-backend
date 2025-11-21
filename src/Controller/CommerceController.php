@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Dto\Commerces;
 use App\Dto\_NestedObjects\ContactInfo;
 use App\Dto\_NestedObjects\CommerceSchedule;
+use App\Entity\Commerce;
 use App\Enum\UserRank;
 use App\Repository\CommerceRepository;
 use App\Service\CommerceManager;
@@ -25,16 +26,8 @@ final class CommerceController extends AbstractController
     ) {}
 
     #[Route('/commerces/{id}', methods: ['GET'], name: 'app_commerce_get')]
-    public function get(int $id): JsonResponse
+    public function get(Commerce $commerce): JsonResponse
     {
-        // Encontrar comercio
-        $commerce = $this->commerceRepository->findOneById($id);
-        if (!$commerce) {
-            return $this->json([
-                'error' => ['message' => 'Comercio no encontrado.']
-            ], 404);
-        }
-
         // Responder
         return $this->json([
             'data' => $commerce
@@ -95,7 +88,7 @@ final class CommerceController extends AbstractController
     }
 
     #[Route('/commerces/{id}', methods: ['PATCH'], name: 'app_commerce_patch')]
-    public function patch(int $id, Request $request): JsonResponse
+    public function patch(Commerce $commerce, Request $request): JsonResponse
     {
         // Control de acceso
         $user = $this->getUser(); /** @var \App\Entity\User $user */
@@ -111,14 +104,6 @@ final class CommerceController extends AbstractController
         // Validacion con DTO
         // TODO
 
-        // Encontrar comercio
-        $commerce = $this->commerceRepository->findOneById($id);
-        if (!$commerce) {
-            return $this->json([
-                'error' => ['message' => 'Comercio no encontrado.']
-            ], 404);
-        }
-
         // Modificar comercio
         $commerce = $this->commerceManager->update($data, $commerce, $user);
         if (!$commerce) {
@@ -129,7 +114,8 @@ final class CommerceController extends AbstractController
 
         // Responder
         return $this->json([
+            'message' => 'Comercio modificado.',
             'data' => $commerce
-        ], 200, [], ['groups' => ['commerce:read']]);
+        ], 200, [], ['groups' => ['commerce:update']]);
     }
 }

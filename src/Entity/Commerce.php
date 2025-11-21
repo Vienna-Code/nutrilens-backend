@@ -15,39 +15,39 @@ class Commerce
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['commerce:create', 'commerce:read', 'commerce:list'])]
+    #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['commerce:create', 'commerce:read', 'commerce:list'])]
+    #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['commerce:create', 'commerce:read', 'commerce:list'])]
+    #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update'])]
     private ?string $type = null;
 
     #[ORM\Column]
-    #[Groups(['commerce:create', 'commerce:read', 'commerce:list'])]
+    #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update'])]
     private ?float $coordsLat = null;
 
     #[ORM\Column]
-    #[Groups(['commerce:create', 'commerce:read', 'commerce:list'])]
+    #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update'])]
     private ?float $coordsLon = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['commerce:create', 'commerce:read', 'commerce:list'])]
+    #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update'])]
     private ?string $address = null;
 
     #[ORM\Column]
-    #[Groups(['commerce:create', 'commerce:read', 'commerce:list'])]
+    #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update'])]
     private ?bool $verified = null;
 
     #[ORM\Column]
-    #[Groups(['commerce:create', 'commerce:read', 'commerce:list'])]
+    #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update'])]
     private array $contactInfo = [];
 
     #[ORM\Column]
-    #[Groups(['commerce:create', 'commerce:read', 'commerce:list'])]
+    #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update'])]
     private array $paymentMethods = [];
 
     /**
@@ -61,7 +61,7 @@ class Commerce
      * @var Collection<int, CommerceSchedule>
      */
     #[ORM\OneToMany(targetEntity: CommerceSchedule::class, mappedBy: 'commerce', orphanRemoval: true, cascade: ['persist'])]
-    #[Groups(['commerce:create', 'commerce:read', 'commerce:list'])]
+    #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update'])]
     private Collection $commerceSchedules;
 
     /**

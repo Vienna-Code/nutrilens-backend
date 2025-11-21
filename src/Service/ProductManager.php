@@ -26,7 +26,6 @@ class ProductManager
         $data['verifiedUser'] =
             $userRank === UserRank::PLATINUM ||
             $userRank === UserRank::GOLD ||
-            $userRank === UserRank::SILVER ||
             $isAdmin;
 
         $product = new Product();
@@ -54,6 +53,62 @@ class ProductManager
             $product->addAptFor($restriction);
         }
 
+        $this->em->persist($product);
+        $this->em->flush();
+
+        return $product;
+    }
+
+    public function update(array &$data, Product &$product, User &$user): Product|false
+    {
+        $userRank = $user->getUserRank();
+        $isAdmin = \in_array('ROLE_ADMIN', $user->getRoles());
+
+        // Usuario es bronce
+        if ($userRank === UserRank::BRONZE && !$isAdmin) {
+            return false;
+        }
+
+        $submissionReport = new ProductReport();
+        $submissionReport->setUser($user);
+        $submissionReport->setType(ReportType::MODIFICATION);
+
+        $product->setPrice($data['price'] ?? $product->getPrice());
+        if (isset($data['aptFor'])) {
+            foreach ($product->getAptFor() as $pr) {
+                $product->removeAptFor($pr);
+            }
+            foreach ($data['aptFor'] as &$restrictionData) {
+                $productRestriction = new ProductRestriction();
+                $productRestriction->setRestriction(AlimentaryRestriction::tryFrom($restrictionData));
+                $product->addAptFor($productRestriction);
+            }
+        }
+
+        // Funciones solo para admin
+        if ($isAdmin) {
+            $product->setName($data['name'] ?? $product->getName());
+            $product->setBrand($data['brand'] ?? $product->getBrand());
+            $product->setCategory($data['category'] ?? $product->getCategory());
+            $product->setPrice($data['price'] ?? $product->getPrice());
+        }
+
+        // Verificacion del producto
+        if (
+            isset($data['verified']) &&
+            ($userRank === UserRank::PLATINUM || $userRank === UserRank::GOLD || $isAdmin) &&
+            $product->isVerified() !== $data['verified']
+        ) {
+            $product->setVerified($data['verified']);
+            if ($data['verified']) {
+                $submissionReport->setType(ReportType::VERIFICATION);
+            } else {
+                $submissionReport->setType(ReportType::UNVERIFICATION);
+            }
+        }
+
+        $product->addProductReport($submissionReport);
+        
         $this->em->persist($product);
         $this->em->flush();
 

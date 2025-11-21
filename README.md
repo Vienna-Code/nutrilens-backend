@@ -85,7 +85,7 @@ symfony serve
     - **closesAt**: string *(Fecha-hora representando la hora de cierre)*  
 
 - ``PATCH /commerces``: Actualizar un comercio
-  - Lleva los mismos parametros que el POST, solo que modifican los campos
+  - Lleva los mismos parametros que el POST
     - Los usuarios de rango Oro pueden modificar contactInfo, paymentMethods, y commerceSchedules
     - Los usuarios de rango Platino también pueden verificar o desverificar comercios
     - Los administradores pueden cambiar toda la información del comercio
@@ -102,6 +102,13 @@ symfony serve
   - **category**: string *(Categoría del producto, ej: "comida", "bebida", etc.)*
   - **price**: integer *(Precio del producto, debe ser ≥ 0)*
   - **aptFor**: string[] *(Lista de restricciones alimentarias para las que el producto es apto. Ej: ["celiac", "diabetic", "hypertensive"])*
+
+- ``PATCH /products``: Actualizar un producto
+  - Lleva los mismos parametros que el POST (excepto commerceId)
+    - Los usuarios de rango Plata pueden modificar price y aptFor
+    - Los usuarios de rango Oro o Platino también pueden verificar o desverificar productos
+    - Los administradores pueden cambiar toda la información del producto
+  - La verificación del producto se hace pasando el atributo '**verified**: bool' en el JSON
 
 - ``GET /reviews``: Obtener lista de reviews
   - **commerce**: int *(Comercio al cual pertenecen los reviews)*
