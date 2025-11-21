@@ -59,7 +59,7 @@ class CommerceRepository extends ServiceEntityRepository
                 $minPrice = $filters['minPrice'] ?? 0;
                 $maxPrice = $filters['maxPrice'] ?? 2147483647;
     
-                $qb->andWhere('p.price BETWEEN :minPrice AND :maxPrice')
+                $qb->andWhere('(p.price BETWEEN :minPrice AND :maxPrice) OR p.id IS NULL')
                     ->setParameter('minPrice', $minPrice)
                     ->setParameter('maxPrice', $maxPrice);
             }

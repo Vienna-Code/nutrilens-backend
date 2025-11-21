@@ -4,7 +4,7 @@ Backend para el proyecto NutriLens
 
 ## Setup
 
-Instalar los requisitos
+Instalar los requisitos:
 - PHP 8.4
 - MySQL
 - Composer
@@ -21,7 +21,7 @@ Instalar dependencias
 composer install
 ```
 
-Crea una copia de .env llamado '.env.local' y ajusta el driver de la base de datos
+Crea una copia de .env llamado '.env.local' y ajusta el driver de la base de datos a necesidad
 ```
 DATABASE_URL="mysql://root@127.0.0.1:3306/nutrilens?serverVersion=10.6.20-MariaDB&charset=utf8"
 ```
@@ -32,7 +32,7 @@ php bin/console doctrine:database:create
 php bin/console doctrine:migrations:migrate
 ```
 
-Popular base de datos
+Popular base de datos con datos de prueba
 ```
 php bin/console doctrine:fixtures:load
 ```
