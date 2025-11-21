@@ -53,42 +53,42 @@ class Commerce
     /**
      * @var Collection<int, CommerceImage>
      */
-    #[ORM\OneToMany(targetEntity: CommerceImage::class, mappedBy: 'commerce', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: CommerceImage::class, mappedBy: 'commerce', orphanRemoval: true, cascade: ['persist'])]
     #[Groups(['commerce:read'])]
     private Collection $commerceImages;
 
     /**
      * @var Collection<int, CommerceSchedule>
      */
-    #[ORM\OneToMany(targetEntity: CommerceSchedule::class, mappedBy: 'commerce', orphanRemoval: true)]
-    #[Groups(['commerce:read', 'commerce:list'])]
+    #[ORM\OneToMany(targetEntity: CommerceSchedule::class, mappedBy: 'commerce', orphanRemoval: true, cascade: ['persist'])]
+    #[Groups(['commerce:create', 'commerce:read', 'commerce:list'])]
     private Collection $commerceSchedules;
 
     /**
      * @var Collection<int, CommerceReport>
      */
-    #[ORM\OneToMany(targetEntity: CommerceReport::class, mappedBy: 'commerce', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: CommerceReport::class, mappedBy: 'commerce', orphanRemoval: true, cascade: ['persist'])]
     private Collection $commerceReports;
 
     /**
      * @var Collection<int, Product>
      */
-    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: 'commerce', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: 'commerce', orphanRemoval: true, cascade: ['persist'])]
     private Collection $products;
 
     /**
      * @var Collection<int, Review>
      */
-    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'commerce')]
+    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'commerce', cascade: ['persist'])]
     private Collection $reviews;
 
     #[ORM\Column]
     #[Groups(['commerce:read', 'commerce:list'])]
-    private ?int $totalReviews = null;
+    private ?int $totalReviews = 0;
 
     #[ORM\Column]
     #[Groups(['commerce:read', 'commerce:list'])]
-    private ?int $positiveReviews = null;
+    private ?int $positiveReviews = 0;
 
     public function __construct()
     {

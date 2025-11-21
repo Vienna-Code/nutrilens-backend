@@ -31,6 +31,8 @@ class CommerceRepository extends ServiceEntityRepository
         if (isset($filters['lat'], $filters['lon'])) {
             [$lat1, $lat2] = explode(',', $filters['lat']);
             [$lon1, $lon2] = explode(',', $filters['lon']);
+            if ($lat1 > $lat2) [$lat1, $lat2] = [$lat2, $lat1];
+            if ($lon1 > $lon2) [$lon1, $lon2] = [$lon2, $lon1];
             $qb->andWhere('(c.coordsLat BETWEEN :lat1 AND :lat2) AND (c.coordsLon BETWEEN :lon1 AND :lon2)')
                 ->setParameter('lat1', $lat1)
                 ->setParameter('lat2', $lat2)
@@ -98,9 +100,6 @@ class CommerceRepository extends ServiceEntityRepository
     public function findOneById(int $id)
     {
         return $this->createQueryBuilder('c')
-            ->leftJoin('c.reviews', 'r')
-            ->addSelect('COUNT(r.id) AS reviewsCount')
-            ->addSelect('SUM(CASE WHEN r.positive = 1 THEN 1 ELSE 0 END) AS positiveCount')
             ->andWhere('c.id = :id')
             ->setParameter('id', $id)
             ->getQuery()

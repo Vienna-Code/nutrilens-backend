@@ -1,0 +1,113 @@
+<?php
+
+namespace App\Service;
+
+use App\Entity\Commerce;
+use App\Entity\CommerceReport;
+use App\Entity\CommerceSchedule;
+use App\Entity\User;
+use App\Enum\ReportType;
+use App\Enum\UserRank;
+use Doctrine\ORM\EntityManagerInterface;
+
+class CommerceManager
+{
+    public function __construct(
+        private EntityManagerInterface $em,
+    ) {}
+
+    public function create(array &$data, User &$user): Commerce {
+        $commerce = new Commerce();
+        $commerce->setName($data['name']);
+        $commerce->setType($data['type']);
+        $commerce->setCoordsLat($data['coordsLat']);
+        $commerce->setCoordsLon($data['coordsLon']);
+        $commerce->setAddress($data['address']);
+        $commerce->setContactInfo($data['contactInfo']);
+        $commerce->setPaymentMethods($data['paymentMethods']);
+        $commerce->setVerified($data['verifiedUser']);
+
+        $submissionReport = new CommerceReport();
+        $submissionReport->setUser($user);
+        $submissionReport->setType(ReportType::SUBMISSION);
+        $commerce->addCommerceReport($submissionReport);
+
+        if ($data['verifiedUser']) {
+            $verificationReport = new CommerceReport();
+            $verificationReport->setType(ReportType::VERIFICATION);
+            $commerce->addCommerceReport($verificationReport);
+        }
+
+        foreach ($data['commerceSchedules'] as &$scheduleData) {
+            $schedule = new CommerceSchedule();
+            $schedule->setWeekday($scheduleData['weekday']);
+            $schedule->setOpensAt(new \DateTimeImmutable($scheduleData['opensAt']));
+            $schedule->setClosesAt(new \DateTimeImmutable($scheduleData['closesAt']));
+            $commerce->addCommerceSchedule($schedule);
+        }
+
+        $this->em->persist($commerce);
+        $this->em->flush();
+
+        return $commerce;
+    }
+
+    public function update(array &$data, Commerce &$commerce, User &$user): Commerce|false {
+        $userRank = $user->getUserRank();
+        $isAdmin = \in_array('ROLE_ADMIN', $user->getRoles());
+
+        // Usuario no es Gold, Platinum, o admin
+        if (!(\in_array($userRank, [UserRank::PLATINUM, UserRank::GOLD]) || $isAdmin)) {
+            return false;
+        }
+
+        $submissionReport = new CommerceReport();
+        $submissionReport->setUser($user);
+        $submissionReport->setType(ReportType::MODIFICATION);
+
+        $commerce->setContactInfo($data['contactInfo'] ?? $commerce->getContactInfo());
+        $commerce->setPaymentMethods($data['paymentMethods'] ?? $commerce->getPaymentMethods());
+        if (isset($data['commerceSchedules'])) {
+            foreach ($commerce->getCommerceSchedules() as $schedule) {
+                $commerce->removeCommerceSchedule($schedule);
+            }
+            foreach ($data['commerceSchedules'] as &$scheduleData) {
+                $schedule = new CommerceSchedule();
+                $schedule->setWeekday($scheduleData['weekday']);
+                $schedule->setOpensAt(new \DateTimeImmutable($scheduleData['opensAt']));
+                $schedule->setClosesAt(new \DateTimeImmutable($scheduleData['closesAt']));
+                $commerce->addCommerceSchedule($schedule);
+            }
+        }
+
+        // Funciones solo para admin
+        if ($isAdmin) {
+            $commerce->setName($data['name'] ?? $commerce->getName());
+            $commerce->setType($data['type'] ?? $commerce->getType());
+            $commerce->setCoordsLat($data['coordsLat'] ?? $commerce->getCoordsLat());
+            $commerce->setCoordsLon($data['coordsLon'] ?? $commerce->getCoordsLon());
+            $commerce->setAddress($data['address'] ?? $commerce->getAddress());
+        }
+
+        // Verificacion del comercio
+        if (
+            isset($data['verified']) &&
+            ($userRank === UserRank::PLATINUM || $isAdmin) &&
+            $commerce->isVerified() !== $data['verified']
+        ) {
+            $commerce->setVerified($data['verified']);
+            if ($data['verified']) {
+                $submissionReport->setType(ReportType::VERIFICATION);
+            } else {
+                $submissionReport->setType(ReportType::UNVERIFICATION);
+            }
+        }
+
+        $commerce->addCommerceReport($submissionReport);
+        
+        $this->em->persist($commerce);
+        $this->em->flush();
+
+        return $commerce;
+    }
+}

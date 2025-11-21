@@ -69,7 +69,7 @@ symfony serve
 
 - ``GET /commerces/{id}``: Obtener un comercio & sus imagenes
 
-- ``POST /commerces``: Agregar un comercio  
+- ``POST /commerces``: Agregar un comercio
   - **name**: string *(Nombre del comercio)*  
   - **type**: string *(Tipo de comercio)*  
   - **coordsLat**: float *(Latitud del comercio)*  
@@ -83,6 +83,13 @@ symfony serve
     - **weekday**: int *(0 = Domingo, 1 = Lunes, ..., 6 = Sábado)*  
     - **opensAt**: string *(Fecha-hora representando la hora de apertura)*  
     - **closesAt**: string *(Fecha-hora representando la hora de cierre)*  
+
+- ``PATCH /commerces``: Actualizar un comercio
+  - Lleva los mismos parametros que el POST, solo que modifican los campos
+    - Los usuarios de rango Oro pueden modificar contactInfo, paymentMethods, y commerceSchedules
+    - Los usuarios de rango Platino también pueden verificar o desverificar comercios
+    - Los administradores pueden cambiar toda la información del comercio
+  - La verificación del comercio se hace pasando el atributo '**verified**: bool' en el JSON
 
 - ``GET /products``: Obtener lista de productos
   - **commerce**: int *(Comercio al cual pertenecen los productos)*

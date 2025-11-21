@@ -20,4 +20,5 @@ enum ReportType: string
     case VERIFICATION = 'verification';
     case UNVERIFICATION = 'deverification';
     case ISSUE = 'issue';
+    case MODIFICATION = 'modification';
 }
