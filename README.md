@@ -95,5 +95,13 @@ symfony serve
   - **commerce**: int *(Comercio al cual pertenecen los productos)*
   - **unverified**: *(Agregar a la query '&unverified' para incluir productos no verificados)*
 
+- ``POST /products``: Agregar un producto  
+  - **commerceId**: integer *(ID del comercio al que pertenece el producto)*
+  - **name**: string *(Nombre del producto)*
+  - **brand**: string *(Marca del producto)*
+  - **category**: string *(Categoría del producto, ej: "comida", "bebida", etc.)*
+  - **price**: integer *(Precio del producto, debe ser ≥ 0)*
+  - **aptFor**: string[] *(Lista de restricciones alimentarias para las que el producto es apto. Ej: ["celiac", "diabetic", "hypertensive"])*
+
 - ``GET /reviews``: Obtener lista de reviews
   - **commerce**: int *(Comercio al cual pertenecen los reviews)*

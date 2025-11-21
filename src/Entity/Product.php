@@ -15,7 +15,7 @@ class Product
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['product:list'])]
+    #[Groups(['product:create', 'product:list'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'products')]
@@ -23,39 +23,39 @@ class Product
     private ?Commerce $commerce = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['product:list'])]
+    #[Groups(['product:create', 'product:list'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['product:list'])]
+    #[Groups(['product:create', 'product:list'])]
     private ?string $brand = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['product:list'])]
+    #[Groups(['product:create', 'product:list'])]
     private ?string $category = null;
 
     #[ORM\Column]
-    #[Groups(['product:list'])]
+    #[Groups(['product:create', 'product:list'])]
     private ?bool $verified = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['product:list'])]
+    #[Groups(['product:create', 'product:list'])]
     private ?string $imagePath = null;
 
     /**
      * @var Collection<int, ProductRestriction>
      */
-    #[ORM\OneToMany(targetEntity: ProductRestriction::class, mappedBy: 'product', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: ProductRestriction::class, mappedBy: 'product', orphanRemoval: true, cascade: ['persist'])]
     private Collection $aptFor;
 
     /**
      * @var Collection<int, ProductReport>
      */
-    #[ORM\OneToMany(targetEntity: ProductReport::class, mappedBy: 'product', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: ProductReport::class, mappedBy: 'product', orphanRemoval: true, cascade: ['persist'])]
     private Collection $productReports;
 
     #[ORM\Column]
-    #[Groups(['product:list'])]
+    #[Groups(['product:create', 'product:list'])]
     private ?int $price = null;
 
     public function __construct()
@@ -201,7 +201,7 @@ class Product
         return $this;
     }
 
-    #[Groups(['product:list'])]
+    #[Groups(['product:create', 'product:list'])]
     #[SerializedName('aptFor')]
     public function getAptForValues(): array
     {

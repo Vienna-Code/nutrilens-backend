@@ -16,7 +16,12 @@ class CommerceManager
         private EntityManagerInterface $em,
     ) {}
 
-    public function create(array &$data, User &$user): Commerce {
+    public function create(array &$data, User &$user): Commerce
+    {
+        $data['verifiedUser'] =
+            $user->getUserRank() === UserRank::PLATINUM || // Usuario con rango platino
+            \in_array('ROLE_ADMIN', $user->getRoles()); // Administrador
+
         $commerce = new Commerce();
         $commerce->setName($data['name']);
         $commerce->setType($data['type']);
@@ -52,7 +57,8 @@ class CommerceManager
         return $commerce;
     }
 
-    public function update(array &$data, Commerce &$commerce, User &$user): Commerce|false {
+    public function update(array &$data, Commerce &$commerce, User &$user): Commerce|false
+    {
         $userRank = $user->getUserRank();
         $isAdmin = \in_array('ROLE_ADMIN', $user->getRoles());
 

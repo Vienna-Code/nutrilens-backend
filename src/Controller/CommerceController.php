@@ -85,9 +85,6 @@ final class CommerceController extends AbstractController
         if ($errors) return $errors;
 
         // Crear comercio, horarios & reportes
-        $data['verifiedUser'] =
-            $user->getUserRank() === UserRank::PLATINUM || // Usuario con rango platino
-            \in_array('ROLE_ADMIN', $user->getRoles()); // Administrador
         $commerce = $this->commerceManager->create($data, $user);
         
         // Responder

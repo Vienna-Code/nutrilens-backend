@@ -33,6 +33,11 @@ class ProductReport
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imagePath = null;
 
+    public function __construct()
+    {
+        $this->date = new \DateTimeImmutable();
+    }
+
     public function getId(): ?int
     {
         return $this->id;

@@ -18,16 +18,20 @@ class ProductRepository extends ServiceEntityRepository
 
     public function findByFilters($filters): array
     {
-        $qb = $this->createQueryBuilder('p');
-
+        $qb = $this->createQueryBuilder('p')
+            ->addSelect('c')
+            ->addSelect('pr');
+        
         if (!empty($filters['commerce'])) {
-            $qb->andWhere('IDENTITY(p.commerce) = :commerceId')
+            $qb->leftJoin('p.commerce', 'c')
+                ->leftJoin('p.aptFor', 'pr')
+                ->andWhere('c.id = :commerceId')
                 ->setParameter('commerceId', $filters['commerce']);
         }
 
-        // Productos verificados
         if (!isset($filters['unverified'])) {
-            $qb->andWhere('p.verified = :verified')->setParameter('verified', 1);
+            $qb->andWhere('p.verified = :verified')
+                ->setParameter('verified', 1);
         }
 
         return $qb->getQuery()->getResult();
