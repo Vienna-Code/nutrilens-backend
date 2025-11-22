@@ -1,0 +1,493 @@
+{
+	"info": {
+		"_postman_id": "182ea2de-652b-452f-b0f1-322cad2fedbc",
+		"name": "Nutrilens",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31316887"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "/auth/signup",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"gd.nacho\",\r\n    \"password\": \"12345678\",\r\n    \"email\": \"mimail@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/auth/signup",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"auth",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/auth/login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "PHPSESSID=317d470316bf9ea58293699c2fa896e7",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"viennacode\",\r\n    \"password\": \"fakeuserpassword\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/auth/login",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/auth/logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/auth/logout",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/auth/me",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/auth/me",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"auth",
+								"me"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "commerces",
+			"item": [
+				{
+					"name": "/commerces",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/commerces",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"commerces"
+							],
+							"query": [
+								{
+									"key": "lat",
+									"value": "-34.8538000,-34.8938000",
+									"disabled": true
+								},
+								{
+									"key": "lon",
+									"value": "-56.1654000,-56.1954000",
+									"disabled": true
+								},
+								{
+									"key": "name",
+									"value": "a",
+									"disabled": true
+								},
+								{
+									"key": "minPrice",
+									"value": "0",
+									"disabled": true
+								},
+								{
+									"key": "maxPrice",
+									"value": "250",
+									"disabled": true
+								},
+								{
+									"key": "restrictions",
+									"value": "celiac,diabetic,hypertensive",
+									"disabled": true
+								},
+								{
+									"key": "orderBy",
+									"value": "price_asc",
+									"disabled": true
+								},
+								{
+									"key": "commerceTypes",
+									"value": "restaurant",
+									"disabled": true
+								},
+								{
+									"key": "unverified",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/commerces/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/commerces/:id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"commerces",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/commerces",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"El Kiosco de Quico\",\r\n    \"type\": \"kiosk\",\r\n    \"coordsLat\": -34.8546999,\r\n    \"coordsLon\": -56.1266276,\r\n    \"address\": \"Cerro Largo 1327\",\r\n    \"contactInfo\": {\r\n        \"number\": \"+59892874787\",\r\n        \"email\": \"kiosco@dequico.com\"\r\n    },\r\n    \"paymentMethods\": [\r\n        \"credito\",\r\n        \"debito\"\r\n    ],\r\n    \"commerceSchedules\": [\r\n        {\r\n            \"weekday\": 0,\r\n            \"opensAt\": \"1970-01-01T07:00:00+00:00\",\r\n            \"closesAt\": \"1970-01-01T23:00:00+00:00\"\r\n        },\r\n        {\r\n            \"weekday\": 1,\r\n            \"opensAt\": \"1970-01-01T09:00:00+00:00\",\r\n            \"closesAt\": \"1970-01-01T23:00:00+00:00\"\r\n        },\r\n        {\r\n            \"weekday\": 2,\r\n            \"opensAt\": \"1970-01-01T15:00:00+00:00\",\r\n            \"closesAt\": \"1970-01-01T23:00:00+00:00\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/commerces",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"commerces"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/commerces/:id",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"verified\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/commerces/:id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"commerces",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/commerces/:id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/commerces/:id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"commerces",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "products",
+			"item": [
+				{
+					"name": "/products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/products?commerce=",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"products"
+							],
+							"query": [
+								{
+									"key": "unverified",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "commerce",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/products/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/products/:id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"products",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/products",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"commerceId\": 0,\r\n    \"name\": \"Papitas\",\r\n    \"brand\": \"Americano\",\r\n    \"category\": \"food\",\r\n    \"price\": 120,\r\n    \"aptFor\": [\r\n        \"celiac\",\r\n        \"diabetic\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/products",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"products"
+							],
+							"query": [
+								{
+									"key": "unverified",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/products/:id",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"verified\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/products/:id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"products",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/products/:id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/products/:id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"products",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "reviews",
+			"item": [
+				{
+					"name": "/reviews",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/reviews?commerce=",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviews"
+							],
+							"query": [
+								{
+									"key": "commerce",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "URL",
+			"value": ""
+		}
+	]
+}
