@@ -68,7 +68,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, UserGamification>
      */
-    #[ORM\OneToMany(targetEntity: UserGamification::class, mappedBy: 'user', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: UserGamification::class, mappedBy: 'user', orphanRemoval: true, cascade: ['persist'])]
     private Collection $userGamifications;
 
     /**
@@ -86,19 +86,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, Review>
      */
-    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'user', cascade: ['persist'])]
     private Collection $reviews;
 
     /**
      * @var Collection<int, Post>
      */
-    #[ORM\OneToMany(targetEntity: Post::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: Post::class, mappedBy: 'user', cascade: ['persist'])]
     private Collection $posts;
 
     /**
      * @var Collection<int, Comment>
      */
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'user', cascade: ['persist'])]
     private Collection $comments;
 
     public function __construct()
@@ -240,8 +240,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getUserRank(): ?UserRank
     {
         return match (true) {
-            $this->points < 200   => UserRank::BRONZE,
-            $this->points < 500   => UserRank::SILVER,
+            $this->points < 100   => UserRank::BRONZE,
+            $this->points < 400   => UserRank::SILVER,
             $this->points < 1000  => UserRank::GOLD,
             default               => UserRank::PLATINUM,
         };
@@ -260,6 +260,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if (!$this->userGamifications->contains($userGamification)) {
             $this->userGamifications->add($userGamification);
             $userGamification->setUser($this);
+            $this->points += $userGamification->getPoints();
         }
 
         return $this;
@@ -272,6 +273,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             if ($userGamification->getUser() === $this) {
                 $userGamification->setUser(null);
             }
+            $this->points -= $userGamification->getPoints();
         }
 
         return $this;

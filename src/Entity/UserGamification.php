@@ -26,6 +26,11 @@ class UserGamification
     #[ORM\Column]
     private ?\DateTimeImmutable $date = null;
 
+    public function __construct()
+    {
+        $this->date = new \DateTimeImmutable();
+    }
+
     public function getId(): ?int
     {
         return $this->id;

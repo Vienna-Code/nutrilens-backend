@@ -11,12 +11,14 @@ use App\Enum\ReportType;
 use App\Enum\UserRank;
 use App\Enum\AlimentaryRestriction;
 use App\Enum\ProductCategory;
+use App\Service\GamificationManager;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ProductManager
 {
     public function __construct(
         private EntityManagerInterface $em,
+        private GamificationManager $gm,
     ) {}
 
     public function create(array &$data, User &$user, Commerce &$commerce): Product
@@ -111,6 +113,9 @@ class ProductManager
         }
 
         $product->addProductReport($submissionReport);
+        if ($submissionReport->getType() === ReportType::VERIFICATION) {
+            $this->gm->verifyProduct($product);
+        }
         
         $this->em->persist($product);
         $this->em->flush();

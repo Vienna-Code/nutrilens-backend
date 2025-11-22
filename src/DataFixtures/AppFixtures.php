@@ -9,16 +9,22 @@ use App\Factory\CommerceFactory;
 use App\Factory\CommerceReportFactory;
 use App\Factory\CommerceScheduleFactory;
 use App\Factory\ProductFactory;
+use App\Factory\ProductReportFactory;
 use App\Factory\ProductRestrictionFactory;
 use App\Factory\ReviewFactory;
 use App\Factory\UserFactory;
 use App\Factory\UserGamificationFactory;
+use App\Service\GamificationManager;
 use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
 class AppFixtures extends Fixture
 {
+    public function __construct(
+        private GamificationManager $gm
+    ) {}
+
     public function load(
         ObjectManager $manager
     ): void {
@@ -36,15 +42,6 @@ class AppFixtures extends Fixture
             ];
         });
         $unverifiedUsers = UserFactory::createMany(2);
-
-        foreach($users as $user) {
-            if ($user->getRoles() !== ['ROLE_USER']) continue;
-
-            // UserGamifications
-            UserGamificationFactory::createMany(rand(1,6), [
-                'user' => $user
-            ]);
-        }
 
         // Commerce
         $commerces = CommerceFactory::createMany(20);
@@ -64,34 +61,39 @@ class AppFixtures extends Fixture
                 'commerce' => $commerce,
                 'user' => $users[array_rand($users)],
                 'type' => ReportType::SUBMISSION,
-                'date' => DateTimeImmutable::createFromTimestamp(time()-100),
+                'date' => DateTimeImmutable::createFromTimestamp(time()-7200),
             ]);
             if ($commerce->isVerified() === false) {
                 CommerceReportFactory::createOne([
                     'commerce' => $commerce,
                     'user' => $users[array_rand($users)],
-                    'type' => ReportType::REBUTTAL
+                    'type' => ReportType::REBUTTAL,
+                    'date' => new DateTimeImmutable(),
                 ]);
                 continue;
+            } else {
+                CommerceReportFactory::createOne([
+                    'commerce' => $commerce,
+                    'user' => $users[array_rand($users)],
+                    'type' => ReportType::CONFIRMATION,
+                    'date' => DateTimeImmutable::createFromTimestamp(time()-3600),
+                ]);
+                CommerceReportFactory::createOne([
+                    'commerce' => $commerce,
+                    'user' => $admin,
+                    'type' => ReportType::VERIFICATION,
+                    'date' => new DateTimeImmutable(),
+                ]);
+                $this->gm->verifyCommerce($commerce);
             }
-            CommerceReportFactory::createOne([
-                'commerce' => $commerce,
-                'user' => $users[array_rand($users)],
-                'type' => ReportType::CONFIRMATION
-            ]);
-            CommerceReportFactory::createOne([
-                'commerce' => $commerce,
-                'user' => $admin,
-                'type' => ReportType::VERIFICATION
-            ]);
 
             // Products
             $products = ProductFactory::createMany(rand(1,5), [
                 'commerce' => $commerce
             ]);
     
-            // Product restrictions
             foreach ($products as $product) {
+                // Product restrictions
                 $restrictions = [];
                 $restrictions = array_filter(AlimentaryRestriction::cases(), function() {
                     return rand(1, 4) < 4;
@@ -102,6 +104,37 @@ class AppFixtures extends Fixture
                         'product' => $product,
                         'restriction' => $restriction
                     ]);
+                }
+
+                // ProductReports
+                ProductReportFactory::createOne([
+                    'product' => $product,
+                    'user' => $users[array_rand($users)],
+                    'type' => ReportType::SUBMISSION,
+                    'date' => DateTimeImmutable::createFromTimestamp(time()-7200),
+                ]);
+                if ($commerce->isVerified() === false) {
+                    ProductReportFactory::createOne([
+                        'product' => $product,
+                        'user' => $users[array_rand($users)],
+                        'type' => ReportType::REBUTTAL,
+                        'date' => new DateTimeImmutable(),
+                    ]);
+                    continue;
+                } else {
+                    ProductReportFactory::createOne([
+                        'product' => $product,
+                        'user' => $users[array_rand($users)],
+                        'type' => ReportType::CONFIRMATION,
+                        'date' => DateTimeImmutable::createFromTimestamp(time()-3600),
+                    ]);
+                    ProductReportFactory::createOne([
+                        'product' => $product,
+                        'user' => $admin,
+                        'type' => ReportType::VERIFICATION,
+                        'date' => new DateTimeImmutable(),
+                    ]);
+                    $this->gm->verifyProduct($product);
                 }
             }
             

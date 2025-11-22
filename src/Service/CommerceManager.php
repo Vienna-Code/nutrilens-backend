@@ -15,6 +15,7 @@ class CommerceManager
 {
     public function __construct(
         private EntityManagerInterface $em,
+        private GamificationManager $gm,
     ) {}
 
     public function create(array &$data, User &$user): Commerce
@@ -113,6 +114,9 @@ class CommerceManager
         }
 
         $commerce->addCommerceReport($submissionReport);
+        if ($submissionReport->getType() === ReportType::VERIFICATION) {
+            $this->gm->verifyCommerce($commerce);
+        }
         
         $this->em->persist($commerce);
         $this->em->flush();
