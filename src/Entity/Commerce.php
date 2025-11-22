@@ -75,6 +75,7 @@ class Commerce
      * @var Collection<int, Product>
      */
     #[ORM\OneToMany(targetEntity: Product::class, mappedBy: 'commerce', orphanRemoval: true, cascade: ['persist'])]
+    #[Groups(['commerce:read'])]
     private Collection $products;
 
     /**
