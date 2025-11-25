@@ -22,11 +22,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['user:create', 'review:read', 'review:list'])]
+    #[Groups(['user:create', 'review:create', 'review:read', 'review:list', 'review:update'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 40)]
-    #[Groups(['user:create', 'review:read', 'review:list'])]
+    #[Groups(['user:create', 'review:create', 'review:read', 'review:list', 'review:update'])]
     private ?string $username = null;
 
     #[ORM\Column(length: 320)]
@@ -43,7 +43,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:create'])]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[Groups(['user:create'])]
+    #[Groups(['user:create', 'review:create', 'review:read', 'review:list', 'review:update'])]
     private ?UserRank $userRank = null;
 
     /**
@@ -62,7 +62,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $profilePicture = null;
 
     #[ORM\Column]
-    #[Groups(['user:create', 'review:read', 'review:list'])]
+    #[Groups(['user:create', 'review:create', 'review:read', 'review:list', 'review:update'])]
     private ?int $points = null;
 
     /**

@@ -41,6 +41,22 @@
     - **opensAt**: string *(Fecha-hora representando la hora de apertura)*  
     - **closesAt**: string *(Fecha-hora representando la hora de cierre)*  
 
+- ``GET /commerce/{id}/reviews``: Obtener lista de reseñas de un comercio
+
+- ``GET /commerce/{id}/reviews/{id}``: Obtener una reseña
+
+- ``POST /commerce/{id}/reviews``: Publicar una reseña para un comercio
+  - **content**: string *(Contenido de la reseña)*
+  - **positive**: bool *(Reseña positiva o negativa?)*
+
+- ``PATCH /commerce/{id}/reviews/{id}``: Editar una reseña para un comercio
+  - Lleva los mismos parametros que el POST
+    - Solo admins o los creadores de la reseña en cuestión pueden modificarlo
+  - Los admins pueden agregar el taributo '**visibility**: enum' en el JSON (public o private) para ocultar reviews.
+  - Reviews ocultos no contarán para el rating total del comercio
+
+- ``DELETE /commerce/{id}/reviews/{id}``: Eliminar una reseña, solo para administradores
+
 - ``PATCH /commerces``: Actualizar un comercio
   - Lleva los mismos parametros que el POST
     - Los usuarios de rango Oro pueden modificar contactInfo, paymentMethods, y commerceSchedules
@@ -72,6 +88,3 @@
   - La verificación del producto se hace pasando el atributo '**verified**: bool' en el JSON
 
 - ``DELETE /products/{id}``: Eliminar un producto, solo para administradores
-
-- ``GET /reviews``: Obtener lista de reviews
-  - **commerce**: int *(Comercio al cual pertenecen los reviews)*

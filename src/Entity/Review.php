@@ -13,38 +13,46 @@ class Review
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['review:create', 'review:read', 'review:list', 'review:update'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'reviews')]
     private ?Commerce $commerce = null;
 
     #[ORM\ManyToOne(inversedBy: 'reviews')]
-    #[Groups(['review:read', 'review:list'])]
+    #[Groups(['review:create', 'review:read', 'review:list', 'review:update'])]
     private ?User $user = null;
 
     #[ORM\Column]
-    #[Groups(['review:read', 'review:list'])]
+    #[Groups(['review:create', 'review:read', 'review:list', 'review:update'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
-    #[Groups(['review:read', 'review:list'])]
+    #[Groups(['review:create', 'review:read', 'review:list', 'review:update'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\Column]
-    #[Groups(['review:read', 'review:list'])]
+    #[Groups(['review:create', 'review:read', 'review:list', 'review:update'])]
     private ?bool $positive = null;
 
     #[ORM\Column(length: 500)]
-    #[Groups(['review:read', 'review:list'])]
+    #[Groups(['review:create', 'review:read', 'review:list', 'review:update'])]
     private ?string $content = null;
 
     #[ORM\Column]
-    #[Groups(['review:read', 'review:list'])]
-    private ?int $useful = null;
+    #[Groups(['review:create', 'review:read', 'review:list', 'review:update'])]
+    private ?int $useful = 0;
 
     #[ORM\Column(enumType: Visibility::class)]
-    #[Groups(['review:read', 'review:list'])]
+    #[Groups(['review:create', 'review:read', 'review:list', 'review:update'])]
     private ?Visibility $visibility = null;
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
+        $this->visibility = Visibility::PUBLIC;
+    }
 
     public function getId(): ?int
     {

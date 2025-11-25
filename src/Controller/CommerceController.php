@@ -68,6 +68,7 @@ final class CommerceController extends AbstractController
         $data = json_decode($request->getContent(), true);
         
         // Validación con DTO
+        /*
         $errors = $this->validation->validate(new Commerces\PostCommerces($data));
         if ($errors) return $errors;
         $errors = $this->validation->validate(new ContactInfo($data['contactInfo']));
@@ -76,6 +77,7 @@ final class CommerceController extends AbstractController
             $errors = $this->validation->validate(new CommerceSchedule($commerceSchedule));
         }
         if ($errors) return $errors;
+        */
 
         // Crear comercio, horarios & reportes
         $commerce = $this->commerceManager->create($data, $user);
@@ -128,7 +130,7 @@ final class CommerceController extends AbstractController
             return $this->json(['error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']], 401);
         }
         if (!\in_array('ROLE_ADMIN', $user->getRoles())) {
-            return $this->json(['error' => ['message' => 'No tienes permisos suficientes para aceder a este endpoint.']], 403);
+            return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
         }
 
         // Eliminar comercio

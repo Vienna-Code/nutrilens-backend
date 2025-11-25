@@ -31,21 +31,22 @@ class CommerceManager
         $commerce->setCoordsLat($data['coordsLat']);
         $commerce->setCoordsLon($data['coordsLon']);
         $commerce->setAddress($data['address']);
-        $commerce->setContactInfo($data['contactInfo']);
-        $commerce->setPaymentMethods($data['paymentMethods']);
+        $commerce->setContactInfo($data['contactInfo'] ?? []);
+        $commerce->setPaymentMethods($data['paymentMethods'] ?? []);
         $commerce->setVerified($data['verifiedUser']);
-
+        
         $submissionReport = new CommerceReport();
         $submissionReport->setUser($user);
         $submissionReport->setType(ReportType::SUBMISSION);
         $commerce->addCommerceReport($submissionReport);
-
+        
         if ($data['verifiedUser']) {
             $verificationReport = new CommerceReport();
             $verificationReport->setType(ReportType::VERIFICATION);
             $commerce->addCommerceReport($verificationReport);
         }
-
+        
+        $data['commerceSchedules'] ??= [];
         foreach ($data['commerceSchedules'] as &$scheduleData) {
             $schedule = new CommerceSchedule();
             $schedule->setWeekday($scheduleData['weekday']);

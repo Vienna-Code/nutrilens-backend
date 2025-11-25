@@ -23,9 +23,21 @@ class ReviewRepository extends ServiceEntityRepository
             ->addSelect('u');
 
         if (!empty($filters['commerce'])) {
-            $qb->andWhere('IDENTITY(r.commerce) = :commerceId')
-            ->setParameter('commerceId', $filters['commerce']);
+            $qb->andWhere('IDENTITY(r.commerce) = :commerceId AND r.visibility = :visibility')
+                ->setParameter('commerceId', $filters['commerce'])
+                ->setParameter('visibility', 'public');
         }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findOneByIds($data): ?Review
+    {
+        $qb = $this->createQueryBuilder('r')
+            ->leftJoin('r.user', 'u')
+            ->addSelect('u')
+            ->andWhere('IDENTITY(r.commerce) = :commerceId')
+            ->setParameter('commerceId', $data['commerceId']);
 
         return $qb->getQuery()->getResult();
     }
