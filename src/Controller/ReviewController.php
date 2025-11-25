@@ -29,7 +29,7 @@ final class ReviewController extends AbstractController
         private ReviewManager $rm,
     ) {}
 
-    #[Route('/commerce/{idc}/reviews/{idr}', methods: ['GET'], name: 'app_review_get')]
+    #[Route('/commerces/{idc}/reviews/{idr}', methods: ['GET'], name: 'app_review_get')]
     public function get(
         #[MapEntity(mapping: ['idr' => 'id'])]
         Review $review,
@@ -40,7 +40,7 @@ final class ReviewController extends AbstractController
         ], 200, [], ['groups' => ['review:read']]);
     }
 
-    #[Route('/commerce/{idc}/reviews', methods: ['GET'], name: 'app_review_list')]
+    #[Route('/commerces/{idc}/reviews', methods: ['GET'], name: 'app_review_list')]
     public function list(Request $request): JsonResponse
     {
         // Obtener parametros URL
@@ -60,7 +60,7 @@ final class ReviewController extends AbstractController
         ], 200, [], ['groups' => ['review:list']]);
     }
 
-    #[Route('/commerce/{idc}/reviews', methods: ['POST'], name: 'app_review_post')]
+    #[Route('/commerces/{idc}/reviews', methods: ['POST'], name: 'app_review_post')]
     public function post(
         #[MapEntity(mapping: ['idc' => 'id'])]
         Commerce $commerce,
@@ -94,7 +94,7 @@ final class ReviewController extends AbstractController
         ], 201, [], ['groups' => ['review:create']]);
     }
 
-    #[Route('/commerce/{idc}/reviews/{idr}', methods: ['PATCH'], name: 'app_review_patch')]
+    #[Route('/commerces/{idc}/reviews/{idr}', methods: ['PATCH'], name: 'app_review_patch')]
     public function patch(
         //#[MapEntity(mapping: ['idc' => 'id'])]
         //Commerce $commerce,
@@ -130,7 +130,7 @@ final class ReviewController extends AbstractController
         ], 201, [], ['groups' => ['review:update']]);
     }
 
-    #[Route('/commerce/{idc}/reviews/{idr}', methods: ['DELETE'], name: 'app_review_delete')]
+    #[Route('/commerces/{idc}/reviews/{idr}', methods: ['DELETE'], name: 'app_review_delete')]
     public function delete(
         //#[MapEntity(mapping: ['idc' => 'id'])]
         //Commerce $commerce,
