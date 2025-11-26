@@ -31,8 +31,8 @@ class CommerceManager
         $commerce->setCoordsLat($data['coordsLat']);
         $commerce->setCoordsLon($data['coordsLon']);
         $commerce->setAddress($data['address']);
-        $commerce->setContactInfo($data['contactInfo'] ?? []);
-        $commerce->setPaymentMethods($data['paymentMethods'] ?? []);
+        $commerce->setContactInfo($data['contactInfo'] ?? null);
+        $commerce->setPaymentMethods($data['paymentMethods'] ?? null);
         $commerce->setVerified($data['verifiedUser']);
         
         $submissionReport = new CommerceReport();

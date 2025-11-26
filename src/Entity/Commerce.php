@@ -43,13 +43,13 @@ class Commerce
     #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update'])]
     private ?bool $verified = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update'])]
-    private array $contactInfo = [];
+    private ?array $contactInfo = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update'])]
-    private array $paymentMethods = [];
+    private ?array $paymentMethods = null;
 
     /**
      * @var Collection<int, CommerceImage>
@@ -183,7 +183,7 @@ class Commerce
         return $this->contactInfo;
     }
 
-    public function setContactInfo(array $contactInfo): static
+    public function setContactInfo(?array $contactInfo): static
     {
         $this->contactInfo = $contactInfo;
 
@@ -195,7 +195,7 @@ class Commerce
         return $this->paymentMethods;
     }
 
-    public function setPaymentMethods(array $paymentMethods): static
+    public function setPaymentMethods(?array $paymentMethods): static
     {
         $this->paymentMethods = $paymentMethods;
 

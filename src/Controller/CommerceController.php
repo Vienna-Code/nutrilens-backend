@@ -15,6 +15,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 final class CommerceController extends AbstractController
 {
@@ -23,6 +26,7 @@ final class CommerceController extends AbstractController
         private ValidationService $validation,
         private LoggerInterface $logger,
         private CommerceRepository $commerceRepository,
+        private SerializerInterface $serializer,
     ) {}
 
     #[Route('/commerces/{id}', methods: ['GET'], name: 'app_commerce_get')]
