@@ -33,7 +33,7 @@
   - **coordsLon**: float *(Longitud del comercio)*  
   - **address**: string *(Dirección)*  
   - **contactInfo**: object  
-    - **phone**: string *(Número de teléfono, ej: "+598...")*  
+    - **number**: string *(Número de teléfono, ej: "+598...")*  
     - **email**: string *(Correo de contacto)*  
   - **paymentMethods**: string[] *(Métodos de pago aceptados, ej: ["credito", "debito"])*  
   - **commerceSchedules**: object[] *(Horarios del comercio)*  
