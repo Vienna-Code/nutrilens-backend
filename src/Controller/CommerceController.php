@@ -29,6 +29,34 @@ final class CommerceController extends AbstractController
         private SerializerInterface $serializer,
     ) {}
 
+    #[Route('/commerces/check-location', methods: ['GET'], name: 'app_commerce_check_location')]
+    public function checkLocation(Request $request): JsonResponse
+    {
+        // Obtener parametros URL
+        $data = $request->query->all();
+
+        // Validación con DTO
+        // TODO
+
+        // Encontrar comercio
+        [$lat, $lon] = explode(',', $data['coords']);
+        $commerce = $this->commerceRepository->findOneBy([
+            'coordsLat' => $lat,
+            'coordsLon' => $lon
+        ]);
+
+        // Retornar información
+        if ($commerce) {
+            return $this->json([
+                'error' => ['message' => 'Ya existe un comercio en estas coordenadas.']
+            ], 409);
+        } else {
+            return $this->json([
+                'message' => 'No existe un comercio en estas coordenadas.'
+            ], 200);
+        }
+    }
+
     #[Route('/commerces/{id}', methods: ['GET'], name: 'app_commerce_get')]
     public function get(Commerce $commerce): JsonResponse
     {

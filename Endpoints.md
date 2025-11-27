@@ -26,6 +26,9 @@
 
 - ``GET /commerces/{id}``: Obtener un comercio & sus imagenes
 
+- ``GET /commerces/check-location``: Check para ver si existe un comercio en las coordenadas especificadas
+  - **coords**: string *(Coordenadas, dos floats divididos por una coma "latitud,longitud")*
+
 - ``POST /commerces``: Agregar un comercio
   - **name**: string *(Nombre del comercio)*  
   - **type**: string *(Tipo de comercio)*  
