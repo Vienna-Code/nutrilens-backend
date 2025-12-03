@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Enum\ReportType;
 use App\Repository\CommerceReportRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CommerceReportRepository::class)]
 class CommerceReport
@@ -12,6 +13,7 @@ class CommerceReport
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['commercereport:create', 'commercereport:list'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'commerceReports')]
@@ -19,18 +21,23 @@ class CommerceReport
     private ?Commerce $commerce = null;
 
     #[ORM\ManyToOne(inversedBy: 'commerceReports')]
+    #[Groups(['commercereport:create', 'commercereport:list'])]
     private ?User $user = null;
 
     #[ORM\Column]
+    #[Groups(['commercereport:create', 'commercereport:list'])]
     private ?\DateTimeImmutable $date = null;
 
     #[ORM\Column(enumType: ReportType::class)]
+    #[Groups(['commercereport:create', 'commercereport:list'])]
     private ?ReportType $type = null;
 
     #[ORM\Column(length: 1000, nullable: true)]
+    #[Groups(['commercereport:create', 'commercereport:list'])]
     private ?string $content = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['commercereport:create', 'commercereport:list'])]
     private ?string $imagePath = null;
 
     public function __construct() {

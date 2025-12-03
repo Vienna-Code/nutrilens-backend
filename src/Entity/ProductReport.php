@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Enum\ReportType;
 use App\Repository\ProductReportRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ProductReportRepository::class)]
 class ProductReport
@@ -12,6 +13,7 @@ class ProductReport
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['productreport:create', 'productreport:list'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'productReports')]
@@ -19,18 +21,23 @@ class ProductReport
     private ?Product $product = null;
 
     #[ORM\ManyToOne(inversedBy: 'productReports')]
+    #[Groups(['productreport:create', 'productreport:list'])]
     private ?User $user = null;
 
     #[ORM\Column]
+    #[Groups(['productreport:create', 'productreport:list'])]
     private ?\DateTimeImmutable $date = null;
 
     #[ORM\Column(enumType: ReportType::class)]
+    #[Groups(['productreport:create', 'productreport:list'])]
     private ?ReportType $type = null;
 
     #[ORM\Column(length: 1000, nullable: true)]
+    #[Groups(['productreport:create', 'productreport:list'])]
     private ?string $content = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['productreport:create', 'productreport:list'])]
     private ?string $imagePath = null;
 
     public function __construct()

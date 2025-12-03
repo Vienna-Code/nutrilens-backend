@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Commerce;
 use App\Entity\CommerceReport;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -14,6 +15,17 @@ class CommerceReportRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, CommerceReport::class);
+    }
+
+    public function findByFilters(array $filters, Commerce $commerce): array
+    {
+        $qb = $this->createQueryBuilder('cr')
+            ->leftJoin('cr.user', 'u')
+            ->addSelect('u')
+            ->andWhere('cr.commerce = :commerce')
+            ->setParameter('commerce', $commerce);
+
+        return $qb->getQuery()->getResult();
     }
 
     //    /**

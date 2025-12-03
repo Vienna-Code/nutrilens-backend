@@ -13,6 +13,11 @@
 
 - ``GET /auth/me``: Retorna información de la cookie enviada
 
+- ``GET /users/{id}|me``: Obtener un usuario
+
+- ``PATCH /users/{id}|me``: Actualizar información de un usuario. Los usuarios solo podrán actualizar /users/me
+  - **alimentaryRestrictions**: string[] *(De restricciones alimentarias del usuario: ["celiac", "diabetic", "hypertensive"])*
+
 - `GET /commerces`: Obtener lista de comercios
   - **lat**: string *(Rango de latitud en el mapa, dos floats divididos por una coma)*
   - **lon**: string *(Rango de longitud en el mapa, dos floats divididos por una coma)*
@@ -60,6 +65,12 @@
 
 - ``DELETE /commerces/{id}/reviews/{id}``: Eliminar una reseña, solo para administradores
 
+- ``GET /commerces/{id}/reports``: Obtener lista de reportes de un comercio
+
+- ``POST /commerces/{id}/reports``: Publicar un reporte para un comercio
+  - **content**: string *(Contenido textual del reporte)*
+  - **type**: Enum *(En el caso de que se este reportando un comercio no verificado, 'type' se setea a "confirmation" o "rebuttal" para confirmar o denegar la existencia. También se puede setear a "issue" si solo se está reportando un problema)*
+
 - ``PATCH /commerces``: Actualizar un comercio
   - Lleva los mismos parametros que el POST
     - Los usuarios de rango Oro pueden modificar contactInfo, paymentMethods, y commerceSchedules
@@ -91,3 +102,9 @@
   - La verificación del producto se hace pasando el atributo '**verified**: bool' en el JSON
 
 - ``DELETE /products/{id}``: Eliminar un producto, solo para administradores
+
+- ``GET /products/{id}/reports``: Obtener lista de reportes de un producto, solo admins
+
+- ``POST /products/{id}/reports``: Publicar un reporte para un producto
+  - **content**: string *(Contenido textual del reporte)*
+  - **type**: Enum *(En el caso de que se este reportando un producto no verificado, 'type' se setea a "confirmation" o "rebuttal" para confirmar o denegar la existencia. También se puede setear a "issue" si solo se está reportando un problema)*

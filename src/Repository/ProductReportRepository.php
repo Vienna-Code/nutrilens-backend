@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Product;
 use App\Entity\ProductReport;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -14,6 +15,17 @@ class ProductReportRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, ProductReport::class);
+    }
+
+    public function findByFilters(array $filters, Product $product): array
+    {
+        $qb = $this->createQueryBuilder('pr')
+            ->leftJoin('pr.user', 'u')
+            ->addSelect('u')
+            ->andWhere('pr.product = :product')
+            ->setParameter('product', $product);
+
+        return $qb->getQuery()->getResult();
     }
 
     //    /**

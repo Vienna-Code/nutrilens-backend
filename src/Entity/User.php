@@ -22,15 +22,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['user:create', 'review:create', 'review:read', 'review:list', 'review:update'])]
+    #[Groups(['user:create', 'user:read', 'user:update',
+                      'review:create', 'review:read', 'review:list', 'review:update',
+                      'commercereport:create', 'commercereport:list',
+                      'productreport:create', 'productreport:list'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 40)]
-    #[Groups(['user:create', 'review:create', 'review:read', 'review:list', 'review:update'])]
+    #[Groups(['user:create', 'user:read', 'user:update',
+                      'review:create', 'review:read', 'review:list', 'review:update',
+                      'commercereport:list',
+                      'productreport:list'])]
     private ?string $username = null;
 
     #[ORM\Column(length: 320)]
-    #[Groups(['user:create'])]
+    #[Groups(['user:create', 'user:update'])]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
@@ -40,29 +46,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $verification = null;
 
     #[ORM\Column]
-    #[Groups(['user:create'])]
+    #[Groups(['user:create', 'user:read', 'user:update'])]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[Groups(['user:create', 'review:create', 'review:read', 'review:list', 'review:update'])]
+    #[Groups(['user:create', 'user:read', 'user:update',
+                      'review:create', 'review:read', 'review:list', 'review:update', 
+                      'commercereport:list',
+                      'productreport:list'])]
     private ?UserRank $userRank = null;
 
     /**
      * @var list<string> The user roles
      */
     #[ORM\Column]
-    #[Groups(['user:create'])]
+    #[Groups(['user:create', 'user:read', 'user:update'])]
     private array $roles = [];
 
     #[ORM\Column(type: Types::JSON, enumType: AlimentaryRestriction::class)]
-    #[Groups(['user:create'])]
+    #[Groups(['user:create', 'user:read', 'user:update'])]
     private array $alimentaryRestrictions = [];
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['user:create'])]
+    #[Groups(['user:create', 'user:read', 'user:update'])]
     private ?string $profilePicture = null;
 
     #[ORM\Column]
-    #[Groups(['user:create', 'review:create', 'review:read', 'review:list', 'review:update'])]
+    #[Groups(['user:create', 'user:read', 'user:update',
+                      'review:create', 'review:read', 'review:list', 'review:update',
+                      'commercereport:list',
+                      'productreport:list'])]
     private ?int $points = null;
 
     /**

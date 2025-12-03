@@ -4,10 +4,13 @@ namespace App\Controller;
 
 use App\Dto\Products;
 use App\Entity\Product;
+use App\Enum\ReportType;
 use App\Repository\ProductRepository;
 use App\Repository\CommerceRepository;
+use App\Repository\ProductReportRepository;
 use App\Service\ValidationService;
 use App\Service\ProductManager;
+use App\Service\ProductReportManager;
 use Closure;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -19,10 +22,15 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ProductController extends AbstractController
 {
     public function __construct(
-        private ProductManager $productManager,
         private ValidationService $validation,
         private LoggerInterface $logger,
+
         private ProductRepository $productRepository,
+        private ProductManager $productManager,
+
+        private ProductReportRepository $pReportRepository,
+        private ProductReportManager $pReportManager,
+
         private CommerceRepository $commerceRepository,
     ) {}
 
@@ -139,5 +147,72 @@ final class ProductController extends AbstractController
         return $this->json([
             'message' => 'Producto eliminado.'
         ], 200);
+    }
+
+    #[Route('/products/{id}/reports', methods: ['GET'], name: 'app_productreport_list')]
+    public function listReports(Product $product, Request $request): JsonResponse
+    {
+        // Control de acceso
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json([
+                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
+            ], 401);
+        }
+        if (!\in_array('ROLE_ADMIN', $user->getRoles())) {
+            return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
+        }
+
+        // Obtener parametros URL
+        $data = $request->query->all();
+
+        // Validación con DTO
+        // TODO
+
+        // Encontrar reportes
+        $products = $this->pReportRepository->findByFilters($data, $product);
+
+        // Responder
+        return $this->json([
+            'data' => $products
+        ], 200, [], ['groups' => ['productreport:list']]);
+    }
+
+    #[Route('/products/{id}/reports', methods: ['POST'], name: 'app_productreport_create')]
+    public function createReport(Product $product, Request $request): JsonResponse
+    {
+        // Control de acceso
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json([
+                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
+            ], 401);
+        }
+
+        // Parseo del request JSON
+        $data = json_decode($request->getContent(), true);
+        
+        // Validación con DTO
+        // TODO
+        if ($product->isVerified()) {
+            $data['type'] = ReportType::ISSUE->value;
+        } else if (!\in_array(ReportType::tryFrom($data['type']), [
+            ReportType::CONFIRMATION,
+            ReportType::REBUTTAL,
+            ReportType::ISSUE
+        ])) {
+            return $this->json([
+                'error' => ['message' => 'Tipo de reporte inválido.']
+            ], 400);
+        }
+
+        // Crear reporte
+        $report = $this->pReportManager->create($data, $product, $user);
+        
+        // Responder
+        return $this->json([
+            'message' => 'Reporte de producto creado correctamente.',
+            'data' => $report,
+        ], 201, [], ['groups' => ['productreport:create']]);
     }
 }
