@@ -335,6 +335,10 @@ class Commerce
         if (!$this->reviews->contains($review)) {
             $this->reviews->add($review);
             $review->setCommerce($this);
+            $this->totalReviews++;
+            if ($review->isPositive()) {
+                $this->positiveReviews++;
+            }
         }
 
         return $this;
@@ -346,6 +350,10 @@ class Commerce
             // set the owning side to null (unless already changed)
             if ($review->getCommerce() === $this) {
                 $review->setCommerce(null);
+            }
+            $this->totalReviews--;
+            if ($review->isPositive()) {
+                $this->positiveReviews--;
             }
         }
 

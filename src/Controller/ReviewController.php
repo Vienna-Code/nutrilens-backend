@@ -24,16 +24,31 @@ final class ReviewController extends AbstractController
         private EntityManagerInterface $em,
         private ValidationService $validation,
         private LoggerInterface $logger,
+
         private ReviewRepository $reviewRepository,
         private CommerceRepository $commerceRepository,
         private ReviewManager $rm,
     ) {}
 
     #[Route('/commerces/{idc}/reviews/{idr}', methods: ['GET'], name: 'app_review_get')]
-    public function get(
-        #[MapEntity(mapping: ['idr' => 'id'])]
-        Review $review,
-    ): JsonResponse {
+    public function get(int $idc, string $idr): JsonResponse
+    {
+        // Encontrar reseña
+        if ($idr === 'me') {
+            $user = $this->getUser(); /** @var \App\Entity\User $user */
+            $commerce = $this->commerceRepository->find($idc);
+            if (!$user || !$commerce) {
+                throw $this->createNotFoundException();
+            }
+            $review = $this->reviewRepository->findOneBy([
+                'commerce' => $commerce,
+                'user' => $user
+            ]);
+        } else {
+            $review = $this->reviewRepository->find((int)$idr);
+        }
+        if ($review === null) throw $this->createNotFoundException();
+
         // Responder
         return $this->json([
             'data' => $review
@@ -127,7 +142,7 @@ final class ReviewController extends AbstractController
         return $this->json([
             'message' => 'Reseña actualizada correctamente.',
             'data' => $review,
-        ], 201, [], ['groups' => ['review:update']]);
+        ], 200, [], ['groups' => ['review:update']]);
     }
 
     #[Route('/commerces/{idc}/reviews/{idr}', methods: ['DELETE'], name: 'app_review_delete')]
@@ -153,5 +168,45 @@ final class ReviewController extends AbstractController
         return $this->json([
             'message' => 'Reseña eliminada.'
         ], 200);
+    }
+
+    #[Route('/commerces/{idc}/reviews/{idr}/vote', methods: ['PATCH'], name: 'app_review_vote_patch')]
+    public function votePatch(
+        //#[MapEntity(mapping: ['idc' => 'id'])]
+        //Commerce $commerce,
+        #[MapEntity(mapping: ['idr' => 'id'])]
+        Review $review,
+        Request $request,
+    ): JsonResponse {
+        // Control de acceso
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json([
+                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
+            ], 401);
+        }
+        if ($review->getUser() === $user) {
+            return $this->json([
+                'error' => ['message' => 'No puedes votar tu propia reseña']
+            ], 400);
+        }
+
+        // Parseo del request JSON
+        $data = json_decode($request->getContent(), true);
+
+        // Validación con DTO
+        // TODO
+
+        // Agregar voto
+        if ($this->rm->vote($review, $user, $data['positive'])) {
+            return $this->json([
+                'message' => 'Se votó la reseña correctamente.'
+            ], 200);
+        } else {
+            return $this->json([
+                'message' => 'La reseña ya estaba votada de esta manera, no se realizaron cambios.'
+            ], 200);
+        }
+
     }
 }

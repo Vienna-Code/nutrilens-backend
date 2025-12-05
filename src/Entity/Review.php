@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ReviewRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use \App\Enum\Visibility;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -47,11 +49,18 @@ class Review
     #[Groups(['review:create', 'review:read', 'review:list', 'review:update'])]
     private ?Visibility $visibility = null;
 
+    /**
+     * @var Collection<int, ReviewVote>
+     */
+    #[ORM\OneToMany(targetEntity: ReviewVote::class, mappedBy: 'review', cascade: ['persist'], orphanRemoval: true)]
+    private Collection $reviewVotes;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
         $this->visibility = Visibility::PUBLIC;
+        $this->reviewVotes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -151,6 +160,36 @@ class Review
     public function setVisibility(Visibility $visibility): static
     {
         $this->visibility = $visibility;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ReviewVote>
+     */
+    public function getReviewVote(): Collection
+    {
+        return $this->reviewVotes;
+    }
+
+    public function addReviewVote(ReviewVote $reviewVote): static
+    {
+        if (!$this->reviewVotes->contains($reviewVote)) {
+            $this->reviewVotes->add($reviewVote);
+            $reviewVote->setReview($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReviewVote(ReviewVote $reviewVote): static
+    {
+        if ($this->reviewVotes->removeElement($reviewVote)) {
+            // set the owning side to null (unless already changed)
+            if ($reviewVote->getReview() === $this) {
+                $reviewVote->setReview(null);
+            }
+        }
 
         return $this;
     }

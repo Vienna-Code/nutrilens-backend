@@ -67,7 +67,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private array $alimentaryRestrictions = [];
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['user:create', 'user:read', 'user:update'])]
+    #[Groups(['user:create', 'user:read', 'user:update',
+                      'review:create', 'review:read', 'review:list', 'review:update', 
+                      'commercereport:list',
+                      'productreport:list'])]
     private ?string $profilePicture = null;
 
     #[ORM\Column]
@@ -113,6 +116,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'user', cascade: ['persist'])]
     private Collection $comments;
 
+    /**
+     * @var Collection<int, ReviewVote>
+     */
+    #[ORM\OneToMany(targetEntity: ReviewVote::class, mappedBy: 'user', cascade: ['persist'], orphanRemoval: true)]
+    private Collection $reviewVotes;
+
     public function __construct()
     {
         $this->userGamifications = new ArrayCollection();
@@ -121,6 +130,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->reviews = new ArrayCollection();
         $this->posts = new ArrayCollection();
         $this->comments = new ArrayCollection();
+        $this->reviewVotes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -466,5 +476,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // @deprecated, to be removed when upgrading to Symfony 8
+    }
+
+    /**
+     * @return Collection<int, ReviewVote>
+     */
+    public function getReviewVote(): Collection
+    {
+        return $this->reviewVotes;
+    }
+
+    public function addReviewVote(ReviewVote $reviewVote): static
+    {
+        if (!$this->reviewVotes->contains($reviewVote)) {
+            $this->reviewVotes->add($reviewVote);
+            $reviewVote->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReviewVote(ReviewVote $reviewVote): static
+    {
+        if ($this->reviewVotes->removeElement($reviewVote)) {
+            // set the owning side to null (unless already changed)
+            if ($reviewVote->getUser() === $this) {
+                $reviewVote->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }

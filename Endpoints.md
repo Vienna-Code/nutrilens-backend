@@ -63,6 +63,9 @@
   - Los admins pueden agregar el taributo '**visibility**: enum' en el JSON (public o private) para ocultar reviews.
   - Reviews ocultos no contarán para el rating total del comercio
 
+- ``PATCH /commerces/{id}/reviews/{id}/vote``: Votar una reseña como util/no util
+  - **positive**: null|bool *(Voto negativo, positivo, o ninguno?)*
+
 - ``DELETE /commerces/{id}/reviews/{id}``: Eliminar una reseña, solo para administradores
 
 - ``GET /commerces/{id}/reports``: Obtener lista de reportes de un comercio

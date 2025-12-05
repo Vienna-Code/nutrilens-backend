@@ -20,7 +20,8 @@ class ReviewRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('r')
             ->leftJoin('r.user', 'u')
-            ->addSelect('u');
+            ->addSelect('u')
+            ->orderBy('r.useful', 'DESC');
 
         if (!empty($filters['commerce'])) {
             $qb->andWhere('IDENTITY(r.commerce) = :commerceId AND r.visibility = :visibility')
