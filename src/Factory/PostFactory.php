@@ -34,13 +34,18 @@ final class PostFactory extends PersistentObjectFactory
     #[\Override]
     protected function defaults(): array|callable
     {
+        $createdAt = \DateTimeImmutable::createFromMutable(self::faker()->dateTime());
+        $updatedAt = (bool)random_int(0, 1) ? $createdAt : $createdAt->modify('+5000 seconds');
         return [
+            'user' => UserFactory::random(),
             'content' => self::faker()->text(),
-            'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
-            'title' => self::faker()->text(100),
-            'updatedAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
-            'views' => self::faker()->randomNumber(),
-            'visibility' => self::faker()->randomElement(Visibility::cases()),
+            'createdAt' => $createdAt,
+            'title' => self::faker()->text(40),
+            'updatedAt' => $updatedAt,
+            'views' => rand(0, 100),
+            'visibility' => Visibility::tryFrom(self::faker()->randomElement([
+                'public', 'public', 'public', 'public', 'private'
+            ])),
         ];
     }
 

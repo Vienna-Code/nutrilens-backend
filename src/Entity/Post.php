@@ -35,13 +35,16 @@ class Post
     #[ORM\Column]
     private ?int $views = null;
 
+    #[ORM\Column]
+    private ?int $upvotes = 0;
+
     #[ORM\Column(enumType: Visibility::class)]
     private ?Visibility $visibility = null;
 
     /**
      * @var Collection<int, Tag>
      */
-    #[ORM\ManyToMany(targetEntity: Tag::class, mappedBy: 'posts')]
+    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'posts')]
     private Collection $tags;
 
     /**
@@ -50,10 +53,17 @@ class Post
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post')]
     private Collection $comments;
 
+    /**
+     * @var Collection<int, PostVote>
+     */
+    #[ORM\OneToMany(targetEntity: PostVote::class, mappedBy: 'post', orphanRemoval: true)]
+    private Collection $postVotes;
+
     public function __construct()
     {
         $this->tags = new ArrayCollection();
         $this->comments = new ArrayCollection();
+        $this->postVotes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -198,6 +208,48 @@ class Post
                 $comment->setPost(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PostVote>
+     */
+    public function getPostVotes(): Collection
+    {
+        return $this->postVotes;
+    }
+
+    public function addPostVote(PostVote $postVote): static
+    {
+        if (!$this->postVotes->contains($postVote)) {
+            $this->postVotes->add($postVote);
+            $postVote->setPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removePostVote(PostVote $postVote): static
+    {
+        if ($this->postVotes->removeElement($postVote)) {
+            // set the owning side to null (unless already changed)
+            if ($postVote->getPost() === $this) {
+                $postVote->setPost(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getUpvotes(): ?int
+    {
+        return $this->upvotes;
+    }
+
+    public function setUpvotes(int $upvotes): static
+    {
+        $this->upvotes = $upvotes;
 
         return $this;
     }

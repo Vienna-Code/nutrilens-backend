@@ -122,6 +122,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: ReviewVote::class, mappedBy: 'user', cascade: ['persist'], orphanRemoval: true)]
     private Collection $reviewVotes;
 
+    /**
+     * @var Collection<int, PostVote>
+     */
+    #[ORM\OneToMany(targetEntity: PostVote::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $postVotes;
+
     public function __construct()
     {
         $this->userGamifications = new ArrayCollection();
@@ -131,6 +137,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->posts = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->reviewVotes = new ArrayCollection();
+        $this->postVotes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -502,6 +509,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($reviewVote->getUser() === $this) {
                 $reviewVote->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PostVote>
+     */
+    public function getPostVotes(): Collection
+    {
+        return $this->postVotes;
+    }
+
+    public function addPostVote(PostVote $postVote): static
+    {
+        if (!$this->postVotes->contains($postVote)) {
+            $this->postVotes->add($postVote);
+            $postVote->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePostVote(PostVote $postVote): static
+    {
+        if ($this->postVotes->removeElement($postVote)) {
+            // set the owning side to null (unless already changed)
+            if ($postVote->getUser() === $this) {
+                $postVote->setUser(null);
             }
         }
 

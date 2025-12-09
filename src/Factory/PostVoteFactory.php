@@ -2,14 +2,13 @@
 
 namespace App\Factory;
 
-use App\Entity\Comment;
-use App\Enum\Visibility;
+use App\Entity\PostVote;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentObjectFactory<Comment>
+ * @extends PersistentObjectFactory<PostVote>
  */
-final class CommentFactory extends PersistentObjectFactory
+final class PostVoteFactory extends PersistentObjectFactory
 {
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
@@ -23,7 +22,7 @@ final class CommentFactory extends PersistentObjectFactory
     #[\Override]
     public static function class(): string
     {
-        return Comment::class;
+        return PostVote::class;
     }
 
     /**
@@ -34,17 +33,12 @@ final class CommentFactory extends PersistentObjectFactory
     #[\Override]
     protected function defaults(): array|callable
     {
-        $createdAt = \DateTimeImmutable::createFromMutable(self::faker()->dateTime());
-        $updatedAt = (bool)random_int(0, 1) ? $createdAt : $createdAt->modify('+5000 seconds');
         return [
-            'user' => UserFactory::random(),
             'post' => PostFactory::random(),
-            'content' => self::faker()->text(100),
-            'createdAt' => $createdAt,
-            'updatedAt' => $updatedAt,
-            'visibility' => Visibility::tryFrom(self::faker()->randomElement([
-                'public', 'public', 'public', 'public', 'private'
-            ])),
+            'user' => UserFactory::random(),
+            'positive' => self::faker()->randomElement([
+                true, true, true, true, true, true, false, false, null
+            ])
         ];
     }
 
@@ -55,7 +49,7 @@ final class CommentFactory extends PersistentObjectFactory
     protected function initialize(): static
     {
         return $this
-            // ->afterInstantiate(function(Comment $comment): void {})
+            // ->afterInstantiate(function(PostVote $postVote): void {})
         ;
     }
 }

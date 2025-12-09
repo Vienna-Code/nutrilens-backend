@@ -35,6 +35,7 @@ class Comment
     private ?Visibility $visibility = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'replies')]
+    #[ORM\JoinColumn(name: 'replying_to_id', referencedColumnName: 'id', nullable: true, onDelete: 'set null')]
     private ?self $replyingTo = null;
 
     /**

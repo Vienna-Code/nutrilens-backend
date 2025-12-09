@@ -47,7 +47,16 @@
   - **commerceSchedules**: object[] *(Horarios del comercio)*  
     - **weekday**: int *(0 = Domingo, 1 = Lunes, ..., 6 = Sábado)*  
     - **opensAt**: string *(Fecha-hora representando la hora de apertura)*  
-    - **closesAt**: string *(Fecha-hora representando la hora de cierre)*  
+    - **closesAt**: string *(Fecha-hora representando la hora de cierre)*
+
+- ``PATCH /commerces/{id}``: Actualizar un comercio
+  - Lleva los mismos parametros que el POST
+    - Los usuarios de rango Oro pueden modificar contactInfo, paymentMethods, y commerceSchedules
+    - Los usuarios de rango Platino también pueden verificar o desverificar comercios
+    - Los administradores pueden cambiar toda la información del comercio
+  - La verificación del comercio se hace pasando el atributo '**verified**: bool' en el JSON
+
+- ``DELETE /commerces/{id}``: Eliminar un comercio, solo para administradores
 
 - ``GET /commerces/{id}/reviews``: Obtener lista de reseñas de un comercio
 
@@ -73,15 +82,6 @@
 - ``POST /commerces/{id}/reports``: Publicar un reporte para un comercio
   - **content**: string *(Contenido textual del reporte)*
   - **type**: Enum *(En el caso de que se este reportando un comercio no verificado, 'type' se setea a "confirmation" o "rebuttal" para confirmar o denegar la existencia. También se puede setear a "issue" si solo se está reportando un problema)*
-
-- ``PATCH /commerces``: Actualizar un comercio
-  - Lleva los mismos parametros que el POST
-    - Los usuarios de rango Oro pueden modificar contactInfo, paymentMethods, y commerceSchedules
-    - Los usuarios de rango Platino también pueden verificar o desverificar comercios
-    - Los administradores pueden cambiar toda la información del comercio
-  - La verificación del comercio se hace pasando el atributo '**verified**: bool' en el JSON
-
-- ``DELETE /commerces/{id}``: Eliminar un comercio, solo para administradores
 
 - ``GET /products``: Obtener lista de productos
   - **commerce**: int *(Comercio al cual pertenecen los productos)*

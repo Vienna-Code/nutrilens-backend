@@ -39,7 +39,7 @@ final class ReviewFactory extends PersistentObjectFactory
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
             'positive' => self::faker()->boolean(75),
             'updatedAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
-            'useful' => (int) round(15 * pow(mt_rand() / mt_getrandmax(), 3)),
+            'useful' => 0,
             'visibility' => Visibility::PUBLIC,
             'user' => UserFactory::random(),
         ];
