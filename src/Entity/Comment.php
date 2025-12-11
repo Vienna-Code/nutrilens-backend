@@ -7,6 +7,7 @@ use App\Repository\CommentRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
 class Comment
@@ -14,24 +15,30 @@ class Comment
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['comment:read', 'comment:list'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments')]
+    #[Groups(['comment:read', 'comment:list'])]
     private ?User $user = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments')]
     private ?Post $post = null;
 
     #[ORM\Column(length: 500)]
+    #[Groups(['comment:read', 'comment:list'])]
     private ?string $content = null;
 
     #[ORM\Column]
+    #[Groups(['comment:read', 'comment:list'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
+    #[Groups(['comment:read', 'comment:list'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\Column(enumType: Visibility::class)]
+    #[Groups(['comment:read', 'comment:list'])]
     private ?Visibility $visibility = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'replies')]
@@ -42,6 +49,7 @@ class Comment
      * @var Collection<int, self>
      */
     #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'replyingTo')]
+    #[Groups(['comment:read', 'comment:list'])]
     private Collection $replies;
 
     public function __construct()

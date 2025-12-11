@@ -25,14 +25,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:create', 'user:read', 'user:update',
                       'review:create', 'review:read', 'review:list', 'review:update',
                       'commercereport:create', 'commercereport:list',
-                      'productreport:create', 'productreport:list'])]
+                      'productreport:create', 'productreport:list',
+                      'post:read', 'post:list',
+                      'comment:read', 'comment:list'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 40)]
     #[Groups(['user:create', 'user:read', 'user:update',
                       'review:create', 'review:read', 'review:list', 'review:update',
-                      'commercereport:list',
-                      'productreport:list'])]
+                      'commercereport:create', 'commercereport:list',
+                      'productreport:create', 'productreport:list',
+                      'post:read', 'post:list',
+                      'comment:read', 'comment:list'])]
     private ?string $username = null;
 
     #[ORM\Column(length: 320)]
@@ -50,9 +54,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeImmutable $createdAt = null;
 
     #[Groups(['user:create', 'user:read', 'user:update',
-                      'review:create', 'review:read', 'review:list', 'review:update', 
-                      'commercereport:list',
-                      'productreport:list'])]
+                      'review:create', 'review:read', 'review:list', 'review:update',
+                      'commercereport:create', 'commercereport:list',
+                      'productreport:create', 'productreport:list',
+                      'post:read', 'post:list',
+                      'comment:read', 'comment:list'])]
     private ?UserRank $userRank = null;
 
     /**
@@ -68,16 +74,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['user:create', 'user:read', 'user:update',
-                      'review:create', 'review:read', 'review:list', 'review:update', 
-                      'commercereport:list',
-                      'productreport:list'])]
+                      'review:create', 'review:read', 'review:list', 'review:update',
+                      'commercereport:create', 'commercereport:list',
+                      'productreport:create', 'productreport:list',
+                      'post:read', 'post:list',
+                      'comment:read', 'comment:list'])]
     private ?string $profilePicture = null;
 
     #[ORM\Column]
     #[Groups(['user:create', 'user:read', 'user:update',
                       'review:create', 'review:read', 'review:list', 'review:update',
-                      'commercereport:list',
-                      'productreport:list'])]
+                      'commercereport:create', 'commercereport:list',
+                      'productreport:create', 'productreport:list',
+                      'post:read', 'post:list',
+                      'comment:read', 'comment:list'])]
     private ?int $points = null;
 
     /**
@@ -125,7 +135,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, PostVote>
      */
-    #[ORM\OneToMany(targetEntity: PostVote::class, mappedBy: 'user', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: PostVote::class, mappedBy: 'user', cascade: ['persist'], orphanRemoval: true)]
     private Collection $postVotes;
 
     public function __construct()

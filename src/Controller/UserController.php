@@ -45,7 +45,9 @@ final class UserController extends AbstractController
         }
         $user = ($id === 'me') ? $me : $this->userRepository->find($id);
         if (!\in_array('ROLE_ADMIN', $me->getRoles()) && $user !== $me) {
-            return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
+            return $this->json(['error' => [
+                'message' => 'No tienes permisos suficientes para acceder a este endpoint.']
+            ], 403);
         }
 
         // Parseo del request JSON

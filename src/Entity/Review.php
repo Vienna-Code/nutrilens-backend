@@ -15,7 +15,8 @@ class Review
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['review:create', 'review:read', 'review:list', 'review:update'])]
+    #[Groups(['review:create', 'review:read', 'review:list', 'review:update',
+                      'commerce:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'reviews')]
@@ -26,27 +27,33 @@ class Review
     private ?User $user = null;
 
     #[ORM\Column]
-    #[Groups(['review:create', 'review:read', 'review:list', 'review:update'])]
+    #[Groups(['review:create', 'review:read', 'review:list', 'review:update',
+                      'commerce:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
-    #[Groups(['review:create', 'review:read', 'review:list', 'review:update'])]
+    #[Groups(['review:create', 'review:read', 'review:list', 'review:update',
+                      'commerce:read'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\Column]
-    #[Groups(['review:create', 'review:read', 'review:list', 'review:update'])]
+    #[Groups(['review:create', 'review:read', 'review:list', 'review:update',
+                      'commerce:read'])]
     private ?bool $positive = null;
 
     #[ORM\Column(length: 500)]
-    #[Groups(['review:create', 'review:read', 'review:list', 'review:update'])]
+    #[Groups(['review:create', 'review:read', 'review:list', 'review:update',
+                      'commerce:read'])]
     private ?string $content = null;
 
     #[ORM\Column]
-    #[Groups(['review:create', 'review:read', 'review:list', 'review:update'])]
+    #[Groups(['review:create', 'review:read', 'review:list', 'review:update',
+                      'commerce:read'])]
     private ?int $useful = 0;
 
     #[ORM\Column(enumType: Visibility::class)]
-    #[Groups(['review:create', 'review:read', 'review:list', 'review:update'])]
+    #[Groups(['review:create', 'review:read', 'review:list', 'review:update',
+                      'commerce:read'])]
     private ?Visibility $visibility = null;
 
     /**

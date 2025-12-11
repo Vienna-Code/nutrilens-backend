@@ -3,6 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\ReviewVote;
+use App\Entity\User;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -49,7 +50,25 @@ final class ReviewVoteFactory extends PersistentObjectFactory
     protected function initialize(): static
     {
         return $this
-            // ->afterInstantiate(function(ReviewVote $reviewVote): void {})
-        ;
+            ->afterInstantiate(function(ReviewVote $vote) {
+
+                $review = $vote->getReview();
+
+                // get all users as array of objects
+                $users = UserFactory::all();
+
+                // filter out the post author
+                $validUsers = array_filter(
+                    $users,
+                    fn(User $u) => $u !== $review->getUser()
+                );
+
+                // choose random replacement
+                if (!empty($validUsers)) {
+                    $vote->setUser(
+                        $validUsers[array_rand($validUsers)]
+                    );
+                }
+            });
     }
 }

@@ -2,12 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\PostTagRepository;
+use App\Repository\TagRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ORM\Entity(repositoryClass: PostTagRepository::class)]
+#[ORM\Entity(repositoryClass: TagRepository::class)]
 class Tag
 {
     #[ORM\Id]
@@ -15,7 +16,8 @@ class Tag
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 25)]
+    #[ORM\Column(length: 25, unique: true)]
+    #[Groups(['post:create', 'post:read', 'post:list'])]
     private ?string $name = null;
 
     /**

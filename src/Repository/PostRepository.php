@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\Post;
+use App\Entity\User;
+use App\Enum\Visibility;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,6 +16,51 @@ class PostRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Post::class);
+    }
+
+    public function findById(int $id, ?User $user = null): ?Post
+    {
+        $qb = $this->createQueryBuilder('p')
+
+            // post author
+            ->leftJoin('p.user', 'pu')
+            ->addSelect('pu')
+
+            // tags
+            ->leftJoin('p.tags', 't')
+            ->addSelect('t')
+
+            ->andWhere('p.id = :id AND (p.visibility != :vis OR p.user = :user)')
+            ->setParameter('id', $id)
+            ->setParameter('vis', Visibility::PRIVATE)
+            ->setParameter('user', $user);
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    public function findByFilters(array $filters): array
+    {
+        if (!isset($filters['page'])) {
+            $filters['page'] = 1;
+        }
+
+        $qb = $this->createQueryBuilder('p')
+            ->andWhere('p.visibility = :vis')
+            ->setParameter('vis', Visibility::PUBLIC)
+
+            // post author
+            ->leftJoin('p.user', 'pu')
+            ->addSelect('pu')
+
+            // tags
+            ->leftJoin('p.tags', 't')
+            ->addSelect('t')
+            
+            ->orderBy('p.createdAt', 'DESC')
+            ->setMaxResults(20)
+            ->setFirstResult(($filters['page']-1)*20);
+
+        return $qb->getQuery()->getResult();
     }
 
 //    /**

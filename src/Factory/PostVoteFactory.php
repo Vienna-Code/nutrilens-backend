@@ -3,6 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\PostVote;
+use App\Entity\User;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -49,7 +50,25 @@ final class PostVoteFactory extends PersistentObjectFactory
     protected function initialize(): static
     {
         return $this
-            // ->afterInstantiate(function(PostVote $postVote): void {})
-        ;
+            ->afterInstantiate(function(PostVote $vote) {
+
+                $post = $vote->getPost();
+
+                // get all users as array of objects
+                $users = UserFactory::all();
+
+                // filter out the post author
+                $validUsers = array_filter(
+                    $users,
+                    fn(User $u) => $u !== $post->getUser()
+                );
+
+                // choose random replacement
+                if (!empty($validUsers)) {
+                    $vote->setUser(
+                        $validUsers[array_rand($validUsers)]
+                    );
+                }
+            });
     }
 }

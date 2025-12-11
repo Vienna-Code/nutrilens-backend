@@ -7,6 +7,7 @@ use App\Entity\Commerce;
 use App\Entity\Review;
 use App\Repository\CommerceRepository;
 use App\Repository\ReviewRepository;
+use App\Repository\ReviewVoteRepository;
 use App\Service\ReviewManager;
 use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,6 +17,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Validator\Constraints\Json;
 
 final class ReviewController extends AbstractController
@@ -24,18 +26,22 @@ final class ReviewController extends AbstractController
         private EntityManagerInterface $em,
         private ValidationService $validation,
         private LoggerInterface $logger,
+        private NormalizerInterface $normalizer,
 
         private ReviewRepository $reviewRepository,
         private CommerceRepository $commerceRepository,
         private ReviewManager $rm,
+
+        private ReviewVoteRepository $rvRepository,
     ) {}
 
     #[Route('/commerces/{idc}/reviews/{idr}', methods: ['GET'], name: 'app_review_get')]
     public function get(int $idc, string $idr): JsonResponse
     {
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        
         // Encontrar reseña
         if ($idr === 'me') {
-            $user = $this->getUser(); /** @var \App\Entity\User $user */
             $commerce = $this->commerceRepository->find($idc);
             if (!$user || !$commerce) {
                 throw $this->createNotFoundException();
@@ -49,10 +55,28 @@ final class ReviewController extends AbstractController
         }
         if ($review === null) throw $this->createNotFoundException();
 
+        $reviewData = $this->normalizer->normalize($review, context: [
+            'groups' => ['review:read']
+        ]);
+
+        // Agregar si le diste like o no
+        if ($user) {
+            $vote = $this->rvRepository->findOneBy([
+                'review' => $review,
+                'user' => $user,
+            ]);
+            if ($vote) {
+                $vote = $vote->isPositive();
+            }
+            $reviewData['liked'] = $vote;
+        } else {
+            $reviewData['liked'] = null;
+        }
+
         // Responder
         return $this->json([
-            'data' => $review
-        ], 200, [], ['groups' => ['review:read']]);
+            'data' => $reviewData
+        ], 200);
     }
 
     #[Route('/commerces/{idc}/reviews', methods: ['GET'], name: 'app_review_list')]
@@ -207,6 +231,5 @@ final class ReviewController extends AbstractController
                 'message' => 'La reseña ya estaba votada de esta manera, no se realizaron cambios.'
             ], 200);
         }
-
     }
 }

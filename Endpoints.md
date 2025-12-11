@@ -61,6 +61,7 @@
 - ``GET /commerces/{id}/reviews``: Obtener lista de reseñas de un comercio
 
 - ``GET /commerces/{id}/reviews/{id}``: Obtener una reseña
+  - Retorna un atributo adicional **liked** para indicar el voto que el usuario le puso a la reseña (true, null, false)
 
 - ``POST /commerces/{id}/reviews``: Publicar una reseña para un comercio
   - **content**: string *(Contenido de la reseña)*
@@ -111,3 +112,21 @@
 - ``POST /products/{id}/reports``: Publicar un reporte para un producto
   - **content**: string *(Contenido textual del reporte)*
   - **type**: Enum *(En el caso de que se este reportando un producto no verificado, 'type' se setea a "confirmation" o "rebuttal" para confirmar o denegar la existencia. También se puede setear a "issue" si solo se está reportando un problema)*
+
+- ``GET /posts``: Retorna una lista de publicaciones
+  - **page**: Página, si no se incluye este parametro, se setea a la página 1.
+
+- ``GET /posts/{id}``: Retorna un post en específico
+
+- ``POST /posts``: Agergar una publicación
+  - **title**: Titulo de la publicación
+  - **content**: Contenido de la publicación
+  - **tags**: Etiquetas de la publicación *(Solo tags de la tabla tags aceptados, se agregara el endpoints GET /tags luego)*
+  - **visibility**: Visibilidad de la publicación *(public, delisted, private)*
+
+- ``PATCH /posts/{id}``: Modificar una publicación
+
+- ``PATCH /posts/{id}/vote``: Votar una publicación
+  - **positive**: null|bool *(Voto negativo, positivo, o ninguno?)*
+
+- ``DELETE /posts``: Eliminar una publicación

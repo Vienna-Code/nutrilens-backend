@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use \App\Enum\Visibility;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 class Post
@@ -15,52 +16,65 @@ class Post
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['post:create', 'post:read', 'post:list', 'post:update'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'posts')]
+    #[Groups(['post:read', 'post:list'])]
     private ?User $user = null;
 
     #[ORM\Column(length: 100)]
+    #[Groups(['post:create', 'post:read', 'post:list', 'post:update'])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['post:create', 'post:read', 'post:update'])]
     private ?string $content = null;
 
     #[ORM\Column]
+    #[Groups(['post:create', 'post:read', 'post:list', 'post:update'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
+    #[Groups(['post:create', 'post:read', 'post:list', 'post:update'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\Column]
-    private ?int $views = null;
+    #[Groups(['post:read', 'post:list'])]
+    private ?int $views = 0;
 
     #[ORM\Column]
+    #[Groups(['post:read', 'post:list'])]
     private ?int $upvotes = 0;
 
     #[ORM\Column(enumType: Visibility::class)]
+    #[Groups(['post:create', 'post:read', 'post:list', 'post:update'])]
     private ?Visibility $visibility = null;
 
     /**
      * @var Collection<int, Tag>
      */
-    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'posts')]
+    #[Groups(['post:create', 'post:read', 'post:list', 'post:update'])]
+    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'posts', cascade: ['persist'])]
     private Collection $tags;
 
     /**
      * @var Collection<int, Comment>
      */
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post')]
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post', cascade: ['persist'])]
     private Collection $comments;
 
     /**
      * @var Collection<int, PostVote>
      */
-    #[ORM\OneToMany(targetEntity: PostVote::class, mappedBy: 'post', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: PostVote::class, mappedBy: 'post', cascade: ['persist'], orphanRemoval: true)]
     private Collection $postVotes;
 
     public function __construct()
     {
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
+
         $this->tags = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->postVotes = new ArrayCollection();
@@ -155,12 +169,13 @@ class Post
         return $this;
     }
 
-    /**
-     * @return Collection<int, Tag>
-     */
-    public function getTags(): Collection
+    public function getTags(): array
     {
-        return $this->tags;
+        $atags = [];
+        foreach ($this->tags as $atag) {
+            $atags[] = $atag->getName();
+        }
+        return $atags;
     }
 
     public function addTag(Tag $tag): static

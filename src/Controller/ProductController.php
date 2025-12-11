@@ -79,7 +79,7 @@ final class ProductController extends AbstractController
         // Validacion con DTO
         // TODO
 
-        // Encontrar producto
+        // Encontrar comercio
         $commerce = $this->commerceRepository->findOneById($data['commerceId']);
         if (!$commerce) {
             return $this->json([
@@ -87,7 +87,7 @@ final class ProductController extends AbstractController
             ], 404);
         }
 
-        // Agregar producto al producto
+        // Agregar producto al comercio
         $product = $this->productManager->create($data, $user, $commerce);
 
         // Responder

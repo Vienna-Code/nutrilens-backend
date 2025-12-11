@@ -82,10 +82,10 @@ class ReviewManager
         $oldVote = $reviewVote->isPositive();
 
         if ($newVote === $oldVote) {
-            return false; // nothing changes
+            return false; // No cambia nada
         }
 
-        // Change vote
+        // Cambiar voto
         $reviewVote->setPositive($newVote);
         $delta = match ([$oldVote, $newVote]) {
             [true, null]  => -1,
