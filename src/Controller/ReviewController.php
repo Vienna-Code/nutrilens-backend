@@ -82,6 +82,8 @@ final class ReviewController extends AbstractController
     #[Route('/commerces/{idc}/reviews', methods: ['GET'], name: 'app_review_list')]
     public function list(Request $request): JsonResponse
     {
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+
         // Obtener parametros URL
         $data = $request->query->all();
         $data['commerce'] = $request->attributes->get('idc');
@@ -93,10 +95,28 @@ final class ReviewController extends AbstractController
         // Encontrar reviews
         $reviews = $this->reviewRepository->findByFilters($data);
 
+        // Agregar si les diste like o no
+        if ($user) {
+            foreach ($reviews as &$review) {
+                $review = $this->normalizer->normalize($review, context: [
+                    'groups' => ['review:list']
+                ]);
+
+                $vote = $this->rvRepository->findOneBy([
+                    'review' => $review,
+                    'user' => $user,
+                ]);
+                if ($vote) {
+                    $vote = $vote->isPositive();
+                }
+                $review['liked'] = $vote;
+            }
+        }
+
         // Responder
         return $this->json([
             'data' => $reviews
-        ], 200, [], ['groups' => ['review:list']]);
+        ], 200);
     }
 
     #[Route('/commerces/{idc}/reviews', methods: ['POST'], name: 'app_review_post')]

@@ -59,6 +59,7 @@
 - ``DELETE /commerces/{id}``: Eliminar un comercio, solo para administradores
 
 - ``GET /commerces/{id}/reviews``: Obtener lista de reseñas de un comercio
+  - Retorna un atributo adicional **liked** para indicar el voto que el usuario le puso a la reseña (true, null, false)
 
 - ``GET /commerces/{id}/reviews/{id}``: Obtener una reseña
   - Retorna un atributo adicional **liked** para indicar el voto que el usuario le puso a la reseña (true, null, false)
@@ -117,6 +118,7 @@
   - **page**: Página, si no se incluye este parametro, se setea a la página 1.
 
 - ``GET /posts/{id}``: Retorna un post en específico
+  - Retorna un atributo adicional **liked** para indicar el voto que el usuario le puso a la reseña (true, null, false)
 
 - ``POST /posts``: Agergar una publicación
   - **title**: Titulo de la publicación
