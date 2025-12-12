@@ -96,24 +96,21 @@ final class ReviewController extends AbstractController
         $reviews = $this->reviewRepository->findByFilters($data);
 
         // Agregar si les diste like o no
-        if ($user) {
-            foreach ($reviews as &$review) {
-                $review = $this->normalizer->normalize($review, context: [
-                    'groups' => ['review:list']
-                ]);
+        foreach ($reviews as &$review) {
+            $review = $this->normalizer->normalize($review, context: [
+                'groups' => ['review:list']
+            ]);
 
-                $vote = $this->rvRepository->findOneBy([
-                    'review' => $review,
-                    'user' => $user,
-                ]);
-                if ($vote) {
-                    $vote = $vote->isPositive();
-                }
-                $review['liked'] = $vote;
+            $vote = $this->rvRepository->findOneBy([
+                'review' => $review,
+                'user' => $user,
+            ]);
+            if ($vote) {
+                $vote = $vote->isPositive();
             }
+            $review['liked'] = $vote;
         }
 
-        // Responder
         return $this->json([
             'data' => $reviews
         ], 200);
