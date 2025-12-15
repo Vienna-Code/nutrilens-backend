@@ -64,12 +64,14 @@ final class PostController extends AbstractController
         // Responder
         return $this->json([
             'data' => $postData
-        ], 200, [], ['groups' => ['post:read']]);
+        ], 200);
     }
 
     #[Route('/posts', methods: ['GET'], name: 'app_post_list')]
     public function list(Request $request): JsonResponse
     {
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+
         // Obtener parametros URL
         $data = $request->query->all();
 
@@ -77,12 +79,28 @@ final class PostController extends AbstractController
         // TODO
 
         // Encontrar posts
-        $posts = $this->postRepository->findByFilters($data);
+        $posts = $this->postRepository->findByFilters($data, $user);
+
+        // Agregar si les diste like o no
+        foreach ($posts as &$post) {
+            $post = $this->normalizer->normalize($post, context: [
+                'groups' => ['post:list']
+            ]);
+
+            $vote = $this->pvRepository->findOneBy([
+                'post' => $post,
+                'user' => $user,
+            ]);
+            if ($vote) {
+                $vote = $vote->isPositive();
+            }
+            $post['liked'] = $vote;
+        }
 
         // Responder
         return $this->json([
             'data' => $posts
-        ], 200, [], ['groups' => ['post:list']]);
+        ], 200);
     }
 
     #[Route('/posts', methods: ['POST'], name: 'app_post_post')]

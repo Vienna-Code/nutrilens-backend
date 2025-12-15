@@ -132,3 +132,8 @@
   - **positive**: null|bool *(Voto negativo, positivo, o ninguno?)*
 
 - ``DELETE /posts``: Eliminar una publicación
+
+- ``GET /posts/{id}/comments``: Obtener lista de comentarios de una publicación
+  - **page**: Página, si no se incluye este parametro, se setea a la página 1.
+
+- ``GET /posts/{id}/comments/{id}``: Obtener un comentario

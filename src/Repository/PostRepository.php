@@ -38,15 +38,16 @@ class PostRepository extends ServiceEntityRepository
         return $qb->getQuery()->getOneOrNullResult();
     }
 
-    public function findByFilters(array $filters): array
+    public function findByFilters(array $filters, ?User $user = null): array
     {
         if (!isset($filters['page'])) {
             $filters['page'] = 1;
         }
 
         $qb = $this->createQueryBuilder('p')
-            ->andWhere('p.visibility = :vis')
+            ->andWhere('p.visibility = :vis OR p.user = :user')
             ->setParameter('vis', Visibility::PUBLIC)
+            ->setParameter('user', $user)
 
             // post author
             ->leftJoin('p.user', 'pu')
