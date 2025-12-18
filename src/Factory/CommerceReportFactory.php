@@ -39,6 +39,7 @@ final class CommerceReportFactory extends PersistentObjectFactory
             'user' => UserFactory::random(),
             'date' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
             'type' => self::faker()->randomElement(ReportType::cases()),
+            'resolved' => false,
         ];
     }
 

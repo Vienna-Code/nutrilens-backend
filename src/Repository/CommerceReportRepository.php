@@ -25,6 +25,11 @@ class CommerceReportRepository extends ServiceEntityRepository
             ->andWhere('cr.commerce = :commerce')
             ->setParameter('commerce', $commerce);
 
+        if (isset($filters['resolved']) && \is_bool($filters['resolved'])) {
+            $qb->andWhere('cr.resolved = :resolved')
+                ->setParameter('resolved', $filters['resolved']);
+        }
+
         return $qb->getQuery()->getResult();
     }
 

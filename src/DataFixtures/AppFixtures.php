@@ -66,34 +66,43 @@ class AppFixtures extends Fixture
             }
 
             // CommerceReports
-            CommerceReportFactory::createOne([
-                'commerce' => $commerce,
-                'user' => $users[array_rand($users)],
-                'type' => ReportType::SUBMISSION,
-                'date' => DateTimeImmutable::createFromTimestamp(time()-7200),
-            ]);
             if ($commerce->isVerified() === false) {
                 CommerceReportFactory::createOne([
                     'commerce' => $commerce,
                     'user' => $users[array_rand($users)],
+                    'type' => ReportType::SUBMISSION,
+                    'date' => DateTimeImmutable::createFromTimestamp(time()-7200)
+                ]);
+                CommerceReportFactory::createOne([
+                    'commerce' => $commerce,
+                    'user' => $users[array_rand($users)],
                     'type' => ReportType::REBUTTAL,
-                    'date' => new DateTimeImmutable(),
+                    'date' => new DateTimeImmutable()
                 ]);
                 continue;
             } else {
                 CommerceReportFactory::createOne([
                     'commerce' => $commerce,
                     'user' => $users[array_rand($users)],
+                    'type' => ReportType::SUBMISSION,
+                    'date' => DateTimeImmutable::createFromTimestamp(time()-7200),
+                    'resolved' => true,
+                ]);
+                CommerceReportFactory::createOne([
+                    'commerce' => $commerce,
+                    'user' => $users[array_rand($users)],
                     'type' => ReportType::CONFIRMATION,
                     'date' => DateTimeImmutable::createFromTimestamp(time()-3600),
+                    'resolved' => true,
                 ]);
                 CommerceReportFactory::createOne([
                     'commerce' => $commerce,
                     'user' => $admin,
                     'type' => ReportType::VERIFICATION,
                     'date' => new DateTimeImmutable(),
+                    'resolved' => true,
                 ]);
-                $this->gm->verifyCommerce($commerce);
+                $this->gm->verifyCommerce($commerce, false);
             }
 
             // Products
@@ -116,13 +125,13 @@ class AppFixtures extends Fixture
                 }
 
                 // ProductReports
-                ProductReportFactory::createOne([
-                    'product' => $product,
-                    'user' => $users[array_rand($users)],
-                    'type' => ReportType::SUBMISSION,
-                    'date' => DateTimeImmutable::createFromTimestamp(time()-7200),
-                ]);
-                if ($commerce->isVerified() === false) {
+                if ($product->isVerified() === false) {
+                    ProductReportFactory::createOne([
+                        'product' => $product,
+                        'user' => $users[array_rand($users)],
+                        'type' => ReportType::SUBMISSION,
+                        'date' => DateTimeImmutable::createFromTimestamp(time()-7200),
+                    ]);
                     ProductReportFactory::createOne([
                         'product' => $product,
                         'user' => $users[array_rand($users)],
@@ -134,16 +143,25 @@ class AppFixtures extends Fixture
                     ProductReportFactory::createOne([
                         'product' => $product,
                         'user' => $users[array_rand($users)],
+                        'type' => ReportType::SUBMISSION,
+                        'date' => DateTimeImmutable::createFromTimestamp(time()-7200),
+                        'resolved' => true,
+                    ]);
+                    ProductReportFactory::createOne([
+                        'product' => $product,
+                        'user' => $users[array_rand($users)],
                         'type' => ReportType::CONFIRMATION,
                         'date' => DateTimeImmutable::createFromTimestamp(time()-3600),
+                        'resolved' => true,
                     ]);
                     ProductReportFactory::createOne([
                         'product' => $product,
                         'user' => $admin,
                         'type' => ReportType::VERIFICATION,
                         'date' => new DateTimeImmutable(),
+                        'resolved' => true,
                     ]);
-                    $this->gm->verifyProduct($product);
+                    $this->gm->verifyProduct($product, false);
                 }
             }
             

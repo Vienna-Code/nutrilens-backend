@@ -25,6 +25,11 @@ class ProductReportRepository extends ServiceEntityRepository
             ->andWhere('pr.product = :product')
             ->setParameter('product', $product);
 
+        if (isset($filters['resolved']) && \is_bool($filters['resolved'])) {
+            $qb->andWhere('pr.resolved = :resolved')
+                ->setParameter('resolved', $filters['resolved']);
+        }
+
         return $qb->getQuery()->getResult();
     }
 

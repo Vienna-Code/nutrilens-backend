@@ -9,6 +9,8 @@ use App\Entity\Product;
 use App\Entity\CommerceReport;
 use App\Entity\ProductReport;
 use App\Enum\ReportType;
+use App\Repository\CommerceReportRepository;
+use App\Repository\ProductReportRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use ErrorException;
 
@@ -31,13 +33,17 @@ class GamificationManager
 
     public function __construct(
         private EntityManagerInterface $em,
+        private CommerceReportRepository $crr,
+        private ProductReportRepository $prr,
     ) {}
 
-    public function verifyCommerce(Commerce &$commerce): void
+    public function verifyCommerce(Commerce &$commerce, bool $resolved = true): void
     {
-        foreach ($commerce->getCommerceReports() as $report) {
+        $commerceReports = $this->crr->findByFilters(['resolved' => $resolved], $commerce);
+        foreach ($commerceReports as $report) {
             $gamification = new UserGamification();
             $user = $report->getUser();
+            $report->setResolved(true);
 
             if ($report->getType() === ReportType::SUBMISSION) {
                 $gamification->setEvent('Commerce submission of ID '.$report->getId().' was verified.');
@@ -50,14 +56,18 @@ class GamificationManager
                 $gamification->setPoints($this->points['commerce']['confirmation']);
                 $user->addUserGamification($gamification);
             }
+
+            $this->em->persist($report);
         }
     }
 
-    public function verifyProduct(Product &$product): void
+    public function verifyProduct(Product &$product, bool $resolved = true): void
     {
-        foreach ($product->getProductReports() as $report) {
+        $productReports = $this->prr->findByFilters(['resolved' => $resolved], $product);
+        foreach ($productReports as $report) {
             $gamification = new UserGamification();
             $user = $report->getUser();
+            $report->setResolved(true);
 
             if ($report->getType() === ReportType::SUBMISSION) {
                 $gamification->setEvent('Product submission of ID '.$report->getId().' was verified.');
@@ -70,6 +80,8 @@ class GamificationManager
                 $gamification->setPoints($this->points['product']['confirmation']);
                 $user->addUserGamification($gamification);
             }
+
+            $this->em->persist($report);
         }
     }
 }

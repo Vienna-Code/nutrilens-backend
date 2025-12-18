@@ -40,7 +40,12 @@ class CommerceReport
     #[Groups(['commercereport:create', 'commercereport:list'])]
     private ?string $imagePath = null;
 
+    #[ORM\Column]
+    #[Groups(['commercereport:list'])]
+    private ?bool $resolved = null;
+
     public function __construct() {
+        $this->resolved = false;
         $this->date = new \DateTimeImmutable(); 
     }
 
@@ -117,6 +122,18 @@ class CommerceReport
     public function setImagePath(?string $imagePath): static
     {
         $this->imagePath = $imagePath;
+
+        return $this;
+    }
+
+    public function isResolved(): ?bool
+    {
+        return $this->resolved;
+    }
+
+    public function setResolved(bool $resolved): static
+    {
+        $this->resolved = $resolved;
 
         return $this;
     }
