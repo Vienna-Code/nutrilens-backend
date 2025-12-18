@@ -34,9 +34,18 @@ class CommerceReportManager
         return $commerceReport;
     }
 
-    public function update(array &$data, Commerce &$commerce, User &$user): CommerceReport|false
+    public function update(array &$data, CommerceReport &$report, User &$user): CommerceReport|false
     {
-        return false;
+        $current = $report->isResolved();
+        if (isset($data['resolved']) && $data['resolved'] !== $current) {
+            $report->setResolved($data['resolved']);
+            $this->gm->resolveCommerceReport($report);
+        }
+
+        $this->em->persist($report);
+        $this->em->flush();
+
+        return $report;
     }
 
     public function delete(Commerce $commerce): void

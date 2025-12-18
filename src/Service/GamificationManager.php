@@ -70,18 +70,42 @@ class GamificationManager
             $report->setResolved(true);
 
             if ($report->getType() === ReportType::SUBMISSION) {
-                $gamification->setEvent('Product submission of ID '.$report->getId().' was verified.');
+                $gamification->setEvent("Product submission of ID {$report->getId()} was verified.");
                 $gamification->setPoints($this->points['product']['submitter']);
                 $user->addUserGamification($gamification);
             }
 
             if ($report->getType() === ReportType::CONFIRMATION) {
-                $gamification->setEvent('Product confirmation of ID '.$report->getId().' was verified.');
+                $gamification->setEvent("Product confirmation of ID {$report->getId()} was verified.");
                 $gamification->setPoints($this->points['product']['confirmation']);
                 $user->addUserGamification($gamification);
             }
 
             $this->em->persist($report);
+        }
+    }
+
+    public function resolveCommerceReport(CommerceReport $report): void
+    {
+        $user = $report->getUser();
+        $gamification = new UserGamification();
+
+        if ($report->getType() === ReportType::ISSUE) {
+            $gamification->setEvent("Commerce issue report of ID {$report->getId()} was resolved.");
+            $gamification->setPoints($this->points['commerce']['validation']);
+            $user->addUserGamification($gamification);
+        }
+        
+        if ($report->getType() === ReportType::MODIFICATION) {
+            $gamification->setEvent("Commerce modification of ID {$report->getId()} was resolved.");
+            $gamification->setPoints($this->points['commerce']['validation']);
+            $user->addUserGamification($gamification);
+        }
+
+        if ($report->getType() === ReportType::REBUTTAL) {
+            $gamification->setEvent("Commerce rebuttal of ID {$report->getId()} was resolved.");
+            $gamification->setPoints($this->points['commerce']['validation']);
+            $user->addUserGamification($gamification);
         }
     }
 }

@@ -83,7 +83,7 @@ final class ProductController extends AbstractController
         $commerce = $this->commerceRepository->findOneById($data['commerceId']);
         if (!$commerce) {
             return $this->json([
-                'error' => ['message' => 'Producto no encontrado.']
+                'error' => ['message' => 'Comercio no encontrado.']
             ], 404);
         }
 

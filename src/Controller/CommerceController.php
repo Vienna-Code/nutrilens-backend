@@ -6,6 +6,7 @@ use App\Dto\Commerces;
 use App\Dto\_NestedObjects\ContactInfo;
 use App\Dto\_NestedObjects\CommerceSchedule;
 use App\Entity\Commerce;
+use App\Entity\CommerceReport;
 use App\Enum\ReportType;
 use App\Enum\UserRank;
 use App\Repository\CommerceReportRepository;
@@ -14,9 +15,11 @@ use App\Service\CommerceManager;
 use App\Service\CommerceReportManager;
 use App\Service\ValidationService;
 use Psr\Log\LoggerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
@@ -172,6 +175,31 @@ final class CommerceController extends AbstractController
         ], 200);
     }
 
+    #[Route('/commerces/{idc}/reports/{idr}', methods: ['GET'], name: 'app_commercereport_get')]
+    public function getReport(int $idc, int $idr): JsonResponse {
+        // Control de acceso
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json([
+                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
+            ], 401);
+        }
+        if (!\in_array('ROLE_ADMIN', $user->getRoles())) {
+            return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
+        }
+
+        // Responder
+        $report = $this->cReportRepository->find($idr);
+        if (!$report) {
+            return $this->json([
+                'error' => ['message' => 'Reporte no encontrado.']
+            ], 404);
+        }
+        return $this->json([
+            'data' => $report
+        ], 200, [], ['groups' => ['commercereport:read']]);
+    }
+
     #[Route('/commerces/{id}/reports', methods: ['GET'], name: 'app_commercereport_list')]
     public function listReports(Commerce $commerce, Request $request): JsonResponse
     {
@@ -229,7 +257,7 @@ final class CommerceController extends AbstractController
             ], 400);
         }
 
-        // Crear comercio, horarios & reportes
+        // Crear reporte
         $report = $this->cReportManager->create($data, $commerce, $user);
         
         // Responder
@@ -237,5 +265,42 @@ final class CommerceController extends AbstractController
             'message' => 'Reporte de comercio creado correctamente.',
             'data' => $report,
         ], 201, [], ['groups' => ['commercereport:create']]);
+    }
+
+    #[Route('/commerces/{idc}/reports/{idr}', methods: ['PATCH'], name: 'app_commercereport_patch')]
+    public function patchReport(int $idc, int $idr, Request $request): JsonResponse
+    {
+        // Control de acceso
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json([
+                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
+            ], 401);
+        }
+        if (!\in_array('ROLE_ADMIN', $user->getRoles())) {
+            return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
+        }
+
+        // Parseo del request JSON
+        $data = json_decode($request->getContent(), true);
+
+        // Validación con DTO
+        // TODO
+
+        // Actualizar reporte
+        $report = $this->cReportRepository->find($idr);
+        if (!$report) {
+            return $this->json([
+                'error' => ['message' => 'Reporte no encontrado.']
+            ], 404);
+        }
+        $report = $this->cReportManager->update($data, $report, $user);
+        // TODO
+
+        // Responder
+        return $this->json([
+            'message' => 'Reporte de comercio actualizado correctamente.',
+            'data' => $report,
+        ], 201, [], ['groups' => ['commercereport:update']]);
     }
 }

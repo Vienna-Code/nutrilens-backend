@@ -79,7 +79,9 @@
 
 - ``DELETE /commerces/{id}/reviews/{id}``: Eliminar una reseña, solo para administradores
 
-- ``GET /commerces/{id}/reports``: Obtener lista de reportes de un comercio
+- ``GET /commerces/{id}/reports/{id}``: Obtener un reporte de un comercio, solo administradores
+
+- ``GET /commerces/{id}/reports``: Obtener lista de reportes de un comercio, solo administradores
 
 - ``POST /commerces/{id}/reports``: Publicar un reporte para un comercio
   - **content**: string *(Contenido textual del reporte)*

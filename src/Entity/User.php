@@ -24,8 +24,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     #[Groups(['user:create', 'user:read', 'user:update',
                       'review:create', 'review:read', 'review:list', 'review:update',
-                      'commercereport:create', 'commercereport:list',
-                      'productreport:create', 'productreport:list',
+                      'commercereport:create', 'commercereport:read', 'commercereport:list',
+                      'productreport:create', 'productreport:read', 'productreport:list',
                       'post:read', 'post:list',
                       'comment:read', 'comment:list'])]
     private ?int $id = null;
@@ -33,8 +33,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 40)]
     #[Groups(['user:create', 'user:read', 'user:update',
                       'review:create', 'review:read', 'review:list', 'review:update',
-                      'commercereport:create', 'commercereport:list',
-                      'productreport:create', 'productreport:list',
+                      'commercereport:create', 'commercereport:read', 'commercereport:list',
+                      'productreport:create', 'productreport:read', 'productreport:list',
                       'post:read', 'post:list',
                       'comment:read', 'comment:list'])]
     private ?string $username = null;
@@ -55,8 +55,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[Groups(['user:create', 'user:read', 'user:update',
                       'review:create', 'review:read', 'review:list', 'review:update',
-                      'commercereport:create', 'commercereport:list',
-                      'productreport:create', 'productreport:list',
+                      'commercereport:create', 'commercereport:read', 'commercereport:list',
+                      'productreport:create', 'productreport:read', 'productreport:list',
                       'post:read', 'post:list',
                       'comment:read', 'comment:list'])]
     private ?UserRank $userRank = null;
@@ -75,8 +75,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['user:create', 'user:read', 'user:update',
                       'review:create', 'review:read', 'review:list', 'review:update',
-                      'commercereport:create', 'commercereport:list',
-                      'productreport:create', 'productreport:list',
+                      'commercereport:create', 'commercereport:read', 'commercereport:list',
+                      'productreport:create', 'productreport:read', 'productreport:list',
                       'post:read', 'post:list',
                       'comment:read', 'comment:list'])]
     private ?string $profilePicture = null;
@@ -84,8 +84,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     #[Groups(['user:create', 'user:read', 'user:update',
                       'review:create', 'review:read', 'review:list', 'review:update',
-                      'commercereport:create', 'commercereport:list',
-                      'productreport:create', 'productreport:list',
+                      'commercereport:create', 'commercereport:read', 'commercereport:list',
+                      'productreport:create', 'productreport:read', 'productreport:list',
                       'post:read', 'post:list',
                       'comment:read', 'comment:list'])]
     private ?int $points = null;
