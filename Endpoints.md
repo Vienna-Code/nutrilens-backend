@@ -50,11 +50,11 @@
     - **closesAt**: string *(Fecha-hora representando la hora de cierre)*
 
 - ``PATCH /commerces/{id}``: Actualizar un comercio
-  - Lleva los mismos parametros que el POST
-    - Los usuarios de rango Oro pueden modificar contactInfo, paymentMethods, y commerceSchedules
-    - Los usuarios de rango Platino también pueden verificar o desverificar comercios
-    - Los administradores pueden cambiar toda la información del comercio
-  - La verificación del comercio se hace pasando el atributo '**verified**: bool' en el JSON
+  - Lleva los mismos parametros que el POST.
+    - Los usuarios de rango Oro pueden modificar contactInfo, paymentMethods, y commerceSchedules.
+    - Los usuarios de rango Platino también pueden verificar o desverificar comercios.
+    - Los administradores pueden cambiar toda la información del comercio.
+  - La verificación del comercio se hace pasando el atributo '**verified**: bool' en el JSON.
 
 - ``DELETE /commerces/{id}``: Eliminar un comercio, solo para administradores
 
@@ -69,10 +69,10 @@
   - **positive**: bool *(Reseña positiva o negativa?)*
 
 - ``PATCH /commerces/{id}/reviews/{id}``: Editar una reseña para un comercio
-  - Lleva los mismos parametros que el POST
-    - Solo admins o los creadores de la reseña en cuestión pueden modificarlo
-  - Los admins pueden agregar el taributo '**visibility**: enum' en el JSON (public o private) para ocultar reviews.
-  - Reviews ocultos no contarán para el rating total del comercio
+  - Lleva los mismos parametros que el POST.
+    - Solo administradores o los creadores de la reseña en cuestión pueden modificarlo.
+  - Los administradores pueden agregar el taributo '**visibility**: enum' en el JSON (public o private) para ocultar reviews.
+  - Reviews ocultos no contarán para el rating total del comercio.
 
 - ``PATCH /commerces/{id}/reviews/{id}/vote``: Votar una reseña como util/no util
   - **positive**: null|bool *(Voto negativo, positivo, o ninguno?)*
@@ -100,15 +100,15 @@
   - **aptFor**: string[] *(Lista de restricciones alimentarias para las que el producto es apto. Ej: ["celiac", "diabetic", "hypertensive"])*
 
 - ``PATCH /products``: Actualizar un producto
-  - Lleva los mismos parametros que el POST (excepto commerceId)
-    - Los usuarios de rango Plata pueden modificar price y aptFor
-    - Los usuarios de rango Oro o Platino también pueden verificar o desverificar productos
-    - Los administradores pueden cambiar toda la información del producto
-  - La verificación del producto se hace pasando el atributo '**verified**: bool' en el JSON
+  - Lleva los mismos parametros que el POST (excepto commerceId).
+    - Los usuarios de rango Plata pueden modificar price y aptFor.
+    - Los usuarios de rango Oro o Platino también pueden verificar o desverificar productos.
+    - Los administradores pueden cambiar toda la información del producto.
+  - La verificación del producto se hace pasando el atributo '**verified**: bool' en el JSON.
 
 - ``DELETE /products/{id}``: Eliminar un producto, solo para administradores
 
-- ``GET /products/{id}/reports``: Obtener lista de reportes de un producto, solo admins
+- ``GET /products/{id}/reports``: Obtener lista de reportes de un producto, solo administradores
 
 - ``POST /products/{id}/reports``: Publicar un reporte para un producto
   - **content**: string *(Contenido textual del reporte)*
@@ -121,19 +121,31 @@
   - Retorna un atributo adicional **liked** para indicar el voto que el usuario le puso a la reseña (true, null, false)
 
 - ``POST /posts``: Agergar una publicación
-  - **title**: Titulo de la publicación
-  - **content**: Contenido de la publicación
+  - **title**: Titulo de la publicación.
+  - **content**: Contenido de la publicación.
   - **tags**: Etiquetas de la publicación *(Solo tags de la tabla tags aceptados, se agregara el endpoints GET /tags luego)*
   - **visibility**: Visibilidad de la publicación *(public, delisted, private)*
 
 - ``PATCH /posts/{id}``: Modificar una publicación
+  - Lleva los mismos parametros que el POST (excepto title).
+  - Los administradores pueden modificar la información de todas las publicaciones, incluyendo title.
 
 - ``PATCH /posts/{id}/vote``: Votar una publicación
   - **positive**: null|bool *(Voto negativo, positivo, o ninguno?)*
 
-- ``DELETE /posts``: Eliminar una publicación
+- ``DELETE /posts/{id}``: Eliminar una publicación, solo para administradores.
 
-- ``GET /posts/{id}/comments``: Obtener lista de comentarios de una publicación
+- ``GET /posts/{id}/comments``: Obtener lista de comentarios de una publicación.
   - **page**: Página, si no se incluye este parametro, se setea a la página 1.
 
 - ``GET /posts/{id}/comments/{id}``: Obtener un comentario
+
+- ``POST /posts/{id}/comments``: Agergar un comentario
+  - **content**: Contenido del comentario.
+  - **replyingTo**: ID del comentario al cual se le está respondiendo, null/no incluir si no se le está respondiendo a ninguno.
+
+- ``PATCH /posts/{id}/comments/{id}``: Modificar un comentario
+  - Lleva los mismos parametros que el POST (excepto replyingTo).
+  - Los administradores pueden agregar el taributo '**visibility**: enum' en el JSON (public o private) para ocultar comentarios.
+
+- ``DELETE /posts/{id}/comments/{id}``: Eliminar un comentario, solo para administradores.

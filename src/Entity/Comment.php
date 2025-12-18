@@ -15,7 +15,7 @@ class Comment
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['comment:read', 'comment:list'])]
+    #[Groups(['comment:create', 'comment:read', 'comment:list', 'comment:update'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments')]
@@ -26,19 +26,19 @@ class Comment
     private ?Post $post = null;
 
     #[ORM\Column(length: 500)]
-    #[Groups(['comment:read', 'comment:list'])]
+    #[Groups(['comment:create', 'comment:read', 'comment:list', 'comment:update'])]
     private ?string $content = null;
 
     #[ORM\Column]
-    #[Groups(['comment:read', 'comment:list'])]
+    #[Groups(['comment:create', 'comment:read', 'comment:list', 'comment:update'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
-    #[Groups(['comment:read', 'comment:list'])]
+    #[Groups(['comment:create', 'comment:read', 'comment:list', 'comment:update'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\Column(enumType: Visibility::class)]
-    #[Groups(['comment:read', 'comment:list'])]
+    #[Groups(['comment:create', 'comment:read', 'comment:list', 'comment:update'])]
     private ?Visibility $visibility = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'replies')]
@@ -48,12 +48,15 @@ class Comment
     /**
      * @var Collection<int, self>
      */
-    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'replyingTo')]
+    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'replyingTo', cascade: ['persist'])]
     #[Groups(['comment:read', 'comment:list'])]
     private Collection $replies;
 
     public function __construct()
     {
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
+        $this->visibility = Visibility::PUBLIC;
         $this->replies = new ArrayCollection();
     }
 
