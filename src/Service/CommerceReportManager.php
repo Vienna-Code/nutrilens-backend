@@ -34,12 +34,12 @@ class CommerceReportManager
         return $commerceReport;
     }
 
-    public function update(array &$data, CommerceReport &$report, User &$user): CommerceReport|false
+    public function update(array &$data, CommerceReport &$report): CommerceReport|false
     {
         $current = $report->isResolved();
-        if (isset($data['resolved']) && $data['resolved'] !== $current) {
+        if ($data['resolved'] !== $current) {
             $report->setResolved($data['resolved']);
-            $this->gm->resolveCommerceReport($report);
+            $this->gm->resolveReport($report, $current);
         }
 
         $this->em->persist($report);

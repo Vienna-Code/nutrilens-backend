@@ -57,11 +57,12 @@ class GamificationManager
                 $user->addUserGamification($gamification);
             }
 
+            $this->em->persist($user);
             $this->em->persist($report);
         }
     }
 
-    public function verifyProduct(Product &$product, bool $resolved = true): void
+    public function verifyProduct(Product &$product, bool $resolved = false): void
     {
         $productReports = $this->prr->findByFilters(['resolved' => $resolved], $product);
         foreach ($productReports as $report) {
@@ -81,31 +82,42 @@ class GamificationManager
                 $user->addUserGamification($gamification);
             }
 
+            $this->em->persist($user);
             $this->em->persist($report);
         }
     }
 
-    public function resolveCommerceReport(CommerceReport $report): void
+    public function resolveReport(CommerceReport|ProductReport $report, ?bool $current = null): void
     {
+        if ($report->isResolved() === false && $current !== true) return;
+        if ($report->isResolved() === null && $current === false) return;
+        if (!\in_array($report->getType(), [ReportType::ISSUE, ReportType::MODIFICATION, ReportType::REBUTTAL])) return;
+
         $user = $report->getUser();
         $gamification = new UserGamification();
+        $type = ($report instanceof CommerceReport) ? "Commerce" : "Product";
+
+        if ($report->isResolved() === true) {
+            $reward = $this->points[strtolower($type)]['validation'];
+            $text = "validated";
+        } else {
+            $reward = -($this->points[strtolower($type)]['validation']);
+            $text = "unvalidated";
+        }
 
         if ($report->getType() === ReportType::ISSUE) {
-            $gamification->setEvent("Commerce issue report of ID {$report->getId()} was resolved.");
-            $gamification->setPoints($this->points['commerce']['validation']);
-            $user->addUserGamification($gamification);
+            $gamification->setEvent("$type issue report of ID {$report->getId()} was $text.");
         }
         
         if ($report->getType() === ReportType::MODIFICATION) {
-            $gamification->setEvent("Commerce modification of ID {$report->getId()} was resolved.");
-            $gamification->setPoints($this->points['commerce']['validation']);
-            $user->addUserGamification($gamification);
+            $gamification->setEvent("$type modification of ID {$report->getId()} was $text.");
         }
 
         if ($report->getType() === ReportType::REBUTTAL) {
-            $gamification->setEvent("Commerce rebuttal of ID {$report->getId()} was resolved.");
-            $gamification->setPoints($this->points['commerce']['validation']);
-            $user->addUserGamification($gamification);
+            $gamification->setEvent("$type rebuttal of ID {$report->getId()} was $text.");
         }
+
+        $gamification->setPoints($reward);
+        $user->addUserGamification($gamification);
     }
 }

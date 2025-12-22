@@ -16,7 +16,8 @@ class Product
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['commerce:read', 'product:read', 'product:create', 'product:list', 'product:update'])]
+    #[Groups(['commerce:read', 'product:read', 'product:create', 'product:list', 'product:update',
+                      'productreport:create', 'productreport:read', 'productreport:list', 'productreport:update',])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'products')]
@@ -24,15 +25,18 @@ class Product
     private ?Commerce $commerce = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['commerce:read', 'product:read', 'product:create', 'product:list', 'product:update'])]
+    #[Groups(['commerce:read', 'product:read', 'product:create', 'product:list', 'product:update',
+                      'productreport:create', 'productreport:read', 'productreport:list', 'productreport:update',])]
     private ?string $name = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['commerce:read', 'product:read', 'product:create', 'product:list', 'product:update'])]
+    #[Groups(['commerce:read', 'product:read', 'product:create', 'product:list', 'product:update',
+                      'productreport:create', 'productreport:read', 'productreport:list', 'productreport:update',])]
     private ?string $brand = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['commerce:read', 'product:read', 'product:create', 'product:list', 'product:update'])]
+    #[Groups(['commerce:read', 'product:read', 'product:create', 'product:list', 'product:update',
+                      'productreport:create', 'productreport:read', 'productreport:list', 'productreport:update',])]
     private ?ProductCategory $category = null;
 
     #[ORM\Column]
@@ -56,7 +60,8 @@ class Product
     private Collection $productReports;
 
     #[ORM\Column]
-    #[Groups(['commerce:read', 'product:read', 'product:create', 'product:list', 'product:update'])]
+    #[Groups(['commerce:read', 'product:read', 'product:create', 'product:list', 'product:update',
+                      'productreport:create', 'productreport:read', 'productreport:list', 'productreport:update',])]
     private ?int $price = null;
 
     public function __construct()
@@ -202,7 +207,8 @@ class Product
         return $this;
     }
 
-    #[Groups(['commerce:read', 'product:read', 'product:create', 'product:list', 'product:update'])]
+    #[Groups(['commerce:read', 'product:read', 'product:create', 'product:list', 'product:update',
+                      'productreport:create', 'productreport:read', 'productreport:list', 'productreport:update',])]
     #[SerializedName('aptFor')]
     public function getAptForValues(): array
     {

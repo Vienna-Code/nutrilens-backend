@@ -87,6 +87,9 @@
   - **content**: string *(Contenido textual del reporte)*
   - **type**: Enum *(En el caso de que se este reportando un comercio no verificado, 'type' se setea a "confirmation" o "rebuttal" para confirmar o denegar la existencia. También se puede setear a "issue" si solo se está reportando un problema)*
 
+- ``PATCH /commerces/{id}/reports/{id}``: Modificar un reporte de un comercio, solo para administradores
+  - **resolved**: bool|null *(Si se valida o no el reporte del usuario. Validar un reporte le otorgará puntos de gamificación al usuario)*
+
 - ``GET /products``: Obtener lista de productos
   - **commerce**: int *(Comercio al cual pertenecen los productos)*
   - **unverified**: *(Agregar a la query '&unverified' para incluir productos no verificados)*
@@ -115,6 +118,9 @@
 - ``POST /products/{id}/reports``: Publicar un reporte para un producto
   - **content**: string *(Contenido textual del reporte)*
   - **type**: Enum *(En el caso de que se este reportando un producto no verificado, 'type' se setea a "confirmation" o "rebuttal" para confirmar o denegar la existencia. También se puede setear a "issue" si solo se está reportando un problema)*
+
+- ``PATCH /commerces/{id}/reports/{id}``: Modificar un reporte de un producto, solo para administradores
+  - **resolved**: bool|null *(Si se valida o no el reporte del usuario. Validar un reporte le otorgará puntos de gamificación al usuario)*
 
 - ``GET /posts``: Retorna una lista de publicaciones
   - **page**: Página, si no se incluye este parametro, se setea a la página 1.

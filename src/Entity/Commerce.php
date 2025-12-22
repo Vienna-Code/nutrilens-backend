@@ -16,15 +16,18 @@ class Commerce
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update'])]
+    #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update',
+                      'commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update'])]
+    #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update',
+                      'commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update'])]
+    #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update',
+                      'commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update'])]
     private ?CommerceType $type = null;
 
     #[ORM\Column]

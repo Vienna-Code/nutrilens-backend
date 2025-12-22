@@ -102,7 +102,7 @@ class AppFixtures extends Fixture
                     'date' => new DateTimeImmutable(),
                     'resolved' => true,
                 ]);
-                $this->gm->verifyCommerce($commerce, false);
+                $this->gm->verifyCommerce($commerce, true);
             }
 
             // Products
@@ -161,7 +161,7 @@ class AppFixtures extends Fixture
                         'date' => new DateTimeImmutable(),
                         'resolved' => true,
                     ]);
-                    $this->gm->verifyProduct($product, false);
+                    $this->gm->verifyProduct($product, true);
                 }
             }
             

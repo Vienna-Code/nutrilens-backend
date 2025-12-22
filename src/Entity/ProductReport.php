@@ -13,39 +13,40 @@ class ProductReport
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['productreport:create', 'productreport:list'])]
+    #[Groups(['productreport:create', 'productreport:read', 'productreport:list', 'productreport:update'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'productReports')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['productreport:create', 'productreport:read', 'productreport:list', 'productreport:update'])]
     private ?Product $product = null;
 
     #[ORM\ManyToOne(inversedBy: 'productReports')]
-    #[Groups(['productreport:create', 'productreport:list'])]
+    #[Groups(['productreport:create', 'productreport:read', 'productreport:list', 'productreport:update'])]
     private ?User $user = null;
 
     #[ORM\Column]
-    #[Groups(['productreport:create', 'productreport:list'])]
+    #[Groups(['productreport:create', 'productreport:read', 'productreport:list', 'productreport:update'])]
     private ?\DateTimeImmutable $date = null;
 
     #[ORM\Column(enumType: ReportType::class)]
-    #[Groups(['productreport:create', 'productreport:list'])]
+    #[Groups(['productreport:create', 'productreport:read', 'productreport:list', 'productreport:update'])]
     private ?ReportType $type = null;
 
     #[ORM\Column(length: 1000, nullable: true)]
-    #[Groups(['productreport:create', 'productreport:list'])]
+    #[Groups(['productreport:create', 'productreport:read', 'productreport:list', 'productreport:update'])]
     private ?string $content = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['productreport:create', 'productreport:list'])]
+    #[Groups(['productreport:create', 'productreport:read', 'productreport:list', 'productreport:update'])]
     private ?string $imagePath = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
+    #[Groups(['productreport:read', 'productreport:list', 'productreport:update'])]
     private ?bool $resolved = null;
 
     public function __construct()
     {
-        $this->resolved = false;
         $this->date = new \DateTimeImmutable();
     }
 
@@ -131,7 +132,7 @@ class ProductReport
         return $this->resolved;
     }
 
-    public function setResolved(bool $resolved): static
+    public function setResolved(?bool $resolved): static
     {
         $this->resolved = $resolved;
 

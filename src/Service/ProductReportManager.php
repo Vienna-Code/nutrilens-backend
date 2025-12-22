@@ -3,7 +3,6 @@
 namespace App\Service;
 
 use App\Entity\Commerce;
-use App\Entity\CommerceReport;
 use App\Entity\Product;
 use App\Entity\ProductReport;
 use App\Entity\User;
@@ -33,9 +32,18 @@ class ProductReportManager
         return $productReport;
     }
 
-    public function update(array &$data, Commerce &$commerce, User &$user): CommerceReport|false
+    public function update(array &$data, ProductReport $report): ProductReport|false
     {
-        return false;
+        $current = $report->isResolved();
+        if ($data['resolved'] !== $current) {
+            $report->setResolved($data['resolved']);
+            $this->gm->resolveReport($report, $current);
+        }
+
+        $this->em->persist($report);
+        $this->em->flush();
+
+        return $report;
     }
 
     public function delete(Commerce $commerce): void

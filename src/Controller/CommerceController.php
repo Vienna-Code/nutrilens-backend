@@ -188,20 +188,22 @@ final class CommerceController extends AbstractController
             return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
         }
 
-        // Responder
+        // Encontrar reporte
         $report = $this->cReportRepository->find($idr);
         if (!$report) {
             return $this->json([
                 'error' => ['message' => 'Reporte no encontrado.']
             ], 404);
         }
+
+        // Responder
         return $this->json([
             'data' => $report
         ], 200, [], ['groups' => ['commercereport:read']]);
     }
 
     #[Route('/commerces/{id}/reports', methods: ['GET'], name: 'app_commercereport_list')]
-    public function listReports(Commerce $commerce, Request $request): JsonResponse
+    public function listReports(int $id, Request $request): JsonResponse
     {
         // Control de acceso
         $user = $this->getUser(); /** @var \App\Entity\User $user */
@@ -221,6 +223,12 @@ final class CommerceController extends AbstractController
         // TODO
 
         // Encontrar reportes
+        $commerce = $this->commerceRepository->find($id);
+        if (!$commerce) {
+            return $this->json([
+                'error' => ['message' => 'Comercio no encontrado.']
+            ], 404);
+        }
         $reports = $this->cReportRepository->findByFilters($data, $commerce);
 
         // Responder
@@ -230,7 +238,7 @@ final class CommerceController extends AbstractController
     }
 
     #[Route('/commerces/{id}/reports', methods: ['POST'], name: 'app_commercereport_create')]
-    public function createReport(Commerce $commerce, Request $request): JsonResponse
+    public function createReport(int $id, Request $request): JsonResponse
     {
         // Control de acceso
         $user = $this->getUser(); /** @var \App\Entity\User $user */
@@ -242,18 +250,25 @@ final class CommerceController extends AbstractController
 
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
+
+        // Encontrar comercio
+        $commerce = $this->commerceRepository->find($id);
+        if (!$commerce) {
+            return $this->json([
+                'error' => ['message' => 'Comercio no encontrado.']
+            ], 404);
+        }
         
         // Validación con DTO
         // TODO
-        if ($commerce->isVerified()) {
-            $data['type'] = ReportType::ISSUE->value;
-        } else if (!\in_array(ReportType::tryFrom($data['type']), [
+        $data['type'] = ReportType::ISSUE->value;
+        if (!\in_array(ReportType::tryFrom($data['type']), [
             ReportType::CONFIRMATION,
             ReportType::REBUTTAL,
             ReportType::ISSUE
         ])) {
             return $this->json([
-                'error' => ['message' => 'Tipo de reporte invalido.']
+                'error' => ['message' => 'Tipo de reporte inválido.']
             ], 400);
         }
 
@@ -294,13 +309,12 @@ final class CommerceController extends AbstractController
                 'error' => ['message' => 'Reporte no encontrado.']
             ], 404);
         }
-        $report = $this->cReportManager->update($data, $report, $user);
-        // TODO
+        $report = $this->cReportManager->update($data, $report);
 
         // Responder
         return $this->json([
             'message' => 'Reporte de comercio actualizado correctamente.',
             'data' => $report,
-        ], 201, [], ['groups' => ['commercereport:update']]);
+        ], 200, [], ['groups' => ['commercereport:update']]);
     }
 }

@@ -13,39 +13,39 @@ class CommerceReport
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['commercereport:create', 'commercereport:read', 'commercereport:list'])]
+    #[Groups(['commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'commerceReports')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update'])]
     private ?Commerce $commerce = null;
 
     #[ORM\ManyToOne(inversedBy: 'commerceReports')]
-    #[Groups(['commercereport:create', 'commercereport:read', 'commercereport:list'])]
+    #[Groups(['commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update'])]
     private ?User $user = null;
 
     #[ORM\Column]
-    #[Groups(['commercereport:create', 'commercereport:read', 'commercereport:list'])]
+    #[Groups(['commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update'])]
     private ?\DateTimeImmutable $date = null;
 
     #[ORM\Column(enumType: ReportType::class)]
-    #[Groups(['commercereport:create', 'commercereport:read', 'commercereport:list'])]
+    #[Groups(['commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update'])]
     private ?ReportType $type = null;
 
     #[ORM\Column(length: 1000, nullable: true)]
-    #[Groups(['commercereport:create', 'commercereport:read', 'commercereport:list'])]
+    #[Groups(['commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update'])]
     private ?string $content = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['commercereport:create', 'commercereport:read', 'commercereport:list'])]
+    #[Groups(['commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update'])]
     private ?string $imagePath = null;
 
-    #[ORM\Column]
-    #[Groups(['commercereport:read', 'commercereport:list'])]
+    #[ORM\Column(nullable: true)]
+    #[Groups(['commercereport:read', 'commercereport:list', 'commercereport:update'])]
     private ?bool $resolved = null;
 
     public function __construct() {
-        $this->resolved = false;
         $this->date = new \DateTimeImmutable(); 
     }
 
@@ -131,7 +131,7 @@ class CommerceReport
         return $this->resolved;
     }
 
-    public function setResolved(bool $resolved): static
+    public function setResolved(?bool $resolved): static
     {
         $this->resolved = $resolved;
 

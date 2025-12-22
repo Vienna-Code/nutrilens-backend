@@ -149,8 +149,34 @@ final class ProductController extends AbstractController
         ], 200);
     }
 
+    #[Route('/products/{idp}/reports/{idr}', methods: ['GET'], name: 'app_productreport_get')]
+    public function getReport(int $idp, int $idr): JsonResponse {
+        // Control de acceso
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json([
+                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
+            ], 401);
+        }
+        if (!\in_array('ROLE_ADMIN', $user->getRoles())) {
+            return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
+        }
+
+        // Encontrar reporte
+        $report = $this->pReportRepository->find($idr);
+        if (!$report) {
+            return $this->json([
+                'error' => ['message' => 'Reporte no encontrado.']
+            ], 404);
+        }
+
+        return $this->json([
+            'data' => $report
+        ], 200, [], ['groups' => ['productreport:read']]);
+    }
+
     #[Route('/products/{id}/reports', methods: ['GET'], name: 'app_productreport_list')]
-    public function listReports(Product $product, Request $request): JsonResponse
+    public function listReports(int $id, Request $request): JsonResponse
     {
         // Control de acceso
         $user = $this->getUser(); /** @var \App\Entity\User $user */
@@ -170,16 +196,22 @@ final class ProductController extends AbstractController
         // TODO
 
         // Encontrar reportes
-        $products = $this->pReportRepository->findByFilters($data, $product);
+        $product = $this->productRepository->find($id);
+        if (!$product) {
+            return $this->json([
+                'error' => ['message' => 'Producto no encontrado.']
+            ], 404);
+        }
+        $reports = $this->pReportRepository->findByFilters($data, $product);
 
         // Responder
         return $this->json([
-            'data' => $products
+            'data' => $reports
         ], 200, [], ['groups' => ['productreport:list']]);
     }
 
     #[Route('/products/{id}/reports', methods: ['POST'], name: 'app_productreport_create')]
-    public function createReport(Product $product, Request $request): JsonResponse
+    public function createReport(int $id, Request $request): JsonResponse
     {
         // Control de acceso
         $user = $this->getUser(); /** @var \App\Entity\User $user */
@@ -191,12 +223,19 @@ final class ProductController extends AbstractController
 
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
+
+        // Encontrar producto
+        $product = $this->productRepository->find($id);
+        if (!$product) {
+            return $this->json([
+                'error' => ['message' => 'Producto no encontrado.']
+            ], 404);
+        }
         
         // Validación con DTO
         // TODO
-        if ($product->isVerified()) {
-            $data['type'] = ReportType::ISSUE->value;
-        } else if (!\in_array(ReportType::tryFrom($data['type']), [
+        $data['type'] = ReportType::ISSUE->value;
+        if (!\in_array(ReportType::tryFrom($data['type']), [
             ReportType::CONFIRMATION,
             ReportType::REBUTTAL,
             ReportType::ISSUE
@@ -214,5 +253,41 @@ final class ProductController extends AbstractController
             'message' => 'Reporte de producto creado correctamente.',
             'data' => $report,
         ], 201, [], ['groups' => ['productreport:create']]);
+    }
+
+    #[Route('/products/{idp}/reports/{idr}', methods: ['PATCH'], name: 'app_productreport_patch')]
+    public function patchReport(int $idp, int $idr, Request $request): JsonResponse
+    {
+        // Control de acceso
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json([
+                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
+            ], 401);
+        }
+        if (!\in_array('ROLE_ADMIN', $user->getRoles())) {
+            return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
+        }
+
+        // Parseo del request JSON
+        $data = json_decode($request->getContent(), true);
+
+        // Validación con DTO
+        // TODO
+
+        // Actualizar reporte
+        $report = $this->pReportRepository->find($idr);
+        if (!$report) {
+            return $this->json([
+                'error' => ['message' => 'Reporte no encontrado.']
+            ], 404);
+        }
+        $report = $this->pReportManager->update($data, $report);
+
+        // Responder
+        return $this->json([
+            'message' => 'Reporte de producto actualizado correctamente.',
+            'data' => $report,
+        ], 200, [], ['groups' => ['productreport:update']]);
     }
 }
