@@ -80,7 +80,7 @@ final class ProductController extends AbstractController
         // TODO
 
         // Encontrar comercio
-        $commerce = $this->commerceRepository->findOneById($data['commerceId']);
+        $commerce = $this->commerceRepository->find($data['commerceId']);
         if (!$commerce) {
             return $this->json([
                 'error' => ['message' => 'Comercio no encontrado.']
@@ -223,18 +223,39 @@ final class ProductController extends AbstractController
 
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
+        $type = ReportType::tryFrom($data['type']);
 
         // Encontrar producto
-        $product = $this->productRepository->find($id);
+        $product = $this->productRepository->findWithReports($id);
         if (!$product) {
             return $this->json([
                 'error' => ['message' => 'Producto no encontrado.']
             ], 404);
         }
+
+        // Verificación extra
+        // No reportar productos que subiste
+        if ($product->getProductReports()->exists(
+            fn ($key, $report) => $report->getUser() === $user && $report->getType() === ReportType::SUBMISSION
+        )) {
+            return $this->json([
+                'error' => ['message' => 'No puedes reportar productos que hayas subido.']
+            ], 403);
+        }
+        // Chequeo de existencia
+        if ($product->getProductReports()->exists(
+            fn ($key, $report) =>
+                $report->getUser() === $user &&
+                $report->getType() === $type &&
+                $report->getType() !== ReportType::ISSUE
+        )) {
+            return $this->json([
+                'error' => ['message' => 'Ya subiste este reporte.']
+            ], 409);
+        }
         
         // Validación con DTO
         // TODO
-        $data['type'] = ReportType::ISSUE->value;
         if (!\in_array(ReportType::tryFrom($data['type']), [
             ReportType::CONFIRMATION,
             ReportType::REBUTTAL,

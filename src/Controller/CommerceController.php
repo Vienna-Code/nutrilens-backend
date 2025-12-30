@@ -250,19 +250,40 @@ final class CommerceController extends AbstractController
 
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
+        $type = ReportType::tryFrom($data['type']);
 
         // Encontrar comercio
-        $commerce = $this->commerceRepository->find($id);
+        $commerce = $this->commerceRepository->findWithReports($id);
         if (!$commerce) {
             return $this->json([
                 'error' => ['message' => 'Comercio no encontrado.']
             ], 404);
         }
+
+        // Verificación extra
+        // No reportar comercios que subiste
+        if ($commerce->getCommerceReports()->exists(
+            fn ($key, $report) => $report->getUser() === $user && $report->getType() === ReportType::SUBMISSION
+        )) {
+            return $this->json([
+                'error' => ['message' => 'No puedes reportar comercios que hayas subido.']
+            ], 403);
+        }
+        // Chequeo de existencia
+        if ($commerce->getCommerceReports()->exists(
+            fn ($key, $report) =>
+                $report->getUser() === $user &&
+                $report->getType() === $type &&
+                $report->getType() !== ReportType::ISSUE
+        )) {
+            return $this->json([
+                'error' => ['message' => 'Ya subiste este reporte.']
+            ], 409);
+        }
         
         // Validación con DTO
         // TODO
-        $data['type'] = ReportType::ISSUE->value;
-        if (!\in_array(ReportType::tryFrom($data['type']), [
+        if (!\in_array($type, [
             ReportType::CONFIRMATION,
             ReportType::REBUTTAL,
             ReportType::ISSUE

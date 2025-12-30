@@ -37,6 +37,24 @@ class ProductRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    public function findWithReports(int $id, ?bool $resolved = null): ?Product
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->andWhere('p.id = :id')
+            ->setParameter('id', $id)
+            ->leftJoin('p.productReports', 'pr')
+            ->addSelect('pr');
+
+        if ($resolved === null) {
+            $qb->andWhere('pr.resolved IS NULL');
+        } else {
+            $qb->andWhere('pr.resolved = :res')
+                ->setParameter('res', $resolved);
+        }
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
+
     //    /**
     //     * @return Product[] Returns an array of Product objects
     //     */

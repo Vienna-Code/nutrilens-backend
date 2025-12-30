@@ -117,13 +117,22 @@ class CommerceRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findOneById(int $id)
+    public function findWithReports(int $id, ?bool $resolved = null): ?Commerce
     {
-        return $this->createQueryBuilder('c')
+        $qb = $this->createQueryBuilder('c')
             ->andWhere('c.id = :id')
             ->setParameter('id', $id)
-            ->getQuery()
-            ->getOneOrNullResult();
+            ->leftJoin('c.commerceReports', 'cr')
+            ->addSelect('cr');
+
+        if ($resolved === null) {
+            $qb->andWhere('cr.resolved IS NULL');
+        } else {
+            $qb->andWhere('cr.resolved = :res')
+            ->setParameter('res', $resolved);
+        }
+
+        return $qb->getQuery()->getOneOrNullResult();
     }
 
     //    /**

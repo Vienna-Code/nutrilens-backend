@@ -19,7 +19,7 @@ class ProductReportManager
     public function create(array &$data, Product &$product, User &$user): ProductReport
     {
         $productReport = new ProductReport();
-        $productReport->setContent($data['content']);
+        $productReport->setContent($data['content'] ?? null);
         $productReport->setType(ReportType::tryFrom($data['type']));
 
         $product->addProductReport($productReport);

@@ -21,7 +21,7 @@ class CommerceReportManager
     public function create(array &$data, Commerce &$commerce, User &$user): CommerceReport
     {
         $commerceReport = new CommerceReport();
-        $commerceReport->setContent($data['content']);
+        $commerceReport->setContent($data['content'] ?? null);
         $commerceReport->setType(ReportType::tryFrom($data['type']));
 
         $commerce->addCommerceReport($commerceReport);
@@ -46,10 +46,5 @@ class CommerceReportManager
         $this->em->flush();
 
         return $report;
-    }
-
-    public function delete(Commerce $commerce): void
-    {
-        
     }
 }
