@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Enum\CommerceType;
 use App\Enum\ReportType;
 use App\Enum\UserRank;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CommerceReportManager
@@ -26,6 +27,32 @@ class CommerceReportManager
 
         $commerce->addCommerceReport($commerceReport);
         $user->addCommerceReport($commerceReport);
+
+        // Ver si se puede verificar el comercio automáticamente
+        $confirmations = 0;
+        foreach ($commerce->getCommerceReports() as $report) {
+            if ($report->getType() === ReportType::CONFIRMATION) {
+                $confirmations++;
+            }
+            if ($report->getType() === ReportType::REBUTTAL) {
+                // No verificar si hay un reporte negativo
+                $confirmations = 0;
+                break;
+            }
+        }
+        if ($confirmations >= 3) {
+            // Verificar commercio automáticamente al tener 3 reportes de existencia
+            $verificationReport = new CommerceReport();
+            $verificationReport->setContent('Comercio obtuvo tres reportes de confirmaciones de existencia.');
+            $verificationReport->setType(ReportType::VERIFICATION);
+            $verificationReport->setDate(
+                (new DateTimeImmutable())->modify('+1 second')
+            );
+            $commerce->addCommerceReport($verificationReport);
+            $commerce->setVerified(true);
+            
+            $this->gm->verifyCommerce($commerce);
+        }
 
         $this->em->persist($commerce);
         $this->em->persist($user);

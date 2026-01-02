@@ -94,6 +94,7 @@ class GamificationManager
         if (!\in_array($report->getType(), [ReportType::ISSUE, ReportType::MODIFICATION, ReportType::REBUTTAL])) return;
 
         $user = $report->getUser();
+        if (!$user) return;
         $gamification = new UserGamification();
         $type = ($report instanceof CommerceReport) ? "Commerce" : "Product";
 
