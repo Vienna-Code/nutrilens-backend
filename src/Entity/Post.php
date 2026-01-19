@@ -28,7 +28,7 @@ class Post
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups(['post:create', 'post:read', 'post:update'])]
+    #[Groups(['post:create', 'post:read', 'post:list', 'post:update'])]
     private ?string $content = null;
 
     #[ORM\Column]

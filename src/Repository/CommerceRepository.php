@@ -29,9 +29,11 @@ class CommerceRepository extends ServiceEntityRepository
             ->leftJoin('c.commerceReports', 'cr')
             ->leftJoin('c.commerceSchedules', 'cs')
             ->leftJoin('c.commerceImages', 'ci')
+            ->leftJoin('c.products', 'p')
             ->addSelect('cr')
             ->addSelect('cs')
-            ->addSelect('ci');
+            ->addSelect('ci')
+            ->addSelect('p');
 
         // Rango de latitud-longitud
         if (isset($filters['lat'], $filters['lon'])) {
@@ -70,7 +72,7 @@ class CommerceRepository extends ServiceEntityRepository
 
             // Restricciones alimentarias
             if (isset($filters['restrictions'])) {
-                $restrictions = explode(',', $filters['restrictions']);
+                $restrictions = $filters['restrictions'];
 
                 $subqb = $this->createQueryBuilder('c2')
                     ->select('c2.id')
@@ -88,7 +90,7 @@ class CommerceRepository extends ServiceEntityRepository
 
         // Tipos de comercio
         if (isset($filters['commerceTypes'])) {
-            $commerceTypes = explode(',', $filters['commerceTypes']);
+            $commerceTypes = $filters['commerceTypes'];
             $qb->andWhere('c.type IN (:types)')
                 ->setParameter('types', $commerceTypes);
         }

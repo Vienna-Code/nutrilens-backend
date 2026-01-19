@@ -7,6 +7,9 @@ use App\Dto\_NestedObjects\ContactInfo;
 use App\Dto\_NestedObjects\CommerceSchedule;
 use App\Entity\Commerce;
 use App\Entity\CommerceReport;
+use App\Enum\AlimentaryRestriction;
+use App\Enum\CommerceType;
+use App\Enum\PaymentMethod;
 use App\Enum\ReportType;
 use App\Enum\UserRank;
 use App\Repository\CommerceReportRepository;
@@ -106,14 +109,15 @@ final class CommerceController extends ApiController
             ])
         );
 
+        // Obtener comercio
         $commerce = $this->commerceRepository->find($id);
-
         if (!$commerce) {
             return $this->json([
                 'error' => ['message' => 'Comercio no encontrado.']
             ], 404);
         }
 
+        // Responder
         return $this->json([
             'data' => $commerce
         ], 200, [], ['groups' => ['commerce:read']]);
@@ -126,13 +130,65 @@ final class CommerceController extends ApiController
         $data = $request->query->all();
 
         // Validación
+        if (isset($data['restrictions'])) {
+            $data['restrictions'] = array_filter(array_map('trim', explode(',', $data['restrictions'])));
+        }
+        if (isset($data['commerceTypes'])) {
+            $data['commerceTypes'] = array_filter(array_map('trim', explode(',', $data['commerceTypes'])));
+        }
         $data = $this->validate(
             $data,
             new Assert\Collection([
                 'fields' => [
-                    // TODO
+                    'lat' => [
+                        new Assert\Regex(
+                            pattern: '/^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/',
+                            message: 'This value should follow the format "float,float"'
+                        ),
+                    ],
+                    'lon' => [
+                        new Assert\Regex(
+                            pattern: '/^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/',
+                            message: 'This value should follow the format "float,float"'
+                        ),
+                    ],
+                    'name' => [],
+                    'minPrice' => [
+                        new Assert\Type('numeric'),
+                        new Assert\Regex(
+                            pattern: '/^\d+$/',
+                            message: 'This value must be a positive integer.',
+                        ),
+                    ],
+                    'maxPrice' => [
+                        new Assert\Type('numeric'),
+                        new Assert\Regex(
+                            pattern: '/^\d+$/',
+                            message: 'This value must be a positive integer.',
+                        ),
+                    ],
+                    'restrictions' => [
+                        new Assert\Type('array'),
+                        new Assert\All([
+                            new Assert\Choice(array_column(AlimentaryRestriction::cases(), 'value')),
+                        ]),
+                    ],
+                    'orderBy' => [
+                        new Assert\Choice([
+                            'name_asc', 'name_desc',
+                            'rating_asc', 'rating_desc',
+                            'price_asc', 'price_desc',
+                        ]),
+                    ],
+                    'commerceTypes' => [
+                        new Assert\Type('array'),
+                        new Assert\All([
+                            new Assert\Choice(array_column(CommerceType::cases(), 'value')),
+                        ]),
+                    ],
+                    'unverified' => [],
                 ],
-                'allowExtraFields' => true,
+                'allowMissingFields' => true,
             ])
         );
 
@@ -159,8 +215,8 @@ final class CommerceController extends ApiController
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
         
-        // Validación con DTO
-        // TODO
+        // Validación
+        $data = $this->validateCommerce($data);
 
         // Crear comercio, horarios & reportes
         $commerce = $this->commerceManager->create($data, $user);
@@ -186,8 +242,8 @@ final class CommerceController extends ApiController
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
 
-        // Validacion con DTO
-        // TODO
+        // Validacion
+        $data = $this->validateCommerce($data, true);
 
         // Modificar comercio
         $commerce = $this->commerceManager->update($data, $commerce, $user);
@@ -205,7 +261,7 @@ final class CommerceController extends ApiController
     }
 
     #[Route('/commerces/{id}', methods: ['DELETE'], name: 'app_commerces_delete')]
-    public function delete(Commerce $commerce): JsonResponse
+    public function delete(string $id): JsonResponse
     {
         // Control de acceso (SOLO ADMINS)
         $user = $this->getUser(); /** @var \App\Entity\User $user */
@@ -214,6 +270,31 @@ final class CommerceController extends ApiController
         }
         if (!\in_array('ROLE_ADMIN', $user->getRoles())) {
             return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
+        }
+
+        // Validación
+        $this->validate(
+            ['id' => $id],
+            new Assert\Collection([
+                'fields' => [
+                    'id' => [
+                        new Assert\NotBlank(),
+                        new Assert\Regex([
+                            'pattern' => '/^\d+$/',
+                            'message' => 'The id must be a positive integer.',
+                        ]),
+                    ],
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
+
+        // Obtener comercio
+        $commerce = $this->commerceRepository->find($id);
+        if (!$commerce) {
+            return $this->json([
+                'error' => ['message' => 'Comercio no encontrado.']
+            ], 404);
         }
 
         // Eliminar comercio
@@ -386,5 +467,136 @@ final class CommerceController extends ApiController
             'message' => 'Reporte de comercio actualizado correctamente.',
             'data' => $report,
         ], 200, [], ['groups' => ['commercereport:update']]);
+    }
+
+    private function validateCommerce(array $input, bool $patch = false): array {
+        return $this->validate(
+            $input,
+            new Assert\Collection([
+                'fields' => [
+                    'name' => $this->required($patch, [
+                        new Assert\Type('string'),
+                        new Assert\Length(max: 50),
+                    ]),
+                    'type' => $this->required($patch, [
+                        new Assert\Choice(array_column(CommerceType::cases(), 'value')),
+                    ]),
+                    'coordsLat' => $this->required($patch, [
+                        new Assert\Type(['type' => 'numeric']),
+                        new Assert\Range(min: -90, max: 90),
+                    ]),
+                    'coordsLon' => $this->required($patch, [
+                        new Assert\Type(['type' => 'numeric']),
+                        new Assert\Range(min: -180, max: 180),
+                    ]),
+                    'address' => [
+                        new Assert\Type('string'),
+                    ],
+                    'contactInfo' => [
+                        new Assert\Type('array'),
+                        new Assert\Collection([
+                            'fields' => [
+                                'number' => [
+                                    new Assert\Regex(
+                                        pattern: '/^\+?[0-9\s\-().]{6,20}$/',
+                                        message: 'Invalid phone number.'
+                                    ),
+                                ],
+                                'email' => [
+                                    new Assert\Email(message: 'Invalid email address.'),
+                                ],
+                            ],
+                            'allowMissingFields' => true,
+                            'allowExtraFields' => false,
+                        ]),
+                    ],
+                    'paymentMethods' => [
+                        new Assert\Type('array'),
+                        new Assert\All([
+                            new Assert\Choice(array_column(PaymentMethod::cases(), 'value')),
+                        ]),
+                    ],
+                    'commerceSchedules' => [
+                        new Assert\Type('array'),
+                        new Assert\All([
+                            new Assert\Collection([
+                                'fields' => [
+                                    'weekday' => [
+                                        new Assert\NotNull(),
+                                        new Assert\Type('integer'),
+                                        new Assert\Range(
+                                            min: 0,
+                                            max: 6,
+                                            notInRangeMessage: 'Weekday must be between 0 (Sunday) and 6 (Saturday)'
+                                        ),
+                                    ],
+                                    'opensAt' => [
+                                        new Assert\NotBlank(),
+                                        new Assert\DateTime(
+                                            format: \DateTimeInterface::ATOM,
+                                            message: 'opensAt must be a valid datetime'
+                                        ),
+                                    ],
+                                    'closesAt' => [
+                                        new Assert\NotBlank(),
+                                        new Assert\DateTime(
+                                            format: \DateTimeInterface::ATOM,
+                                            message: 'closesAt must be a valid datetime'
+                                        ),
+                                    ],
+                                ],
+                                'allowMissingFields' => false,
+                                'allowExtraFields' => false,
+                            ]),
+                        ]),
+                        new Assert\Callback(function ($value, ExecutionContextInterface $context) {
+                            if (!\is_array($value)) {
+                                return;
+                            }
+
+                            $weekdays = [];
+                            foreach ($value as $i => $schedule) {
+                                // Chequeo de día repetido
+                                if (isset($schedule['weekday'])) {
+                                    if (\in_array($schedule['weekday'], $weekdays, true)) {
+                                        $context->buildViolation('Duplicate weekday entry')
+                                            ->atPath("[$i].weekday")
+                                            ->addViolation();
+                                    }
+                                    $weekdays[] = $schedule['weekday'];
+                                }
+
+                                // Lógica de horarios
+                                if (
+                                    isset($schedule['opensAt'], $schedule['closesAt'])
+                                    && \is_string($schedule['opensAt'])
+                                    && \is_string($schedule['closesAt'])
+                                ) {
+                                    $opensAt = new \DateTimeImmutable($schedule['opensAt']);
+                                    $closesAt = new \DateTimeImmutable($schedule['closesAt']);
+
+                                    if ($opensAt >= $closesAt) {
+                                        $context->buildViolation('opensAt must be before closesAt')
+                                            ->atPath("[$i]")
+                                            ->addViolation();
+                                    }
+                                }
+                            }
+                        }),
+                    ],
+                    'verified' => [
+                        new Assert\Type('bool'),
+                    ]
+                ],
+                'allowMissingFields' => true,
+            ])
+        );
+    }
+
+    private function required(bool $allowNull, array $constraints): array
+    {
+        return $allowNull
+            ? $constraints
+            : \array_merge([new Assert\NotNull()], $constraints);
     }
 }
