@@ -7,9 +7,11 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\User;
 use App\Entity\Product;
 use App\Entity\Review;
 use App\Entity\ProductRestriction;
+use App\Enum\ReportType;
 
 /**
  * @extends ServiceEntityRepository<Commerce>
@@ -24,9 +26,12 @@ class CommerceRepository extends ServiceEntityRepository
     public function findByFilters(array $filters): array
     {
         $qb = $this->createQueryBuilder('c')
+            ->leftJoin('c.commerceReports', 'cr')
             ->leftJoin('c.commerceSchedules', 'cs')
-            ->leftJoin('c.products', 'p')
-            ->addSelect('cs');
+            ->leftJoin('c.commerceImages', 'ci')
+            ->addSelect('cr')
+            ->addSelect('cs')
+            ->addSelect('ci');
 
         // Rango de latitud-longitud
         if (isset($filters['lat'], $filters['lon'])) {
@@ -133,6 +138,22 @@ class CommerceRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    public function findByReports(User $user, ReportType $type): array
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->leftJoin('c.commerceReports', 'cr')
+            ->leftJoin('c.commerceSchedules', 'cs')
+            ->leftJoin('c.commerceImages', 'ci')
+            ->addSelect('cr')
+            ->addSelect('cs')
+            ->addSelect('ci')
+            ->andWhere('cr.type = :type AND cr.user = :user')
+            ->setParameter('type', $type)
+            ->setParameter('user', $user);
+
+        return $qb->getQuery()->getResult();
     }
 
     //    /**

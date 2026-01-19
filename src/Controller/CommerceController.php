@@ -24,10 +24,14 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-final class CommerceController extends AbstractController
+final class CommerceController extends ApiController
 {
     public function __construct(
+        protected ValidatorInterface $validator,
         private ValidationService $validation,
         private LoggerInterface $logger,
 
@@ -46,8 +50,22 @@ final class CommerceController extends AbstractController
         // Obtener parametros URL
         $data = $request->query->all();
 
-        // Validación con DTO
-        // TODO
+        // Validación
+        $data = $this->validate(
+            $data,
+            new Assert\Collection([
+                'fields' => [
+                    'coords' => [
+                        new Assert\NotBlank(),
+                        new Assert\Regex(
+                            pattern: '/^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/',
+                            message: 'This value should follow the format "lat,lon"'
+                        ),
+                    ],
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
 
         // Encontrar comercio
         [$lat, $lon] = explode(',', $data['coords']);
@@ -69,9 +87,33 @@ final class CommerceController extends AbstractController
     }
 
     #[Route('/commerces/{id}', methods: ['GET'], name: 'app_commerce_get')]
-    public function get(Commerce $commerce): JsonResponse
+    public function get(string $id): JsonResponse
     {
-        // Responder
+        // Validación
+        $this->validate(
+            ['id' => $id],
+            new Assert\Collection([
+                'fields' => [
+                    'id' => [
+                        new Assert\NotBlank(),
+                        new Assert\Regex([
+                            'pattern' => '/^\d+$/',
+                            'message' => 'The id must be a positive integer.',
+                        ]),
+                    ],
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
+
+        $commerce = $this->commerceRepository->find($id);
+
+        if (!$commerce) {
+            return $this->json([
+                'error' => ['message' => 'Comercio no encontrado.']
+            ], 404);
+        }
+
         return $this->json([
             'data' => $commerce
         ], 200, [], ['groups' => ['commerce:read']]);
@@ -83,9 +125,16 @@ final class CommerceController extends AbstractController
         // Obtener parametros URL
         $data = $request->query->all();
 
-        // Validación con DTO
-        $errors = $this->validation->validate(new Commerces\ListCommerces($data));
-        if ($errors) return $errors;
+        // Validación
+        $data = $this->validate(
+            $data,
+            new Assert\Collection([
+                'fields' => [
+                    // TODO
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
 
         // Encontrar comercios
         $commerces = $this->commerceRepository->findByFilters($data);

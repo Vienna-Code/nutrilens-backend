@@ -3,6 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Enum\ReportType;
+use App\Repository\CommerceRepository;
+use App\Repository\PostRepository;
+use App\Repository\ProductRepository;
+use App\Repository\ReviewRepository;
 use App\Repository\UserRepository;
 use App\Service\UserManager;
 use App\Service\ValidationService;
@@ -17,9 +22,95 @@ final class UserController extends AbstractController
     public function __construct(
         private ValidationService $validationService,
         private LoggerInterface $logger,
+
         private UserRepository $userRepository,
+        private CommerceRepository $commerceRepository,
+        private ProductRepository $productRepository,
+        private PostRepository $postRepository,
+        private ReviewRepository $reviewRepository,
+
         private UserManager $userManager,
     ) {}
+
+    #[Route('/users/me/commerces', methods: ['GET'], name: 'app_users_list_commerces')]
+    public function listCommerces(): JsonResponse
+    {
+        // Autenticación
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json([
+                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
+            ], 401);
+        }
+
+        // Encontrar comercios que subió el usuario
+        $commerces = $this->commerceRepository->findByReports($user, ReportType::SUBMISSION);
+
+        // Responder
+        return $this->json([
+            'data' => $commerces
+        ], 200, [], ['groups' => ['commerce:list']]);
+    }
+
+    #[Route('/users/me/products', methods: ['GET'], name: 'app_users_list_products')]
+    public function listProducts(): JsonResponse
+    {
+        // Autenticación
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json([
+                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
+            ], 401);
+        }
+
+        // Encontrar productos que subió el usuario
+        $products = $this->productRepository->findByReports($user, ReportType::SUBMISSION);
+
+        // Responder
+        return $this->json([
+            'data' => $products
+        ], 200, [], ['groups' => ['product:list']]);
+    }
+
+    #[Route('/users/me/reviews', methods: ['GET'], name: 'app_user_list_reviews')]
+    public function listReviews(): JsonResponse
+    {
+        // Autenticación
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json([
+                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
+            ], 401);
+        }
+
+        // Encontrar reseñas que subió el usuario
+        $reviews = $this->reviewRepository->findBy(['user' => $user]);
+
+        // Responder
+        return $this->json([
+            'data' => $reviews
+        ], 200, [], ['groups' => ['review:list']]);
+    }
+
+    #[Route('/users/me/posts', methods: ['GET'], name: 'app_user_list_posts')]
+    public function listPosts(): JsonResponse
+    {
+        // Autenticación
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json([
+                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
+            ], 401);
+        }
+
+        // Encontrar publicaciones que subió el usuario
+        $posts = $this->postRepository->findBy(['user' => $user]);
+
+        // Responder
+        return $this->json([
+            'data' => $posts
+        ], 200, [], ['groups' => ['post:list']]);
+    }
 
     #[Route('/users/{id}', methods: ['GET'], name: 'app_user_get')]
     public function get(string $id): JsonResponse

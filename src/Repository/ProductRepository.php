@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\Product;
+use App\Entity\User;
+use App\Enum\ReportType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -19,13 +21,13 @@ class ProductRepository extends ServiceEntityRepository
     public function findByFilters($filters): array
     {
         $qb = $this->createQueryBuilder('p')
+            ->leftJoin('p.commerce', 'c')
+            ->leftJoin('p.aptFor', 'pr')
             ->addSelect('c')
             ->addSelect('pr');
         
         if (!empty($filters['commerce'])) {
-            $qb->leftJoin('p.commerce', 'c')
-                ->leftJoin('p.aptFor', 'pr')
-                ->andWhere('c.id = :commerceId')
+            $qb->andWhere('c.id = :commerceId')
                 ->setParameter('commerceId', $filters['commerce']);
         }
 
@@ -53,6 +55,20 @@ class ProductRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    public function findByReports(User $user, ReportType $type): array
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->leftJoin('p.productReports', 'pr')
+            ->leftJoin('p.aptFor', 'pa')
+            ->addSelect('pr')
+            ->addSelect('pa')
+            ->andWhere('pr.type = :type AND pr.user = :user')
+            ->setParameter('type', $type)
+            ->setParameter('user', $user);
+
+        return $qb->getQuery()->getResult();
     }
 
     //    /**

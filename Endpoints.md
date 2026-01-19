@@ -18,6 +18,14 @@
 - ``PATCH /users/{id}|me``: Actualizar información de un usuario. Los usuarios solo podrán actualizar /users/me
   - **alimentaryRestrictions**: string[] *(De restricciones alimentarias del usuario: ["celiac", "diabetic", "hypertensive"])*
 
+- ``GET /users/me/commerces``: Obtener comercios subidos por el usuario autenticado
+
+- ``GET /users/me/products``: Obtener productos subidos por el usuario autenticado
+
+- ``GET /users/me/reviews``: Obtener reseñas subidas por el usuario autenticado
+
+- ``GET /users/me/posts``: Obtener publicaciones subidas por el usuario autenticado
+
 - `GET /commerces`: Obtener lista de comercios
   - **lat**: string *(Rango de latitud en el mapa, dos floats divididos por una coma)*
   - **lon**: string *(Rango de longitud en el mapa, dos floats divididos por una coma)*

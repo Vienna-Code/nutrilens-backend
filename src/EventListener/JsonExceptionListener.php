@@ -12,27 +12,33 @@ final class JsonExceptionListener
 {
     public function __invoke(ExceptionEvent $event): void
     {
-        $request = $event->getRequest();
-        
-        if (str_contains($request->getContentTypeFormat(), 'json')) {
-            $exception = $event->getThrowable();
-
-            $statusCode = $exception instanceof HttpExceptionInterface
-                ? $exception->getStatusCode()
-                : 500;
-
-            $response = new JsonResponse([
-                'error' => [
-                    'type' => (new \ReflectionClass($exception))->getShortName(),
-                    'message' => $exception->getMessage(),
-                    'code' => $exception->getCode(),
-                    'file' => $_ENV['APP_DEBUG'] ? $exception->getFile() : null,
-                    'line' => $_ENV['APP_DEBUG'] ? $exception->getLine() : null,
-                    'trace' => $_ENV['APP_DEBUG'] ? $exception->getTrace() : null,
-                ],
-            ], $statusCode);
-
-            $event->setResponse($response);
+        if ($event->hasResponse()) {
+            return;
         }
+
+        $exception = $event->getThrowable();
+
+        $statusCode = $exception instanceof HttpExceptionInterface
+            ? $exception->getStatusCode()
+            : 500;
+
+        $error = [
+            'type'    => (new \ReflectionClass($exception))->getShortName(),
+            'message' => $exception->getMessage(),
+        ];
+
+        if ($_ENV['APP_DEBUG']) {
+            $error += [
+                'code'  => $exception->getCode(),
+                'file'  => $exception->getFile(),
+                'line'  => $exception->getLine(),
+                'trace' => $exception->getTrace(),
+            ];
+        }
+
+        $event->setResponse(new JsonResponse(
+            ['error' => $error],
+            $statusCode
+        ));
     }
 }

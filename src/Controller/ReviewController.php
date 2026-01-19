@@ -36,7 +36,7 @@ final class ReviewController extends AbstractController
     ) {}
 
     #[Route('/commerces/{idc}/reviews/{idr}', methods: ['GET'], name: 'app_review_get')]
-    public function get(int $idc, string $idr): JsonResponse
+    public function get(string $idc, string $idr): JsonResponse
     {
         $user = $this->getUser(); /** @var \App\Entity\User $user */
         

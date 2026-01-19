@@ -8,7 +8,7 @@ framework:
         cookie_lifetime: 604800
         cookie_secure: true
         cookie_samesite: none
-
+    
     #esi: true
     #fragments: true
 
