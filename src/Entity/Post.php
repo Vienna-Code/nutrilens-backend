@@ -268,4 +268,10 @@ class Post
 
         return $this;
     }
+
+    #[Groups(['post:read', 'post:list'])]
+    public function getTotalComments(): int
+    {
+        return $this->comments->count();
+    }
 }
