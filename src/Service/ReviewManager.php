@@ -44,7 +44,7 @@ class ReviewManager
 
         $review->setContent($data['content'] ?? $review->getContent());
         $review->setPositive($data['positive'] ?? $review->isPositive());
-        $review->setUpdatedAt(new \DateTimeImmutable());
+        $review->setUpdatedAt(new \DateTimeImmutable('now'));
         if ($isAdmin) {
             if (isset($data['visibility'])) {
                 $visibility = $data['visibility'] === 'private' ? Visibility::PRIVATE : Visibility::PUBLIC;

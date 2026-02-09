@@ -51,6 +51,7 @@ class PostManager
         $isAdmin = \in_array('ROLE_ADMIN', $user->getRoles());
 
         $post->setContent($data['content'] ?? $post->getContent());
+        $post->setUpdatedAt(new \DateTimeImmutable('now'));
         if (isset($data['visibility'])) {
             $post->setVisibility(Visibility::tryFrom($data['visibility']));
         }

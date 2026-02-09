@@ -28,15 +28,9 @@ class CommentRepository extends ServiceEntityRepository
             ->addSelect('cu')
 
             // replies
-            ->leftJoin('c.replies', 'r1')
-            ->addSelect('r1')
-            ->leftJoin('r1.replies', 'r2')
-            ->addSelect('r2')
-            ->leftJoin('r2.replies', 'r3')
-            ->addSelect('r3')
-            ->leftJoin('r1.user', 'r1u')->addSelect('r1u')
-            ->leftJoin('r2.user', 'r2u')->addSelect('r2u')
-            ->leftJoin('r3.user', 'r3u')->addSelect('r3u')
+            ->leftJoin('c.replies', 'r')
+            ->addSelect('r')
+            ->leftJoin('r.user', 'ru')->addSelect('ru')
 
             ->andWhere('c.id = :id AND (c.visibility != :vis OR c.user = :user)')
             ->setParameter('id', $id)
@@ -62,15 +56,8 @@ class CommentRepository extends ServiceEntityRepository
             ->addSelect('cu')
 
             // replies
-            ->leftJoin('c.replies', 'r1')
-            ->addSelect('r1')
-            ->leftJoin('r1.replies', 'r2')
-            ->addSelect('r2')
-            ->leftJoin('r2.replies', 'r3')
-            ->addSelect('r3')
-            ->leftJoin('r1.user', 'r1u')->addSelect('r1u')
-            ->leftJoin('r2.user', 'r2u')->addSelect('r2u')
-            ->leftJoin('r3.user', 'r3u')->addSelect('r3u')
+            ->leftJoin('c.replies', 'r')->addSelect('r')
+            ->leftJoin('r.user', 'r_u')->addSelect('r_u')
             
             ->andWhere('c.post = :post')
             ->andWhere('c.replyingTo IS NULL')

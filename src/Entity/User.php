@@ -138,6 +138,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: PostVote::class, mappedBy: 'user', cascade: ['persist'], orphanRemoval: true)]
     private Collection $postVotes;
 
+    /**
+     * @var Collection<int, Comment>
+     */
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'taggingUser')]
+    private Collection $commentsTaggedOn;
+
     public function __construct()
     {
         $this->userGamifications = new ArrayCollection();
@@ -148,6 +154,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->comments = new ArrayCollection();
         $this->reviewVotes = new ArrayCollection();
         $this->postVotes = new ArrayCollection();
+        $this->commentsTaggedOn = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -549,6 +556,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($postVote->getUser() === $this) {
                 $postVote->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Comment>
+     */
+    public function getCommentsTaggedOn(): Collection
+    {
+        return $this->commentsTaggedOn;
+    }
+
+    public function addCommentsTaggedOn(Comment $commentsTaggedOn): static
+    {
+        if (!$this->commentsTaggedOn->contains($commentsTaggedOn)) {
+            $this->commentsTaggedOn->add($commentsTaggedOn);
+            $commentsTaggedOn->setTaggingUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommentsTaggedOn(Comment $commentsTaggedOn): static
+    {
+        if ($this->commentsTaggedOn->removeElement($commentsTaggedOn)) {
+            // set the owning side to null (unless already changed)
+            if ($commentsTaggedOn->getTaggingUser() === $this) {
+                $commentsTaggedOn->setTaggingUser(null);
             }
         }
 
