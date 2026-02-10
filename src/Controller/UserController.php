@@ -69,7 +69,7 @@ final class UserController extends AbstractController
         // Responder
         return $this->json([
             'data' => $products
-        ], 200, [], ['groups' => ['product:list']]);
+        ], 200, [], ['groups' => ['product:list:commerce']]);
     }
 
     #[Route('/users/me/reviews', methods: ['GET'], name: 'app_user_list_reviews')]
