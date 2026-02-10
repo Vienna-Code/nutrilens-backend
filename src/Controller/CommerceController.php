@@ -26,6 +26,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -45,6 +46,7 @@ final class CommerceController extends ApiController
         private CommerceReportManager $cReportManager,
 
         private SerializerInterface $serializer,
+        private NormalizerInterface $normalizer,
     ) {}
 
     #[Route('/commerces/check-location', methods: ['GET'], name: 'app_commerce_check_location')]
@@ -92,6 +94,8 @@ final class CommerceController extends ApiController
     #[Route('/commerces/{id}', methods: ['GET'], name: 'app_commerce_get')]
     public function get(string $id): JsonResponse
     {
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+
         // Validación
         $this->validate(
             ['id' => $id],
@@ -117,15 +121,37 @@ final class CommerceController extends ApiController
             ], 404);
         }
 
+        $commerce = $this->normalizer->normalize($commerce, context: [
+            'groups' => ['commerce:read']
+        ]);
+        
+        // Agregar si fue reportado como verificado o no
+        if ($user) {
+            $reports = $this->cReportRepository->findBy([
+                'commerce' => $commerce,
+                'user' => $user,
+            ]);
+            foreach ($reports as $report) {
+                $vote = match ($report->getType()) {
+                    ReportType::CONFIRMATION => true,
+                    ReportType::REBUTTAL     => false,
+                    default                  => $vote ?? null,
+                };
+            }
+            $commerce['userVerificationReport'] = $vote ?? null;
+        }
+
         // Responder
         return $this->json([
             'data' => $commerce
-        ], 200, [], ['groups' => ['commerce:read']]);
+        ], 200);
     }
 
     #[Route('/commerces', methods: ['GET'], name: 'app_commerce_list')]
     public function list(Request $request): JsonResponse
     {
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+
         // Obtener parametros URL
         $data = $request->query->all();
 
@@ -195,10 +221,32 @@ final class CommerceController extends ApiController
         // Encontrar comercios
         $commerces = $this->commerceRepository->findByFilters($data);
 
+        // Agregar si fue reportado como verificado o no
+        foreach ($commerces as &$commerce) {
+            $commerce = $this->normalizer->normalize($commerce, context: [
+                'groups' => ['commerce:list']
+            ]);
+
+            if ($user) {
+                $reports = $this->cReportRepository->findBy([
+                    'commerce' => $commerce,
+                    'user' => $user,
+                ]);
+                foreach ($reports as $report) {
+                    $vote = match ($report->getType()) {
+                        ReportType::CONFIRMATION => true,
+                        ReportType::REBUTTAL     => false,
+                        default                  => $vote ?? null,
+                    };
+                }
+                $commerce['userVerificationReport'] = $vote ?? null;
+            }
+        }
+
         // Responder
         return $this->json([
             'data' => $commerces
-        ], 200, [], ['groups' => ['commerce:list']]);
+        ], 200);
     }
 
     #[Route('/commerces', methods: ['POST'], name: 'app_commerce_post')]

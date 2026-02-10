@@ -18,6 +18,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 final class ProductController extends AbstractController
 {
@@ -32,11 +33,42 @@ final class ProductController extends AbstractController
         private ProductReportManager $pReportManager,
 
         private CommerceRepository $commerceRepository,
+        private NormalizerInterface $normalizer,
     ) {}
 
     #[Route('/products/{id}', methods: ['GET'], name: 'app_product_get')]
-    public function get(Product $product): JsonResponse
+    public function get(string $id): JsonResponse
     {
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+
+        // Obtener producto
+        $product = $this->productRepository->find($id);
+        if (!$product) {
+            return $this->json([
+                'error' => ['message' => 'Comercio no encontrado.']
+            ], 404);
+        }
+
+        $product = $this->normalizer->normalize($product, context: [
+            'groups' => ['product:read']
+        ]);
+
+        // Agregar si fue reportado como verificado o no
+        if ($user) {
+            $reports = $this->pReportRepository->findBy([
+                'product' => $product,
+                'user' => $user,
+            ]);
+            foreach ($reports as $report) {
+                $vote = match ($report->getType()) {
+                    ReportType::CONFIRMATION => true,
+                    ReportType::REBUTTAL     => false,
+                    default                  => $vote ?? null,
+                };
+            }
+            $product['userVerificationReport'] = $vote ?? null;
+        }
+
         // Responder
         return $this->json([
             'data' => $product
@@ -46,6 +78,8 @@ final class ProductController extends AbstractController
     #[Route('/products', methods: ['GET'], name: 'app_product_list')]
     public function list(Request $request): JsonResponse
     {
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+
         // Obtener parametros URL
         $data = $request->query->all();
 
@@ -55,6 +89,28 @@ final class ProductController extends AbstractController
 
         // Encontrar productos
         $products = $this->productRepository->findByFilters($data);
+
+        // Agregar si fue reportado como verificado o no
+        foreach ($products as &$product) {
+            $product = $this->normalizer->normalize($product, context: [
+                'groups' => ['product:list']
+            ]);
+
+            if ($user) {
+                $reports = $this->pReportRepository->findBy([
+                    'product' => $product,
+                    'user' => $user,
+                ]);
+                foreach ($reports as $report) {
+                    $vote = match ($report->getType()) {
+                        ReportType::CONFIRMATION => true,
+                        ReportType::REBUTTAL     => false,
+                        default                  => $vote ?? null,
+                    };
+                }
+                $product['userVerificationReport'] = $vote ?? null;
+            }
+        }
 
         // Responder
         return $this->json([

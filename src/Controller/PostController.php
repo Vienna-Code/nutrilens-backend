@@ -87,14 +87,18 @@ final class PostController extends AbstractController
                 'groups' => ['post:list']
             ]);
 
-            $vote = $this->pvRepository->findOneBy([
-                'post' => $post,
-                'user' => $user,
-            ]);
-            if ($vote) {
-                $vote = $vote->isPositive();
+            if ($user) {
+                $vote = $this->pvRepository->findOneBy([
+                    'post' => $post,
+                    'user' => $user,
+                ]);
+                if ($vote) {
+                    $vote = $vote->isPositive();
+                }
+                $post['liked'] = $vote;
+            } else {
+                $post['liked'] = null;
             }
-            $post['liked'] = $vote;
         }
 
         // Responder
