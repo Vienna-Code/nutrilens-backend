@@ -47,7 +47,7 @@ class CommentRepository extends ServiceEntityRepository
         }
 
         $qb = $this->createQueryBuilder('c')
-            ->andWhere('c.visibility = :vis OR c.user = :user')
+            ->andWhere('(c.visibility = :vis OR c.user = :user)')
             ->setParameter('vis', Visibility::PUBLIC)
             ->setParameter('user', $user)
 
@@ -58,9 +58,11 @@ class CommentRepository extends ServiceEntityRepository
             // replies
             ->leftJoin('c.replies', 'r')->addSelect('r')
             ->leftJoin('r.user', 'r_u')->addSelect('r_u')
+            ->andWhere('(r.visibility = :vis OR r.user = :user)')
+            ->setParameter('vis', Visibility::PUBLIC)
             
-            ->andWhere('c.post = :post')
             ->andWhere('c.replyingTo IS NULL')
+            ->andWhere('c.post = :post')
             ->setParameter('post', $filters['post'])
             ->orderBy('c.createdAt', 'DESC')
             ->setMaxResults(20)

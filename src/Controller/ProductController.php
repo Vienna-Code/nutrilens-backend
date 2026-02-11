@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Dto\Products;
 use App\Entity\Product;
+use App\Enum\AlimentaryRestriction;
+use App\Enum\ProductCategory;
 use App\Enum\ReportType;
 use App\Repository\ProductRepository;
 use App\Repository\CommerceRepository;
@@ -19,10 +21,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-final class ProductController extends AbstractController
+final class ProductController extends ApiController
 {
     public function __construct(
+        protected ValidatorInterface $validator,
         private ValidationService $validation,
         private LoggerInterface $logger,
 
@@ -41,11 +46,25 @@ final class ProductController extends AbstractController
     {
         $user = $this->getUser(); /** @var \App\Entity\User $user */
 
+        // Validación
+        $this->validate(
+            ['id' => $id],
+            new Assert\Collection([
+                'fields' => [
+                    'id' => [
+                        new Assert\Type(['type' => 'digit']),
+                        new Assert\Positive(),
+                    ],
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
+
         // Obtener producto
         $product = $this->productRepository->find($id);
         if (!$product) {
             return $this->json([
-                'error' => ['message' => 'Comercio no encontrado.']
+                'error' => ['message' => 'Producto no encontrado.']
             ], 404);
         }
 
@@ -83,7 +102,21 @@ final class ProductController extends AbstractController
         // Obtener parametros URL
         $data = $request->query->all();
 
-        // Validación con DTO
+        // Validación
+        $data = $this->validate(
+            $data,
+            new Assert\Collection([
+                'fields' => [
+                    'commerce' => [
+                        new Assert\Type(['type' => 'digit']),
+                        new Assert\Positive(),
+                    ],
+                    'unverified' => [],
+                ],
+                'allowMissingFields' => true,
+            ])
+        );
+
         $errors = $this->validation->validate(new Products\ListProducts($data));
         if ($errors) return $errors;
 
@@ -132,8 +165,8 @@ final class ProductController extends AbstractController
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
 
-        // Validacion con DTO
-        // TODO
+        // Validación
+        $data = $this->validateProduct($data);
 
         // Encontrar comercio
         $commerce = $this->commerceRepository->find($data['commerceId']);
@@ -167,8 +200,8 @@ final class ProductController extends AbstractController
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
 
-        // Validacion con DTO
-        // TODO
+        // Validación
+        $data = $this->validateProduct($data, true);
 
         // Modificar producto
         $product = $this->productManager->update($data, $product, $user);
@@ -186,7 +219,7 @@ final class ProductController extends AbstractController
     }
 
     #[Route('/products/{id}', methods: ['DELETE'], name: 'app_product_delete')]
-    public function delete(Product $product): JsonResponse
+    public function delete(string $id): JsonResponse
     {
         // Control de acceso (SOLO ADMINS)
         $user = $this->getUser(); /** @var \App\Entity\User $user */
@@ -195,6 +228,28 @@ final class ProductController extends AbstractController
         }
         if (!\in_array('ROLE_ADMIN', $user->getRoles())) {
             return $this->json(['error' => ['message' => 'No tienes permisos suficientes para aceder a este endpoint.']], 403);
+        }
+
+        // Validación
+        $this->validate(
+            ['id' => $id],
+            new Assert\Collection([
+                'fields' => [
+                    'id' => [
+                        new Assert\Type(['type' => 'digit']),
+                        new Assert\Positive(),
+                    ],
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
+
+        // Obtener producto
+        $product = $this->productRepository->find($id);
+        if (!$product) {
+            return $this->json([
+                'error' => ['message' => 'Producto no encontrado.']
+            ], 404);
         }
 
         // Eliminar producto
@@ -248,7 +303,7 @@ final class ProductController extends AbstractController
         // Obtener parametros URL
         $data = $request->query->all();
 
-        // Validación con DTO
+        // Validación
         // TODO
 
         // Encontrar reportes
@@ -310,7 +365,7 @@ final class ProductController extends AbstractController
             ], 409);
         }
         
-        // Validación con DTO
+        // Validación
         // TODO
         if (!\in_array(ReportType::tryFrom($data['type']), [
             ReportType::CONFIRMATION,
@@ -349,7 +404,7 @@ final class ProductController extends AbstractController
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
 
-        // Validación con DTO
+        // Validación
         // TODO
 
         // Actualizar reporte
@@ -366,5 +421,44 @@ final class ProductController extends AbstractController
             'message' => 'Reporte de producto actualizado correctamente.',
             'data' => $report,
         ], 200, [], ['groups' => ['productreport:update']]);
+    }
+
+    private function validateProduct(array $input, bool $patch = false): array {
+        return $this->validate(
+            $input,
+            new Assert\Collection([
+                'fields' => [
+                    'commerceId' => $this->required($patch, [
+                        new Assert\Type('integer'),
+                        new Assert\Positive(),
+                    ]),
+                    'name' => $this->required($patch, [
+                        new Assert\Type('string'),
+                        new Assert\Length(max: 50),
+                    ]),
+                    'brand' => $this->required($patch, [
+                        new Assert\Type('string'),
+                        new Assert\Length(max: 50),
+                    ]),
+                    'category' => $this->required($patch, [
+                        new Assert\Choice(array_column(ProductCategory::cases(), 'value')),
+                    ]),
+                    'price' => $this->required($patch, [
+                        new Assert\Type('numeric'),
+                        new Assert\Positive(),
+                    ]),
+                    'aptFor' => [
+                        new Assert\Type('array'),
+                        new Assert\All([
+                            new Assert\Choice(array_column(AlimentaryRestriction::cases(), 'value')),
+                        ]),
+                    ],
+                    'verified' => [
+                        new Assert\Type('bool'),
+                    ]
+                ],
+                'allowMissingFields' => true,
+            ])
+        );
     }
 }

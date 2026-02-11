@@ -7,6 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Validator\Constraints as Assert;
 
 abstract class ApiController extends AbstractController
 {
@@ -37,5 +38,12 @@ abstract class ApiController extends AbstractController
         }
 
         return $input;
+    }
+
+    protected function required(bool $allowNull, array $constraints): array
+    {
+        return $allowNull
+            ? $constraints
+            : \array_merge([new Assert\NotNull()], $constraints);
     }
 }

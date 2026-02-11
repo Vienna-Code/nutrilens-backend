@@ -102,11 +102,8 @@ final class CommerceController extends ApiController
             new Assert\Collection([
                 'fields' => [
                     'id' => [
-                        new Assert\NotBlank(),
-                        new Assert\Regex([
-                            'pattern' => '/^\d+$/',
-                            'message' => 'The id must be a positive integer.',
-                        ]),
+                        new Assert\Type(['type' => 'digit']),
+                        new Assert\Positive(),
                     ],
                 ],
                 'allowExtraFields' => true,
@@ -180,18 +177,12 @@ final class CommerceController extends ApiController
                     ],
                     'name' => [],
                     'minPrice' => [
-                        new Assert\Type('numeric'),
-                        new Assert\Regex(
-                            pattern: '/^\d+$/',
-                            message: 'This value must be a positive integer.',
-                        ),
+                        new Assert\Type(['type' => 'numeric']),
+                        new Assert\Positive(),
                     ],
                     'maxPrice' => [
-                        new Assert\Type('numeric'),
-                        new Assert\Regex(
-                            pattern: '/^\d+$/',
-                            message: 'This value must be a positive integer.',
-                        ),
+                        new Assert\Type(['type' => 'numeric']),
+                        new Assert\Positive(),
                     ],
                     'restrictions' => [
                         new Assert\Type('array'),
@@ -326,11 +317,8 @@ final class CommerceController extends ApiController
             new Assert\Collection([
                 'fields' => [
                     'id' => [
-                        new Assert\NotBlank(),
-                        new Assert\Regex([
-                            'pattern' => '/^\d+$/',
-                            'message' => 'The id must be a positive integer.',
-                        ]),
+                        new Assert\Type(['type' => 'digit']),
+                        new Assert\Positive(),
                     ],
                 ],
                 'allowExtraFields' => true,
@@ -639,12 +627,5 @@ final class CommerceController extends ApiController
                 'allowMissingFields' => true,
             ])
         );
-    }
-
-    private function required(bool $allowNull, array $constraints): array
-    {
-        return $allowNull
-            ? $constraints
-            : \array_merge([new Assert\NotNull()], $constraints);
     }
 }
