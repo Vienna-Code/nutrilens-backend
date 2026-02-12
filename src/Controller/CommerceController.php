@@ -36,7 +36,6 @@ final class CommerceController extends ApiController
 {
     public function __construct(
         protected ValidatorInterface $validator,
-        private ValidationService $validation,
         private LoggerInterface $logger,
 
         private CommerceRepository $commerceRepository,
@@ -530,6 +529,7 @@ final class CommerceController extends ApiController
                     ],
                     'contactInfo' => [
                         new Assert\Type('array'),
+                        new Assert\Unique(),
                         new Assert\Collection([
                             'fields' => [
                                 'number' => [
@@ -548,6 +548,7 @@ final class CommerceController extends ApiController
                     ],
                     'paymentMethods' => [
                         new Assert\Type('array'),
+                        new Assert\Unique(),
                         new Assert\All([
                             new Assert\Choice(array_column(PaymentMethod::cases(), 'value')),
                         ]),

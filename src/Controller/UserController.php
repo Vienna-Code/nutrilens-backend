@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Enum\AlimentaryRestriction;
 use App\Enum\ReportType;
 use App\Repository\CommerceRepository;
 use App\Repository\PostRepository;
@@ -16,11 +17,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
-final class UserController extends AbstractController
+final class UserController extends ApiController
 {
     public function __construct(
-        private ValidationService $validationService,
+        protected ValidatorInterface $validator,
         private LoggerInterface $logger,
 
         private UserRepository $userRepository,
@@ -115,9 +118,32 @@ final class UserController extends AbstractController
     #[Route('/users/{id}', methods: ['GET'], name: 'app_user_get')]
     public function get(string $id): JsonResponse
     {
+        // Validación
+        $this->validate(
+            ['id' => $id],
+        new Assert\Collection([
+                'fields' => [
+                    'id' => new Assert\AtLeastOneOf([
+                        'constraints' => [
+                            new Assert\Sequentially([
+                                new Assert\Type('digit'),
+                                new Assert\Positive(),
+                            ]),
+                            new Assert\IdenticalTo('me'),
+                        ],
+                    ]),
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
+
         // Encontrar usuario
         $user = ($id === 'me') ? $this->getUser() : $this->userRepository->find($id);
-        if ($user === null) throw $this->createNotFoundException();
+        if (!$user) {
+            return $this->json([
+                'error' => ['message' => 'Usuario no encontrado.']
+            ], 404);
+        }
 
         return $this->json([
             'data' => $user
@@ -144,8 +170,19 @@ final class UserController extends AbstractController
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
 
-        // Validación con DTO
-        // TODO
+        // Validación
+        $data = $this->validate(
+            $data,
+            new Assert\Collection([
+                'alimentaryRestrictions' => [
+                    new Assert\Type('array'),
+                    new Assert\Unique(),
+                    new Assert\All([
+                        new Assert\Choice(array_column(AlimentaryRestriction::cases(), 'value')),
+                    ]),
+                ]
+            ])
+        );
 
         // Modificar usuario
         $user = $this->userManager->update($data, $user);

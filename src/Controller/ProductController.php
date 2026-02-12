@@ -28,7 +28,6 @@ final class ProductController extends ApiController
 {
     public function __construct(
         protected ValidatorInterface $validator,
-        private ValidationService $validation,
         private LoggerInterface $logger,
 
         private ProductRepository $productRepository,
@@ -116,9 +115,6 @@ final class ProductController extends ApiController
                 'allowMissingFields' => true,
             ])
         );
-
-        $errors = $this->validation->validate(new Products\ListProducts($data));
-        if ($errors) return $errors;
 
         // Encontrar productos
         $products = $this->productRepository->findByFilters($data);
@@ -449,6 +445,7 @@ final class ProductController extends ApiController
                     ]),
                     'aptFor' => [
                         new Assert\Type('array'),
+                        new Assert\Unique(),
                         new Assert\All([
                             new Assert\Choice(array_column(AlimentaryRestriction::cases(), 'value')),
                         ]),
