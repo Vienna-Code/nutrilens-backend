@@ -2,9 +2,6 @@
 
 namespace App\Controller;
 
-use App\Dto\Commerces;
-use App\Dto\_NestedObjects\ContactInfo;
-use App\Dto\_NestedObjects\CommerceSchedule;
 use App\Entity\Commerce;
 use App\Entity\CommerceReport;
 use App\Enum\AlimentaryRestriction;
@@ -16,7 +13,6 @@ use App\Repository\CommerceReportRepository;
 use App\Repository\CommerceRepository;
 use App\Service\CommerceManager;
 use App\Service\CommerceReportManager;
-use App\Service\ValidationService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

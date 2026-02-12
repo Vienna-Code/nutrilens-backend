@@ -2,14 +2,13 @@
 
 namespace App\Controller;
 
-use App\Dto\Reviews;
 use App\Entity\Commerce;
 use App\Entity\Review;
+use App\Enum\Visibility;
 use App\Repository\CommerceRepository;
 use App\Repository\ReviewRepository;
 use App\Repository\ReviewVoteRepository;
 use App\Service\ReviewManager;
-use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -22,12 +21,11 @@ use Symfony\Component\Validator\Constraints\Json;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-final class ReviewController extends AbstractController
+final class ReviewController extends ApiController
 {
     public function __construct(
         protected ValidatorInterface $validator,
         private EntityManagerInterface $em,
-        private ValidationService $validation,
         private LoggerInterface $logger,
         private NormalizerInterface $normalizer,
 
@@ -42,21 +40,58 @@ final class ReviewController extends AbstractController
     public function get(string $idc, string $idr): JsonResponse
     {
         $user = $this->getUser(); /** @var \App\Entity\User $user */
+
+        // Validación
+        $this->validate(
+            ['idr' => $idr, 'idc' => $idc],
+        new Assert\Collection([
+                'fields' => [
+                    'idc' => [
+                        new Assert\Type('digit'),
+                        new Assert\Positive(),
+                    ],
+                    'idr' => new Assert\AtLeastOneOf([
+                        'constraints' => [
+                            new Assert\Sequentially([
+                                new Assert\Type('digit'),
+                                new Assert\Positive(),
+                            ]),
+                            new Assert\IdenticalTo('me'),
+                        ],
+                    ]),
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
         
         // Encontrar reseña
+        $commerce = $this->commerceRepository->find((int)$idc);
+        if (!$commerce) {
+            return $this->json([
+                'error' => ['message' => 'Comercio no encontrado.']
+            ], 404);
+        }
         if ($idr === 'me') {
-            $commerce = $this->commerceRepository->find($idc);
-            if (!$user || !$commerce) {
-                throw $this->createNotFoundException();
+            if (!$user) {
+                return $this->json([
+                    'error' => ['message' => 'Autenticación requerida.']
+                ], 401);
             }
             $review = $this->reviewRepository->findOneBy([
                 'commerce' => $commerce,
                 'user' => $user
             ]);
         } else {
-            $review = $this->reviewRepository->find((int)$idr);
+            $review = $this->reviewRepository->findOneBy([
+                'commerce' => $commerce,
+                'id' => (int)$idr
+            ]);
         }
-        if ($review === null) throw $this->createNotFoundException();
+        if (!$review) {
+            return $this->json([
+                'error' => ['message' => 'Reseña no encontrada.']
+            ], 404);
+        }
 
         $reviewData = $this->normalizer->normalize($review, context: [
             'groups' => ['review:read']
@@ -83,17 +118,27 @@ final class ReviewController extends AbstractController
     }
 
     #[Route('/commerces/{idc}/reviews', methods: ['GET'], name: 'app_review_list')]
-    public function list(Request $request): JsonResponse
+    public function list(string $idc, Request $request): JsonResponse
     {
         $user = $this->getUser(); /** @var \App\Entity\User $user */
 
+        // Validación
+        $this->validate(
+            ['idc' => $idc],
+        new Assert\Collection([
+                'fields' => [
+                    'idc' => [
+                        new Assert\Type('digit'),
+                        new Assert\Positive(),
+                    ],
+                ],
+                'allowMissingFields' => true,
+            ])
+        );
+
         // Obtener parametros URL
         $data = $request->query->all();
-        $data['commerce'] = $request->attributes->get('idc');
-
-        // Validación con DTO
-        $errors = $this->validation->validate(new Reviews\ListReviews($data));
-        if ($errors) return $errors;
+        $data['commerce'] = (int)$idc;
 
         // Encontrar reviews
         $reviews = $this->reviewRepository->findByFilters($data);
@@ -120,11 +165,7 @@ final class ReviewController extends AbstractController
     }
 
     #[Route('/commerces/{idc}/reviews', methods: ['POST'], name: 'app_review_post')]
-    public function post(
-        #[MapEntity(mapping: ['idc' => 'id'])]
-        Commerce $commerce,
-        Request $request
-    ): JsonResponse {
+    public function post(string $idc, Request $request): JsonResponse {
         // Control de acceso
         $user = $this->getUser(); /** @var \App\Entity\User $user */
         if ($user === null) {
@@ -135,9 +176,18 @@ final class ReviewController extends AbstractController
 
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
+        $data['commerceId'] = $idc;
 
-        // Validación con DTO
-        // TODO
+        // Validación
+        $data = $this->validateReview($data);
+
+        // Encontrar comercio
+        $commerce = $this->commerceRepository->find($idc);
+        if (!$commerce) {
+            return $this->json([
+                'error' => ['message' => 'Comercio no encontrado.']
+            ], 404);
+        }
 
         // Crear review
         if ($this->reviewRepository->findOneBy(['user' => $user, 'commerce' => $commerce])) {
@@ -154,13 +204,7 @@ final class ReviewController extends AbstractController
     }
 
     #[Route('/commerces/{idc}/reviews/{idr}', methods: ['PATCH'], name: 'app_review_patch')]
-    public function patch(
-        //#[MapEntity(mapping: ['idc' => 'id'])]
-        //Commerce $commerce,
-        #[MapEntity(mapping: ['idr' => 'id'])]
-        Review $review,
-        Request $request,
-    ): JsonResponse {
+    public function patch(string $idc, string $idr, Request $request): JsonResponse {
         // Control de acceso
         $user = $this->getUser(); /** @var \App\Entity\User $user */
         if ($user === null) {
@@ -172,8 +216,20 @@ final class ReviewController extends AbstractController
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
 
-        // Validación con DTO
-        // TODO
+        // Validación
+        $data = $this->validateReview($data, true);
+
+        // Encontrar reseña
+        $commerce = $this->commerceRepository->find((int)$idc);
+        if (!$commerce) {
+            return $this->json([
+                'error' => ['message' => 'Comercio no encontrado.']
+            ], 404);
+        }
+        $review = $this->reviewRepository->findOneBy([
+            'commerce' => $commerce,
+            'id' => (int)$idr
+        ]);
 
         // Actualizar review
         $review = $this->rm->update($data, $review, $user);
@@ -190,13 +246,7 @@ final class ReviewController extends AbstractController
     }
 
     #[Route('/commerces/{idc}/reviews/{idr}', methods: ['DELETE'], name: 'app_review_delete')]
-    public function delete(
-        //#[MapEntity(mapping: ['idc' => 'id'])]
-        //Commerce $commerce,
-        #[MapEntity(mapping: ['idr' => 'id'])]
-        Review $review,
-        Request $request,
-    ): JsonResponse {
+    public function delete(string $idc, string $idr): JsonResponse {
         // Control de acceso (SOLO ADMINS)
         $user = $this->getUser(); /** @var \App\Entity\User $user */
         if ($user === null) {
@@ -204,6 +254,41 @@ final class ReviewController extends AbstractController
         }
         if (!\in_array('ROLE_ADMIN', $user->getRoles())) {
             return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
+        }
+
+        // Validación
+        $this->validate(
+            ['idr' => $idr, 'idc' => $idc],
+        new Assert\Collection([
+                'fields' => [
+                    'idc' => [
+                        new Assert\Type('digit'),
+                        new Assert\Positive(),
+                    ],
+                    'idr' => [
+                        new Assert\Type('digit'),
+                        new Assert\Positive(),
+                    ],
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
+        
+        // Encontrar reseña
+        $commerce = $this->commerceRepository->find((int)$idc);
+        if (!$commerce) {
+            return $this->json([
+                'error' => ['message' => 'Comercio no encontrado.']
+            ], 404);
+        }
+        $review = $this->reviewRepository->findOneBy([
+            'commerce' => $commerce,
+            'id' => (int)$idr
+        ]);
+        if (!$review) {
+            return $this->json([
+                'error' => ['message' => 'Reseña no encontrada.']
+            ], 404);
         }
 
         // Eliminar reseña
@@ -215,13 +300,7 @@ final class ReviewController extends AbstractController
     }
 
     #[Route('/commerces/{idc}/reviews/{idr}/vote', methods: ['PATCH'], name: 'app_review_vote_patch')]
-    public function votePatch(
-        //#[MapEntity(mapping: ['idc' => 'id'])]
-        //Commerce $commerce,
-        #[MapEntity(mapping: ['idr' => 'id'])]
-        Review $review,
-        Request $request,
-    ): JsonResponse {
+    public function votePatch(string $idc, string $idr, Request $request): JsonResponse {
         // Control de acceso
         $user = $this->getUser(); /** @var \App\Entity\User $user */
         if ($user === null) {
@@ -229,17 +308,57 @@ final class ReviewController extends AbstractController
                 'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
             ], 401);
         }
+
+        // Parseo del request JSON
+        $data = json_decode($request->getContent(), true);
+        $data['idc'] = $idc;
+        $data['idr'] = $idr;
+
+        // Validación
+        $this->validate(
+            $data,
+        new Assert\Collection([
+                'fields' => [
+                    'idc' => [
+                        new Assert\Type('digit'),
+                        new Assert\Positive(),
+                    ],
+                    'idr' => [
+                        new Assert\Type('digit'),
+                        new Assert\Positive(),
+                    ],
+                    'positive' => [
+                        new Assert\AtLeastOneOf([
+                            new Assert\Type('bool'),
+                            new Assert\IsNull(),
+                        ]),
+                    ],
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
+
+        // Encontrar reseña
+        $commerce = $this->commerceRepository->find((int)$idc);
+        if (!$commerce) {
+            return $this->json([
+                'error' => ['message' => 'Comercio no encontrado.']
+            ], 404);
+        }
+        $review = $this->reviewRepository->findOneBy([
+            'commerce' => $commerce,
+            'id' => (int)$idr
+        ]);
+        if (!$review) {
+            return $this->json([
+                'error' => ['message' => 'Reseña no encontrada.']
+            ], 404);
+        }
         if ($review->getUser() === $user) {
             return $this->json([
                 'error' => ['message' => 'No puedes votar tu propia reseña']
             ], 400);
         }
-
-        // Parseo del request JSON
-        $data = json_decode($request->getContent(), true);
-
-        // Validación con DTO
-        // TODO
 
         // Agregar voto
         if ($this->rm->vote($review, $user, $data['positive'])) {
@@ -251,5 +370,36 @@ final class ReviewController extends AbstractController
                 'message' => 'La reseña ya estaba votada de esta manera, no se realizaron cambios.'
             ], 200);
         }
+    }
+
+    private function validateReview(array $input, bool $patch = false): array {
+        $fields = [
+            'commerceId' => [
+                new Assert\Type(['type' => 'digit']),
+                new Assert\Positive(),
+            ],
+            'content' => [
+                new Assert\Type('string'),
+                new Assert\Length(max: 500),
+            ],
+            'positive' => [
+                new Assert\Type('bool'),
+            ],
+            'visibility' => [
+                new Assert\Choice(array_column(Visibility::cases(), 'value')),
+            ]
+        ];
+
+        if (!$patch) {
+            unset($fields['visibility']);
+        }
+
+        return $this->validate(
+            $input,
+            new Assert\Collection([
+                'fields' => $fields,
+                'allowMissingFields' => $patch,
+            ])
+        );
     }
 }

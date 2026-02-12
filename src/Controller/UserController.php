@@ -11,7 +11,6 @@ use App\Repository\ProductRepository;
 use App\Repository\ReviewRepository;
 use App\Repository\UserRepository;
 use App\Service\UserManager;
-use App\Service\ValidationService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;

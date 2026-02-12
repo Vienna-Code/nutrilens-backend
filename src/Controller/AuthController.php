@@ -2,13 +2,11 @@
 
 namespace App\Controller;
 
-use App\Dto\Auth;
 use App\Entity\User;
 use App\Enum\AlimentaryRestriction;
 use App\Factory\UserFactory;
 use App\Repository\UserRepository;
 use App\Service\UserManager;
-use App\Service\ValidationService;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;

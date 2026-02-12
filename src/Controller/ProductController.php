@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Dto\Products;
 use App\Entity\Product;
 use App\Enum\AlimentaryRestriction;
 use App\Enum\ProductCategory;
@@ -10,7 +9,6 @@ use App\Enum\ReportType;
 use App\Repository\ProductRepository;
 use App\Repository\CommerceRepository;
 use App\Repository\ProductReportRepository;
-use App\Service\ValidationService;
 use App\Service\ProductManager;
 use App\Service\ProductReportManager;
 use Closure;

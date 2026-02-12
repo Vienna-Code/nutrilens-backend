@@ -7,7 +7,6 @@ use App\Repository\CommentRepository;
 use App\Repository\PostRepository;
 use App\Repository\PostVoteRepository;
 use App\Service\PostManager;
-use App\Service\ValidationService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,7 +19,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class PostController extends AbstractController
 {
     public function __construct(
-        private ValidationService $validation,
         private LoggerInterface $logger,
 
         private PostRepository $postRepository,

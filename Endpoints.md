@@ -79,7 +79,7 @@
 - ``PATCH /commerces/{id}/reviews/{id}``: Editar una reseña para un comercio
   - Lleva los mismos parametros que el POST.
     - Solo administradores o los creadores de la reseña en cuestión pueden modificarlo.
-  - Los administradores pueden agregar el taributo '**visibility**: enum' en el JSON (public o private) para ocultar reviews.
+  - Los administradores pueden agregar el atributo '**visibility**: enum' en el JSON (public o private) para ocultar reviews.
   - Reviews ocultos no contarán para el rating total del comercio.
 
 - ``PATCH /commerces/{id}/reviews/{id}/vote``: Votar una reseña como util/no util
