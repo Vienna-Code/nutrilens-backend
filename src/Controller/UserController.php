@@ -174,13 +174,16 @@ final class UserController extends ApiController
         $data = $this->validate(
             $data,
             new Assert\Collection([
-                'alimentaryRestrictions' => [
-                    new Assert\Type('array'),
-                    new Assert\Unique(),
-                    new Assert\All([
-                        new Assert\Choice(array_column(AlimentaryRestriction::cases(), 'value')),
-                    ]),
-                ]
+                'fields' => [
+                    'alimentaryRestrictions' => [
+                        new Assert\Type('array'),
+                        new Assert\Unique(),
+                        new Assert\All([
+                            new Assert\Choice(array_column(AlimentaryRestriction::cases(), 'value')),
+                        ]),
+                    ]
+                ],
+                'allowMissingFields' => true,
             ])
         );
 

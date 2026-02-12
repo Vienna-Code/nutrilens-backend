@@ -505,127 +505,133 @@ final class CommerceController extends ApiController
     }
 
     private function validateCommerce(array $input, bool $patch = false): array {
+        $fields = [
+            'name' => [
+                new Assert\Type('string'),
+                new Assert\Length(max: 50),
+            ],
+            'type' => [
+                new Assert\Choice(array_column(CommerceType::cases(), 'value')),
+            ],
+            'coordsLat' => [
+                new Assert\Type(['type' => 'numeric']),
+                new Assert\Range(min: -90, max: 90),
+            ],
+            'coordsLon' => [
+                new Assert\Type(['type' => 'numeric']),
+                new Assert\Range(min: -180, max: 180),
+            ],
+            'address' => [
+                new Assert\Type('string'),
+            ],
+            'contactInfo' => [
+                new Assert\Type('array'),
+                new Assert\Unique(),
+                new Assert\Collection([
+                    'fields' => [
+                        'number' => [
+                            new Assert\Regex(
+                                pattern: '/^\+?[0-9\s\-().]{6,20}$/',
+                                message: 'Invalid phone number.'
+                            ),
+                        ],
+                        'email' => [
+                            new Assert\Email(message: 'Invalid email address.'),
+                        ],
+                    ],
+                    'allowMissingFields' => true,
+                    'allowExtraFields' => false,
+                ]),
+            ],
+            'paymentMethods' => [
+                new Assert\Type('array'),
+                new Assert\Unique(),
+                new Assert\All([
+                    new Assert\Choice(array_column(PaymentMethod::cases(), 'value')),
+                ]),
+            ],
+            'commerceSchedules' => [
+                new Assert\Type('array'),
+                new Assert\All([
+                    new Assert\Collection([
+                        'fields' => [
+                            'weekday' => [
+                                new Assert\NotNull(),
+                                new Assert\Type('integer'),
+                                new Assert\Range(
+                                    min: 0,
+                                    max: 6,
+                                    notInRangeMessage: 'Weekday must be between 0 (Sunday) and 6 (Saturday)'
+                                ),
+                            ],
+                            'opensAt' => [
+                                new Assert\NotBlank(),
+                                new Assert\DateTime(
+                                    format: \DateTimeInterface::ATOM,
+                                    message: 'opensAt must be a valid datetime'
+                                ),
+                            ],
+                            'closesAt' => [
+                                new Assert\NotBlank(),
+                                new Assert\DateTime(
+                                    format: \DateTimeInterface::ATOM,
+                                    message: 'closesAt must be a valid datetime'
+                                ),
+                            ],
+                        ],
+                        'allowMissingFields' => false,
+                        'allowExtraFields' => false,
+                    ]),
+                ]),
+                new Assert\Callback(function ($value, ExecutionContextInterface $context) {
+                    if (!\is_array($value)) {
+                        return;
+                    }
+
+                    $weekdays = [];
+                    foreach ($value as $i => $schedule) {
+                        // Chequeo de día repetido
+                        if (isset($schedule['weekday'])) {
+                            if (\in_array($schedule['weekday'], $weekdays, true)) {
+                                $context->buildViolation('Duplicate weekday entry')
+                                    ->atPath("[$i].weekday")
+                                    ->addViolation();
+                            }
+                            $weekdays[] = $schedule['weekday'];
+                        }
+
+                        // Lógica de horarios
+                        if (
+                            isset($schedule['opensAt'], $schedule['closesAt'])
+                            && \is_string($schedule['opensAt'])
+                            && \is_string($schedule['closesAt'])
+                        ) {
+                            $opensAt = new \DateTimeImmutable($schedule['opensAt']);
+                            $closesAt = new \DateTimeImmutable($schedule['closesAt']);
+
+                            if ($opensAt >= $closesAt) {
+                                $context->buildViolation('opensAt must be before closesAt')
+                                    ->atPath("[$i]")
+                                    ->addViolation();
+                            }
+                        }
+                    }
+                }),
+            ],
+            'verified' => [
+                new Assert\Type('bool'),
+            ]
+        ];
+
+        if (!$patch) {
+            unset($fields['verified']);
+        }
+
         return $this->validate(
             $input,
             new Assert\Collection([
-                'fields' => [
-                    'name' => $this->required($patch, [
-                        new Assert\Type('string'),
-                        new Assert\Length(max: 50),
-                    ]),
-                    'type' => $this->required($patch, [
-                        new Assert\Choice(array_column(CommerceType::cases(), 'value')),
-                    ]),
-                    'coordsLat' => $this->required($patch, [
-                        new Assert\Type(['type' => 'numeric']),
-                        new Assert\Range(min: -90, max: 90),
-                    ]),
-                    'coordsLon' => $this->required($patch, [
-                        new Assert\Type(['type' => 'numeric']),
-                        new Assert\Range(min: -180, max: 180),
-                    ]),
-                    'address' => [
-                        new Assert\Type('string'),
-                    ],
-                    'contactInfo' => [
-                        new Assert\Type('array'),
-                        new Assert\Unique(),
-                        new Assert\Collection([
-                            'fields' => [
-                                'number' => [
-                                    new Assert\Regex(
-                                        pattern: '/^\+?[0-9\s\-().]{6,20}$/',
-                                        message: 'Invalid phone number.'
-                                    ),
-                                ],
-                                'email' => [
-                                    new Assert\Email(message: 'Invalid email address.'),
-                                ],
-                            ],
-                            'allowMissingFields' => true,
-                            'allowExtraFields' => false,
-                        ]),
-                    ],
-                    'paymentMethods' => [
-                        new Assert\Type('array'),
-                        new Assert\Unique(),
-                        new Assert\All([
-                            new Assert\Choice(array_column(PaymentMethod::cases(), 'value')),
-                        ]),
-                    ],
-                    'commerceSchedules' => [
-                        new Assert\Type('array'),
-                        new Assert\All([
-                            new Assert\Collection([
-                                'fields' => [
-                                    'weekday' => [
-                                        new Assert\NotNull(),
-                                        new Assert\Type('integer'),
-                                        new Assert\Range(
-                                            min: 0,
-                                            max: 6,
-                                            notInRangeMessage: 'Weekday must be between 0 (Sunday) and 6 (Saturday)'
-                                        ),
-                                    ],
-                                    'opensAt' => [
-                                        new Assert\NotBlank(),
-                                        new Assert\DateTime(
-                                            format: \DateTimeInterface::ATOM,
-                                            message: 'opensAt must be a valid datetime'
-                                        ),
-                                    ],
-                                    'closesAt' => [
-                                        new Assert\NotBlank(),
-                                        new Assert\DateTime(
-                                            format: \DateTimeInterface::ATOM,
-                                            message: 'closesAt must be a valid datetime'
-                                        ),
-                                    ],
-                                ],
-                                'allowMissingFields' => false,
-                                'allowExtraFields' => false,
-                            ]),
-                        ]),
-                        new Assert\Callback(function ($value, ExecutionContextInterface $context) {
-                            if (!\is_array($value)) {
-                                return;
-                            }
-
-                            $weekdays = [];
-                            foreach ($value as $i => $schedule) {
-                                // Chequeo de día repetido
-                                if (isset($schedule['weekday'])) {
-                                    if (\in_array($schedule['weekday'], $weekdays, true)) {
-                                        $context->buildViolation('Duplicate weekday entry')
-                                            ->atPath("[$i].weekday")
-                                            ->addViolation();
-                                    }
-                                    $weekdays[] = $schedule['weekday'];
-                                }
-
-                                // Lógica de horarios
-                                if (
-                                    isset($schedule['opensAt'], $schedule['closesAt'])
-                                    && \is_string($schedule['opensAt'])
-                                    && \is_string($schedule['closesAt'])
-                                ) {
-                                    $opensAt = new \DateTimeImmutable($schedule['opensAt']);
-                                    $closesAt = new \DateTimeImmutable($schedule['closesAt']);
-
-                                    if ($opensAt >= $closesAt) {
-                                        $context->buildViolation('opensAt must be before closesAt')
-                                            ->atPath("[$i]")
-                                            ->addViolation();
-                                    }
-                                }
-                            }
-                        }),
-                    ],
-                    'verified' => [
-                        new Assert\Type('bool'),
-                    ]
-                ],
-                'allowMissingFields' => true,
+                'fields' => $fields,
+                'allowMissingFields' => $patch,
             ])
         );
     }

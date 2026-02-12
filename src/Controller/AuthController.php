@@ -4,8 +4,10 @@ namespace App\Controller;
 
 use App\Dto\Auth;
 use App\Entity\User;
+use App\Enum\AlimentaryRestriction;
 use App\Factory\UserFactory;
 use App\Repository\UserRepository;
+use App\Service\UserManager;
 use App\Service\ValidationService;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,14 +25,17 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/auth')]
-final class AuthController extends AbstractController
+final class AuthController extends ApiController
 {
     public function __construct(
+        protected ValidatorInterface $validator,
         private EntityManagerInterface $em,
-        private ValidationService $validation,
         private LoggerInterface $logger,
+
+        private UserManager $userManager,
     ) {}
 
     #[Route('/signup', methods: ['POST'], name: 'app_auth_signup')]
@@ -41,24 +46,40 @@ final class AuthController extends AbstractController
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
         
-        // Validación con DTO
-        $errors = $this->validation->validate(new Auth\SignUp($data));
-        if ($errors) return $errors;
+        // Validación
+        $data = $this->validate(
+            $data,
+            new Assert\Collection([
+                'fields' => [
+                    'username' => new Assert\Required([
+                        new Assert\Type('string'),
+                        new Assert\Length(min: 3, max: 40),
+                        new Assert\Regex([
+                            'pattern' => '/^[a-zA-Z0-9_.-]+$/',
+                            'message' => 'Username can only contain letters, numbers, underscores (_), hyphens (-), and dots (.)',
+                        ]),
+                    ]),
+                    'email' => new Assert\Required([
+                        new Assert\Type('string'),
+                        new Assert\Email
+                    ]),
+                    'password' => new Assert\Required([
+                        new Assert\Type('string'),
+                    ]),
+                    'alimentaryRestrictions' => new Assert\Optional([
+                        new Assert\Type('array'),
+                        new Assert\Unique(),
+                        new Assert\All([
+                            new Assert\Choice(array_column(AlimentaryRestriction::cases(), 'value')),
+                        ]),
+                    ]),
+                ],
+            ])
+        );
         
         // Crear usuario
         try {
-            $user = UserFactory::new()->create([
-                'username' => $data['username'],
-                'password' => $data['password'],
-                'email' => $data['email'],
-                'alimentaryRestrictions' => [],
-    
-                // TEMPORAL HASTA QUE HAYA VERIFICACIÓN CON MAIL
-                'roles' => ['ROLE_USER'],
-                'verification' => null,
-            ]);
-            $this->em->persist($user);
-            $this->em->flush();
+            $user = $this->userManager->create($data);
         } catch (UniqueConstraintViolationException $e) {
             $msg = $e->getMessage();
             if (str_contains($msg, 'username_unique_idx')) {
@@ -92,9 +113,20 @@ final class AuthController extends AbstractController
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
 
-        // Validación con DTO
-        $errors = $this->validation->validate(new Auth\LogIn($data));
-        if ($errors) return $errors;
+        // Validación
+        $data = $this->validate(
+            $data,
+            new Assert\Collection([
+                'fields' => [
+                    'username' => [
+                        new Assert\Type('string'),
+                    ],
+                    'password' =>[
+                        new Assert\Type('string'),
+                    ],
+                ],
+            ])
+        );
 
         // Cargar Usuario
         $user = $userRepository->findOneByIdentifier('username', $data['username']);
@@ -148,5 +180,4 @@ final class AuthController extends AbstractController
             'error' => ['message' => 'Credenciales inválidas.']
         ], 401);
     }
-
 }

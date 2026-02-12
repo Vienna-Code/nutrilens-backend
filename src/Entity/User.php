@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Enum\AlimentaryRestriction;
 use App\Enum\UserRank;
 use App\Repository\UserRepository;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -146,6 +147,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
+        $this->createdAt = new DateTimeImmutable();
+        $this->points = 0;
+        //$this->verification = bin2hex(random_bytes(32));
+
         $this->userGamifications = new ArrayCollection();
         $this->commerceReports = new ArrayCollection();
         $this->productReports = new ArrayCollection();

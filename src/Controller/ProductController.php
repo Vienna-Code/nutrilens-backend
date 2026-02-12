@@ -420,41 +420,47 @@ final class ProductController extends ApiController
     }
 
     private function validateProduct(array $input, bool $patch = false): array {
+        $fields = [
+            'commerceId' => [
+                new Assert\Type('integer'),
+                new Assert\Positive(),
+            ],
+            'name' => [
+                new Assert\Type('string'),
+                new Assert\Length(max: 50),
+            ],
+            'brand' => [
+                new Assert\Type('string'),
+                new Assert\Length(max: 50),
+            ],
+            'category' => [
+                new Assert\Choice(array_column(ProductCategory::cases(), 'value')),
+            ],
+            'price' => [
+                new Assert\Type('numeric'),
+                new Assert\Positive(),
+            ],
+            'aptFor' => [
+                new Assert\Type('array'),
+                new Assert\Unique(),
+                new Assert\All([
+                    new Assert\Choice(array_column(AlimentaryRestriction::cases(), 'value')),
+                ]),
+            ],
+            'verified' => [
+                new Assert\Type('bool'),
+            ]
+        ];
+
+        if (!$patch) {
+            unset($fields['verified']);
+        }
+
         return $this->validate(
             $input,
             new Assert\Collection([
-                'fields' => [
-                    'commerceId' => $this->required($patch, [
-                        new Assert\Type('integer'),
-                        new Assert\Positive(),
-                    ]),
-                    'name' => $this->required($patch, [
-                        new Assert\Type('string'),
-                        new Assert\Length(max: 50),
-                    ]),
-                    'brand' => $this->required($patch, [
-                        new Assert\Type('string'),
-                        new Assert\Length(max: 50),
-                    ]),
-                    'category' => $this->required($patch, [
-                        new Assert\Choice(array_column(ProductCategory::cases(), 'value')),
-                    ]),
-                    'price' => $this->required($patch, [
-                        new Assert\Type('numeric'),
-                        new Assert\Positive(),
-                    ]),
-                    'aptFor' => [
-                        new Assert\Type('array'),
-                        new Assert\Unique(),
-                        new Assert\All([
-                            new Assert\Choice(array_column(AlimentaryRestriction::cases(), 'value')),
-                        ]),
-                    ],
-                    'verified' => [
-                        new Assert\Type('bool'),
-                    ]
-                ],
-                'allowMissingFields' => true,
+                'fields' => $fields,
+                'allowMissingFields' => $patch,
             ])
         );
     }

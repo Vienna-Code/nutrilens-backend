@@ -20,10 +20,12 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Validator\Constraints\Json;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class ReviewController extends AbstractController
 {
     public function __construct(
+        protected ValidatorInterface $validator,
         private EntityManagerInterface $em,
         private ValidationService $validation,
         private LoggerInterface $logger,
