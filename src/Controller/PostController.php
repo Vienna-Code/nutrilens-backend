@@ -2,23 +2,23 @@
 
 namespace App\Controller;
 
-use App\Entity\Post;
-use App\Repository\CommentRepository;
+use App\Enum\Visibility;
 use App\Repository\PostRepository;
 use App\Repository\PostVoteRepository;
 use App\Service\PostManager;
 use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-final class PostController extends AbstractController
+final class PostController extends ApiController
 {
     public function __construct(
+        protected ValidatorInterface $validator,
         private LoggerInterface $logger,
 
         private PostRepository $postRepository,
@@ -31,11 +31,31 @@ final class PostController extends AbstractController
     ) {}
 
     #[Route('/posts/{id}', methods: ['GET'], name: 'app_post_get')]
-    public function get(int $id): JsonResponse
+    public function get(string $id): JsonResponse
     {
-        // Encontrar post
         $user = $this->getUser(); /** @var \App\Entity\User $user */
-        $post = $this->postRepository->findById($id, $user);
+
+        // Validación
+        $this->validate(
+            ['id' => $id],
+            new Assert\Collection([
+                'fields' => [
+                    'id' => [
+                        new Assert\Type(['type' => 'digit']),
+                        new Assert\Positive(),
+                    ],
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
+
+        // Encontrar post
+        $post = $this->postRepository->findById((int)$id, $user);
+        if (!$post) {
+            return $this->json([
+                'error' => ['message' => 'Publicación no encontrada.']
+            ], 404);
+        }
 
         $postData = $this->normalizer->normalize($post, context: [
             'groups' => ['post:read']
@@ -74,8 +94,19 @@ final class PostController extends AbstractController
         // Obtener parametros URL
         $data = $request->query->all();
 
-        // Validación con DTO
-        // TODO
+        // Validación
+        $data = $this->validate(
+            $data,
+            new Assert\Collection([
+                'fields' => [
+                    'page' => [
+                        new Assert\Type(['type' => 'digit']),
+                        new Assert\Positive(),
+                    ],
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
 
         // Encontrar posts
         $posts = $this->postRepository->findByFilters($data, $user);
@@ -120,8 +151,8 @@ final class PostController extends AbstractController
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
 
-        // Validacion con DTO
-        // TODO
+        // Validación
+        $this->validatePost($data);
 
         // Crear publicación
         $post = $this->postManager->create($data, $user);
@@ -139,7 +170,7 @@ final class PostController extends AbstractController
     }
 
     #[Route('/posts/{id}', methods: ['PATCH'], name: 'app_post_patch')]
-    public function patch(Post $post, Request $request): JsonResponse
+    public function patch(string $id, Request $request): JsonResponse
     {
         // Control de acceso
         $user = $this->getUser(); /** @var \App\Entity\User $user */
@@ -148,17 +179,25 @@ final class PostController extends AbstractController
                 'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
             ], 401);
         }
+
+        // Parseo del request JSON
+        $data = json_decode($request->getContent(), true);
+
+        // Validación
+        $this->validatePost($data, true);
+
+        // Encontrar post
+        $post = $this->postRepository->findById((int)$id, $user);
+        if (!$post) {
+            return $this->json([
+                'error' => ['message' => 'Publicación no encontrada.']
+            ], 404);
+        }
         if ($user !== $post->getUser() && !\in_array('ROLE_ADMIN', $user->getRoles())) {
             return $this->json([
                 'error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']
             ], 403);
         }
-
-        // Parseo del request JSON
-        $data = json_decode($request->getContent(), true);
-
-        // Validacion con DTO
-        // TODO
 
         // Modificar publicación
         $post = $this->postManager->update($data, $post, $user);
@@ -176,7 +215,7 @@ final class PostController extends AbstractController
     }
 
     #[Route('/posts/{id}', methods: ['DELETE'], name: 'app_post_delete')]
-    public function delete(Post $post): JsonResponse
+    public function delete(string $id): JsonResponse
     {
         // Control de acceso (SOLO ADMINS)
         $user = $this->getUser(); /** @var \App\Entity\User $user */
@@ -185,6 +224,28 @@ final class PostController extends AbstractController
         }
         if (!\in_array('ROLE_ADMIN', $user->getRoles())) {
             return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
+        }
+
+        // Validación
+        $this->validate(
+            ['id' => $id],
+            new Assert\Collection([
+                'fields' => [
+                    'id' => [
+                        new Assert\Type(['type' => 'digit']),
+                        new Assert\Positive(),
+                    ],
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
+
+        // Encontrar post
+        $post = $this->postRepository->findById((int)$id, $user);
+        if (!$post) {
+            return $this->json([
+                'error' => ['message' => 'Publicación no encontrada.']
+            ], 404);
         }
 
         // Eliminar publicación
@@ -196,7 +257,7 @@ final class PostController extends AbstractController
     }
 
     #[Route('/posts/{id}/vote', methods: ['PATCH'], name: 'app_post_vote_patch')]
-    public function votePatch(Post $post, Request $request): JsonResponse
+    public function votePatch(string $id, Request $request): JsonResponse
     {
         // Control de acceso
         $user = $this->getUser(); /** @var \App\Entity\User $user */
@@ -205,17 +266,43 @@ final class PostController extends AbstractController
                 'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
             ], 401);
         }
+
+        // Parseo del request JSON
+        $data = json_decode($request->getContent(), true);
+        $data['id'] = $id;
+
+        // Validación
+        $this->validate(
+            $data,
+            new Assert\Collection([
+                'fields' => [
+                    'id' => [
+                        new Assert\Type('digit'),
+                        new Assert\Positive(),
+                    ],
+                    'positive' => [
+                        new Assert\AtLeastOneOf([
+                            new Assert\Type('bool'),
+                            new Assert\IsNull(),
+                        ]),
+                    ],
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
+
+        // Encontrar post
+        $post = $this->postRepository->findById((int)$id, $user);
+        if (!$post) {
+            return $this->json([
+                'error' => ['message' => 'Publicación no encontrada.']
+            ], 404);
+        }
         if ($post->getUser() === $user) {
             return $this->json([
                 'error' => ['message' => 'No puedes votar tu propia publicación']
             ], 400);
         }
-
-        // Parseo del request JSON
-        $data = json_decode($request->getContent(), true);
-
-        // Validación con DTO
-        // TODO
 
         // Agregar voto
         if ($this->postManager->vote($post, $user, $data['positive'])) {
@@ -227,5 +314,38 @@ final class PostController extends AbstractController
                 'message' => 'La publicación ya estaba votada de esta manera, no se realizaron cambios.'
             ], 200);
         }
+    }
+
+    private function validatePost(array $input, bool $patch = false): array
+    {
+        $fields = [
+            'title' => [
+                new Assert\Type('string'),
+                new Assert\Length(max: 100),
+            ],
+            'content' => [
+                new Assert\Type('string'),
+                new Assert\Length(max: 5000),
+            ],
+            'visibility' => [
+                new Assert\Type('string'),
+                new Assert\Choice(array_column(Visibility::cases(), 'value')),
+            ],
+            'tags' => [
+                new Assert\Type('array'),
+                new Assert\Unique(),
+                new Assert\All([
+                    new Assert\Type('string'),
+                ]),
+            ]
+        ];
+
+        return $this->validate(
+            $input,
+            new Assert\Collection([
+                'fields' => $fields,
+                'allowMissingFields' => $patch,
+            ])
+        );
     }
 }

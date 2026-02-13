@@ -2,8 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\Commerce;
-use App\Entity\Review;
 use App\Enum\Visibility;
 use App\Repository\CommerceRepository;
 use App\Repository\ReviewRepository;
@@ -11,13 +9,10 @@ use App\Repository\ReviewVoteRepository;
 use App\Service\ReviewManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Bridge\Doctrine\Attribute\MapEntity;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Validator\Constraints\Json;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -44,7 +39,7 @@ final class ReviewController extends ApiController
         // Validación
         $this->validate(
             ['idr' => $idr, 'idc' => $idc],
-        new Assert\Collection([
+            new Assert\Collection([
                 'fields' => [
                     'idc' => [
                         new Assert\Type('digit'),
@@ -125,7 +120,7 @@ final class ReviewController extends ApiController
         // Validación
         $this->validate(
             ['idc' => $idc],
-        new Assert\Collection([
+            new Assert\Collection([
                 'fields' => [
                     'idc' => [
                         new Assert\Type('digit'),
@@ -259,7 +254,7 @@ final class ReviewController extends ApiController
         // Validación
         $this->validate(
             ['idr' => $idr, 'idc' => $idc],
-        new Assert\Collection([
+            new Assert\Collection([
                 'fields' => [
                     'idc' => [
                         new Assert\Type('digit'),
@@ -317,7 +312,7 @@ final class ReviewController extends ApiController
         // Validación
         $this->validate(
             $data,
-        new Assert\Collection([
+            new Assert\Collection([
                 'fields' => [
                     'idc' => [
                         new Assert\Type('digit'),
@@ -372,7 +367,8 @@ final class ReviewController extends ApiController
         }
     }
 
-    private function validateReview(array $input, bool $patch = false): array {
+    private function validateReview(array $input, bool $patch = false): array
+    {
         $fields = [
             'commerceId' => [
                 new Assert\Type(['type' => 'digit']),

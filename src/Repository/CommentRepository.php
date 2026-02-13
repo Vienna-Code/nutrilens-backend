@@ -19,7 +19,7 @@ class CommentRepository extends ServiceEntityRepository
         parent::__construct($registry, Comment::class);
     }
 
-    public function findById(int $id, ?User $user = null): ?Comment
+    public function findById(int $idc, int $idp, ?User $user = null): ?Comment
     {
         $qb = $this->createQueryBuilder('c')
 
@@ -27,13 +27,20 @@ class CommentRepository extends ServiceEntityRepository
             ->leftJoin('c.user', 'cu')
             ->addSelect('cu')
 
+            // post
+            ->innerJoin('c.post', 'p')
+
             // replies
             ->leftJoin('c.replies', 'r')
             ->addSelect('r')
-            ->leftJoin('r.user', 'ru')->addSelect('ru')
+            ->leftJoin('r.user', 'ru')
+            ->addSelect('ru')
 
-            ->andWhere('c.id = :id AND (c.visibility != :vis OR c.user = :user)')
-            ->setParameter('id', $id)
+            ->andWhere('c.id = :idc')
+            ->andWhere('p.id = :idp')
+            ->andWhere('(c.visibility != :vis OR c.user = :user)')
+            ->setParameter('idc', $idc)
+            ->setParameter('idp', $idp)
             ->setParameter('vis', Visibility::PRIVATE)
             ->setParameter('user', $user);
 

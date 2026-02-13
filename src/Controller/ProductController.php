@@ -6,15 +6,13 @@ use App\Entity\Product;
 use App\Enum\AlimentaryRestriction;
 use App\Enum\ProductCategory;
 use App\Enum\ReportType;
+use App\Controller\ApiController;
 use App\Repository\ProductRepository;
 use App\Repository\CommerceRepository;
 use App\Repository\ProductReportRepository;
 use App\Service\ProductManager;
 use App\Service\ProductReportManager;
-use Closure;
-use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -417,7 +415,8 @@ final class ProductController extends ApiController
         ], 200, [], ['groups' => ['productreport:update']]);
     }
 
-    private function validateProduct(array $input, bool $patch = false): array {
+    private function validateProduct(array $input, bool $patch = false): array
+    {
         $fields = [
             'commerceId' => [
                 new Assert\Type('integer'),

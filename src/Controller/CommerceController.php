@@ -3,25 +3,18 @@
 namespace App\Controller;
 
 use App\Entity\Commerce;
-use App\Entity\CommerceReport;
 use App\Enum\AlimentaryRestriction;
 use App\Enum\CommerceType;
 use App\Enum\PaymentMethod;
 use App\Enum\ReportType;
-use App\Enum\UserRank;
 use App\Repository\CommerceReportRepository;
 use App\Repository\CommerceRepository;
 use App\Service\CommerceManager;
 use App\Service\CommerceReportManager;
 use Psr\Log\LoggerInterface;
-use Symfony\Bridge\Doctrine\Attribute\MapEntity;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -500,7 +493,8 @@ final class CommerceController extends ApiController
         ], 200, [], ['groups' => ['commercereport:update']]);
     }
 
-    private function validateCommerce(array $input, bool $patch = false): array {
+    private function validateCommerce(array $input, bool $patch = false): array
+    {
         $fields = [
             'name' => [
                 new Assert\Type('string'),
