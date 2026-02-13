@@ -105,6 +105,7 @@ final class PostController extends ApiController
                     ],
                 ],
                 'allowExtraFields' => true,
+                'allowMissingFields' => true,
             ])
         );
 

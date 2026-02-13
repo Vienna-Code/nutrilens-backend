@@ -41,7 +41,7 @@ class ProductRepository extends ServiceEntityRepository
 
     public function findWithReports(int $id, ?bool $resolved = null): ?Product
     {
-        $qb = $this->createQueryBuilder('c')
+        $qb = $this->createQueryBuilder('p')
             ->andWhere('p.id = :id')
             ->setParameter('id', $id)
             ->leftJoin('p.productReports', 'pr')

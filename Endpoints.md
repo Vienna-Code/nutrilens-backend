@@ -90,6 +90,7 @@
 - ``GET /commerces/{id}/reports/{id}``: Obtener un reporte de un comercio, solo administradores
 
 - ``GET /commerces/{id}/reports``: Obtener lista de reportes de un comercio, solo administradores
+  - **resolved**: string *("true", "false" o "null")*
 
 - ``POST /commerces/{id}/reports``: Publicar un reporte para un comercio
   - **content**: string *(Contenido textual del reporte)*
@@ -122,6 +123,7 @@
 - ``DELETE /products/{id}``: Eliminar un producto, solo para administradores
 
 - ``GET /products/{id}/reports``: Obtener lista de reportes de un producto, solo administradores
+  - **resolved**: string *("true", "false" o "null")*
 
 - ``POST /products/{id}/reports``: Publicar un reporte para un producto
   - **content**: string *(Contenido textual del reporte)*

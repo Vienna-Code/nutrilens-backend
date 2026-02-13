@@ -4,11 +4,8 @@ namespace App\Service;
 
 use App\Entity\Commerce;
 use App\Entity\CommerceReport;
-use App\Entity\CommerceSchedule;
 use App\Entity\User;
-use App\Enum\CommerceType;
 use App\Enum\ReportType;
-use App\Enum\UserRank;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 

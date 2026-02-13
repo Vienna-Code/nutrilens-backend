@@ -330,7 +330,7 @@ final class CommerceController extends ApiController
     }
 
     #[Route('/commerces/{idc}/reports/{idr}', methods: ['GET'], name: 'app_commercereport_get')]
-    public function getReport(int $idc, int $idr): JsonResponse {
+    public function getReport(string $idc, string $idr): JsonResponse {
         // Control de acceso
         $user = $this->getUser(); /** @var \App\Entity\User $user */
         if ($user === null) {
@@ -342,8 +342,29 @@ final class CommerceController extends ApiController
             return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
         }
 
+        // Validación
+        $this->validate(
+            ['idc' => $idc, 'idr' => $idr],
+            new Assert\Collection([
+                'fields' => [
+                    'idc' => [
+                        new Assert\Type('digit'),
+                        new Assert\Positive(),
+                    ],
+                    'idr' => [
+                        new Assert\Type('digit'),
+                        new Assert\Positive(),
+                    ],
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
+
         // Encontrar reporte
-        $report = $this->cReportRepository->find($idr);
+        $report = $this->cReportRepository->findOneBy([
+            'id' => $idr,
+            'commerce' => $idc,
+        ]);
         if (!$report) {
             return $this->json([
                 'error' => ['message' => 'Reporte no encontrado.']
@@ -357,7 +378,7 @@ final class CommerceController extends ApiController
     }
 
     #[Route('/commerces/{id}/reports', methods: ['GET'], name: 'app_commercereport_list')]
-    public function listReports(int $id, Request $request): JsonResponse
+    public function listReports(string $id, Request $request): JsonResponse
     {
         // Control de acceso
         $user = $this->getUser(); /** @var \App\Entity\User $user */
@@ -372,9 +393,26 @@ final class CommerceController extends ApiController
 
         // Obtener parametros URL
         $data = $request->query->all();
+        $data['commerceId'] = $id;
 
-        // Validación con DTO
-        // TODO
+        // Validación
+        $data = $this->validate(
+            $data,
+            new Assert\Collection([
+                'fields' => [
+                    'commerceId' => [
+                        new Assert\Type('digit'),
+                        new Assert\Positive(),
+                    ],
+                    'resolved' => [
+                        new Assert\Type('string'),
+                        new Assert\Choice(['true', 'null', 'false']),
+                    ]
+                ],
+                'allowExtraFields' => true,
+                'allowMissingFields' => true,
+            ])
+        );
 
         // Encontrar reportes
         $commerce = $this->commerceRepository->find($id);
@@ -392,7 +430,7 @@ final class CommerceController extends ApiController
     }
 
     #[Route('/commerces/{id}/reports', methods: ['POST'], name: 'app_commercereport_create')]
-    public function createReport(int $id, Request $request): JsonResponse
+    public function createReport(string $id, Request $request): JsonResponse
     {
         // Control de acceso
         $user = $this->getUser(); /** @var \App\Entity\User $user */
@@ -404,6 +442,10 @@ final class CommerceController extends ApiController
 
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
+        $data['commerceId'] = $id;
+        
+        // Validación
+        $data = $this->validateCommerceReport($data);
         $type = ReportType::tryFrom($data['type']);
 
         // Encontrar comercio
@@ -415,7 +457,6 @@ final class CommerceController extends ApiController
         }
 
         // Verificación extra
-        // No reportar comercios que subiste
         if ($commerce->getCommerceReports()->exists(
             fn ($key, $report) => $report->getUser() === $user && $report->getType() === ReportType::SUBMISSION
         )) {
@@ -434,18 +475,6 @@ final class CommerceController extends ApiController
                 'error' => ['message' => 'Ya subiste este reporte.']
             ], 409);
         }
-        
-        // Validación con DTO
-        // TODO
-        if (!\in_array($type, [
-            ReportType::CONFIRMATION,
-            ReportType::REBUTTAL,
-            ReportType::ISSUE
-        ])) {
-            return $this->json([
-                'error' => ['message' => 'Tipo de reporte inválido.']
-            ], 400);
-        }
 
         // Crear reporte
         $report = $this->cReportManager->create($data, $commerce, $user);
@@ -458,7 +487,7 @@ final class CommerceController extends ApiController
     }
 
     #[Route('/commerces/{idc}/reports/{idr}', methods: ['PATCH'], name: 'app_commercereport_patch')]
-    public function patchReport(int $idc, int $idr, Request $request): JsonResponse
+    public function patchReport(string $idc, string $idr, Request $request): JsonResponse
     {
         // Control de acceso
         $user = $this->getUser(); /** @var \App\Entity\User $user */
@@ -474,11 +503,14 @@ final class CommerceController extends ApiController
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
 
-        // Validación con DTO
-        // TODO
+        // Validación
+        $data = $this->validateCommerceReport($data, true);
 
         // Actualizar reporte
-        $report = $this->cReportRepository->find($idr);
+        $report = $this->cReportRepository->findOneBy([
+            'id' => $idr,
+            'commerce' => $idc,
+        ]);
         if (!$report) {
             return $this->json([
                 'error' => ['message' => 'Reporte no encontrado.']
@@ -622,6 +654,49 @@ final class CommerceController extends ApiController
             new Assert\Collection([
                 'fields' => $fields,
                 'allowMissingFields' => $patch,
+            ])
+        );
+    }
+
+    private function validateCommerceReport(array $input, bool $patch = false): array
+    {
+        $fields = [
+            'commerceId' => [
+                new Assert\Type('digit'),
+                new Assert\Positive(),
+            ],
+            'type' => [
+                new Assert\Type('string'),
+                new Assert\Choice([
+                    ReportType::CONFIRMATION->value,
+                    ReportType::REBUTTAL->value,
+                    ReportType::ISSUE->value,
+                ]),
+            ],
+            'content' => [
+                new Assert\Type('string'),
+                new Assert\Length(max: 1000),
+            ],
+            'resolved' => [
+                new Assert\AtLeastOneOf([
+                    new Assert\Type('bool'),
+                    new Assert\IsNull(),
+                ]),
+            ]
+        ];
+
+        if (!$patch) {
+            unset($fields['resolved']);
+        } else {
+            unset($fields['type']);
+            unset($fields['content']);
+        }
+
+        return $this->validate(
+            $input,
+            new Assert\Collection([
+                'fields' => $fields,
+                'allowMissingFields' => false,
             ])
         );
     }

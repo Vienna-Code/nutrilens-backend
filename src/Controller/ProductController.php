@@ -253,7 +253,7 @@ final class ProductController extends ApiController
     }
 
     #[Route('/products/{idp}/reports/{idr}', methods: ['GET'], name: 'app_productreport_get')]
-    public function getReport(int $idp, int $idr): JsonResponse {
+    public function getReport(string $idp, string $idr): JsonResponse {
         // Control de acceso
         $user = $this->getUser(); /** @var \App\Entity\User $user */
         if ($user === null) {
@@ -265,8 +265,29 @@ final class ProductController extends ApiController
             return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
         }
 
+        // Validación
+        $this->validate(
+            ['idp' => $idp, 'idr' => $idr],
+            new Assert\Collection([
+                'fields' => [
+                    'idp' => [
+                        new Assert\Type('digit'),
+                        new Assert\Positive(),
+                    ],
+                    'idr' => [
+                        new Assert\Type('digit'),
+                        new Assert\Positive(),
+                    ],
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
+
         // Encontrar reporte
-        $report = $this->pReportRepository->find($idr);
+        $report = $this->pReportRepository->findOneBy([
+            'id' => $idr,
+            'product' => $idp,
+        ]);
         if (!$report) {
             return $this->json([
                 'error' => ['message' => 'Reporte no encontrado.']
@@ -294,9 +315,26 @@ final class ProductController extends ApiController
 
         // Obtener parametros URL
         $data = $request->query->all();
+        $data['productId'] = $id;
 
         // Validación
-        // TODO
+        $data = $this->validate(
+            $data,
+            new Assert\Collection([
+                'fields' => [
+                    'productId' => [
+                        new Assert\Type('digit'),
+                        new Assert\Positive(),
+                    ],
+                    'resolved' => [
+                        new Assert\Type('string'),
+                        new Assert\Choice(['true', 'null', 'false']),
+                    ]
+                ],
+                'allowExtraFields' => true,
+                'allowMissingFields' => true,
+            ])
+        );
 
         // Encontrar reportes
         $product = $this->productRepository->find($id);
@@ -314,7 +352,7 @@ final class ProductController extends ApiController
     }
 
     #[Route('/products/{id}/reports', methods: ['POST'], name: 'app_productreport_create')]
-    public function createReport(int $id, Request $request): JsonResponse
+    public function createReport(string $id, Request $request): JsonResponse
     {
         // Control de acceso
         $user = $this->getUser(); /** @var \App\Entity\User $user */
@@ -326,8 +364,12 @@ final class ProductController extends ApiController
 
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
-        $type = ReportType::tryFrom($data['type']);
+        $data['productId'] = $id;
 
+        // Validación
+        $data = $this->validateProductReport($data);
+        $type = ReportType::tryFrom($data['type']);
+        
         // Encontrar producto
         $product = $this->productRepository->findWithReports($id);
         if (!$product) {
@@ -356,18 +398,6 @@ final class ProductController extends ApiController
                 'error' => ['message' => 'Ya subiste este reporte.']
             ], 409);
         }
-        
-        // Validación
-        // TODO
-        if (!\in_array(ReportType::tryFrom($data['type']), [
-            ReportType::CONFIRMATION,
-            ReportType::REBUTTAL,
-            ReportType::ISSUE
-        ])) {
-            return $this->json([
-                'error' => ['message' => 'Tipo de reporte inválido.']
-            ], 400);
-        }
 
         // Crear reporte
         $report = $this->pReportManager->create($data, $product, $user);
@@ -395,12 +425,16 @@ final class ProductController extends ApiController
 
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
+        $data['productId'] = $idp;
 
         // Validación
-        // TODO
+        $data = $this->validateProductReport($data, true);
 
         // Actualizar reporte
-        $report = $this->pReportRepository->find($idr);
+        $report = $this->pReportRepository->findOneBy([
+            'id' => $idr,
+            'product' => $idp,
+        ]);
         if (!$report) {
             return $this->json([
                 'error' => ['message' => 'Reporte no encontrado.']
@@ -458,6 +492,49 @@ final class ProductController extends ApiController
             new Assert\Collection([
                 'fields' => $fields,
                 'allowMissingFields' => $patch,
+            ])
+        );
+    }
+
+    private function validateProductReport(array $input, bool $patch = false): array
+    {
+        $fields = [
+            'productId' => [
+                new Assert\Type('digit'),
+                new Assert\Positive(),
+            ],
+            'type' => [
+                new Assert\Type('string'),
+                new Assert\Choice([
+                    ReportType::CONFIRMATION->value,
+                    ReportType::REBUTTAL->value,
+                    ReportType::ISSUE->value,
+                ]),
+            ],
+            'content' => [
+                new Assert\Type('string'),
+                new Assert\Length(max: 1000),
+            ],
+            'resolved' => [
+                new Assert\AtLeastOneOf([
+                    new Assert\Type('bool'),
+                    new Assert\IsNull(),
+                ]),
+            ]
+        ];
+
+        if (!$patch) {
+            unset($fields['resolved']);
+        } else {
+            unset($fields['type']);
+            unset($fields['content']);
+        }
+
+        return $this->validate(
+            $input,
+            new Assert\Collection([
+                'fields' => $fields,
+                'allowMissingFields' => false,
             ])
         );
     }

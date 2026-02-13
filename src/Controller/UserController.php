@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
 use App\Enum\AlimentaryRestriction;
 use App\Enum\ReportType;
 use App\Repository\CommerceRepository;
@@ -12,7 +11,6 @@ use App\Repository\ReviewRepository;
 use App\Repository\UserRepository;
 use App\Service\UserManager;
 use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;

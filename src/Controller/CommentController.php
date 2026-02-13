@@ -2,14 +2,12 @@
 
 namespace App\Controller;
 
-use App\Entity\Comment;
 use App\Enum\Visibility;
 use App\Repository\CommentRepository;
 use App\Repository\PostRepository;
 use App\Service\CommentManager;
 use App\Service\PostManager;
 use Psr\Log\LoggerInterface;
-use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -95,6 +93,7 @@ final class CommentController extends ApiController
                     ],
                 ],
                 'allowExtraFields' => true,
+                'allowMissingFields' => true,
             ])
         );
 
