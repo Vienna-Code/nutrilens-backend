@@ -3,7 +3,6 @@
 namespace App\Repository;
 
 use App\Entity\Comment;
-use App\Entity\Post;
 use App\Entity\User;
 use App\Enum\Visibility;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -63,10 +62,9 @@ class CommentRepository extends ServiceEntityRepository
             ->addSelect('cu')
 
             // replies
-            ->leftJoin('c.replies', 'r')->addSelect('r')
+            ->leftJoin('c.replies', 'r', 'WITH', '(r.visibility = :vis OR r.user = :user)')
+            ->addSelect('r')
             ->leftJoin('r.user', 'r_u')->addSelect('r_u')
-            ->andWhere('(r.visibility = :vis OR r.user = :user)')
-            ->setParameter('vis', Visibility::PUBLIC)
             
             ->andWhere('c.replyingTo IS NULL')
             ->andWhere('c.post = :post')

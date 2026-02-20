@@ -272,6 +272,8 @@ class Post
     #[Groups(['post:read', 'post:list'])]
     public function getTotalComments(): int
     {
-        return $this->comments->count();
+        return $this->comments
+            ->filter(fn(Comment $c) => $c->getReplyingTo() === null)
+            ->count();
     }
 }
