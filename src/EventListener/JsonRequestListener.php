@@ -18,6 +18,11 @@ final class JsonRequestListener
             return;
         }
 
+        // Allow non-JSON for image upload route
+        if ($request->attributes->get('_route') === 'app_image_post') {
+            return;
+        }
+
         // Only for JSON requests
         if ($request->getContentTypeFormat() !== 'json') {
             throw new BadRequestHttpException('Invalid content type, expected JSON.');

@@ -167,3 +167,10 @@
   - Los administradores pueden agregar el taributo '**visibility**: enum' en el JSON (public o private) para ocultar comentarios.
 
 - ``DELETE /posts/{id}/comments/{id}``: Eliminar un comentario, solo para administradores.
+
+- ``GET /images/{id}``: Obtener una imagen de su UUID, retorna binario.
+
+- ``POST /images``: Subir una imagen y obtener su ID para referenciar en otros endpoints. Se utiliza form-data en lugar de JSON.
+  - **file**: Archivo de imagen a subir.
+
+- ``DELETE /images/{id}``: Eliminar una imagen, solo para administradores.
