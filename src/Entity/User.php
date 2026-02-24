@@ -28,7 +28,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                       'productreport:create', 'productreport:read', 'productreport:list', 'productreport:update',
                       'post:read', 'post:list',
                       'comment:read', 'comment:list',
-                      'image:create'])]
+                      'image:read', 'image:create'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 40)]
@@ -38,7 +38,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                       'productreport:create', 'productreport:read', 'productreport:list', 'productreport:update',
                       'post:read', 'post:list',
                       'comment:read', 'comment:list',
-                      'image:create'])]
+                      'image:read', 'image:create'])]
     private ?string $username = null;
 
     #[ORM\Column(length: 320)]

@@ -65,6 +65,37 @@ final class ImageController extends ApiController
         return $response;
     }
 
+    #[Route('/images/{id}/info', methods: ['GET'], name: 'app_image_get_info')]
+    public function getInfo(string $id): Response
+    {
+        // Validación
+        $this->validate(
+            ['id' => $id],
+            new Assert\Collection([
+                'fields' => [
+                    'id' => [
+                        new Assert\NotBlank(),
+                        new Assert\Uuid(),
+                    ],
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
+
+        // Encontrar imagen
+        $image = $this->imageRepository->find($id);
+        if (!$image) {
+            return $this->json([
+                'error' => ['message' => 'Imagen no encontrada.']
+            ], 404);
+        }
+
+        // Responder
+        return $this->json([
+            'data' => $image
+        ], 201, [], ['groups' => ['image:read']]);
+    }
+
     #[Route('/images', methods: ['POST'], name: 'app_image_post')]
     public function post(Request $request): JsonResponse
     {

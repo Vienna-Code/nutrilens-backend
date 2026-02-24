@@ -13,17 +13,19 @@ class Image
 {
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
-    #[Groups(['image:create'])]
+    #[Groups(['image:read', 'image:create'])]
     private Uuid $id;
 
     #[ORM\Column]
+    #[Groups(['image:read', 'image:create'])]
     private \DateTimeImmutable $date;
 
     #[ORM\Column(length: 100)]
+    #[Groups(['image:read', 'image:create'])]
     private ?string $mimeType = null;
 
     #[ORM\ManyToOne(inversedBy: 'images')]
-    #[Groups(['image:create'])]
+    #[Groups(['image:read', 'image:create'])]
     #[SerializedName('uploadedBy')]
     private ?User $user = null;
 
