@@ -689,7 +689,11 @@ final class CommerceController extends ApiController
                     new Assert\Type('bool'),
                     new Assert\IsNull(),
                 ]),
-            ]
+            ],
+            'image' => new Assert\Optional([
+                new Assert\Type('string'),
+                new Assert\Uuid(),
+            ]),
         ];
 
         if (!$patch) {

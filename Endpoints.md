@@ -96,6 +96,7 @@
 - ``POST /commerces/{id}/reports``: Publicar un reporte para un comercio
   - **content**: string *(Contenido textual del reporte)*
   - **type**: Enum *(En el caso de que se este reportando un comercio no verificado, 'type' se setea a "confirmation" o "rebuttal" para confirmar o denegar la existencia. También se puede setear a "issue" si solo se está reportando un problema)*
+  - **image**: string *(UUID de una imágen para adjuntar, opcional)*
 
 - ``PATCH /commerces/{id}/reports/{id}``: Modificar un reporte de un comercio, solo para administradores
   - **resolved**: bool|null *(Si se valida o no el reporte del usuario. Validar un reporte le otorgará puntos de gamificación al usuario)*
@@ -129,6 +130,7 @@
 - ``POST /products/{id}/reports``: Publicar un reporte para un producto
   - **content**: string *(Contenido textual del reporte)*
   - **type**: Enum *(En el caso de que se este reportando un producto no verificado, 'type' se setea a "confirmation" o "rebuttal" para confirmar o denegar la existencia. También se puede setear a "issue" si solo se está reportando un problema)*
+  - **image**: string *(UUID de una imágen para adjuntar, opcional)*
 
 - ``PATCH /commerces/{id}/reports/{id}``: Modificar un reporte de un producto, solo para administradores
   - **resolved**: bool|null *(Si se valida o no el reporte del usuario. Validar un reporte le otorgará puntos de gamificación al usuario)*

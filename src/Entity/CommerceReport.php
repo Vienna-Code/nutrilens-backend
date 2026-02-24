@@ -6,6 +6,7 @@ use App\Enum\ReportType;
 use App\Repository\CommerceReportRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 
 #[ORM\Entity(repositoryClass: CommerceReportRepository::class)]
 class CommerceReport
@@ -39,6 +40,7 @@ class CommerceReport
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update'])]
+    #[SerializedName('image')]
     private ?string $imagePath = null;
 
     #[ORM\Column(nullable: true)]

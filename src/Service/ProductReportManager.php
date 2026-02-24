@@ -2,11 +2,11 @@
 
 namespace App\Service;
 
-use App\Entity\Commerce;
 use App\Entity\Product;
 use App\Entity\ProductReport;
 use App\Entity\User;
 use App\Enum\ReportType;
+use App\Repository\ImageRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ProductReportManager
@@ -14,6 +14,7 @@ class ProductReportManager
     public function __construct(
         private EntityManagerInterface $em,
         private GamificationManager $gm,
+        private ImageRepository $imageRepository,
     ) {}
 
     public function create(array &$data, Product &$product, User &$user): ProductReport
@@ -21,6 +22,12 @@ class ProductReportManager
         $productReport = new ProductReport();
         $productReport->setContent($data['content'] ?? null);
         $productReport->setType(ReportType::tryFrom($data['type']));
+        if ($data['image'] != null) {
+            if (!$this->imageRepository->find($data['image'])) {
+                throw new \InvalidArgumentException('La imagen no fue encontrada');
+            }
+            $productReport->setImagePath($data['image']);
+        }
 
         $product->addProductReport($productReport);
         $user->addProductReport($productReport);
@@ -44,10 +51,5 @@ class ProductReportManager
         $this->em->flush();
 
         return $report;
-    }
-
-    public function delete(Commerce $commerce): void
-    {
-        
     }
 }

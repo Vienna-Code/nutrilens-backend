@@ -6,6 +6,7 @@ use App\Entity\Commerce;
 use App\Entity\CommerceReport;
 use App\Entity\User;
 use App\Enum\ReportType;
+use App\Repository\ImageRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -14,6 +15,7 @@ class CommerceReportManager
     public function __construct(
         private EntityManagerInterface $em,
         private GamificationManager $gm,
+        private ImageRepository $imageRepository,
     ) {}
 
     public function create(array &$data, Commerce &$commerce, User &$user): CommerceReport
@@ -21,6 +23,12 @@ class CommerceReportManager
         $commerceReport = new CommerceReport();
         $commerceReport->setContent($data['content'] ?? null);
         $commerceReport->setType(ReportType::tryFrom($data['type']));
+        if ($data['image'] != null) {
+            if (!$this->imageRepository->find($data['image'])) {
+                throw new \InvalidArgumentException('La imagen no fue encontrada');
+            }
+            $commerceReport->setImagePath($data['image']);
+        }
 
         $commerce->addCommerceReport($commerceReport);
         $user->addCommerceReport($commerceReport);
