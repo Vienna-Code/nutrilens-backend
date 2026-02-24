@@ -178,7 +178,11 @@ final class UserController extends ApiController
                         new Assert\All([
                             new Assert\Choice(array_column(AlimentaryRestriction::cases(), 'value')),
                         ]),
-                    ]
+                    ],
+                    'profilePicture' => [
+                        new Assert\Type('string'),
+                        new Assert\Uuid(),
+                    ],
                 ],
                 'allowMissingFields' => true,
             ])

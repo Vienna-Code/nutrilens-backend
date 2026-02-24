@@ -140,9 +140,7 @@ class CommerceManager
 
                 foreach ($images as $image) {
                     if ($image->getUser() !== $user) {
-                        throw new \InvalidArgumentException(
-                            'No puedes modificar imágenes que no sean tuyas.'
-                        );
+                        throw new \InvalidArgumentException('No puedes modificar imágenes que no sean tuyas.');
                     }
                 }
             }

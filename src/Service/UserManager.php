@@ -4,7 +4,7 @@ namespace App\Service;
 
 use App\Entity\User;
 use App\Enum\AlimentaryRestriction;
-use App\Enum\UserRank;
+use App\Repository\ImageRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -14,6 +14,7 @@ class UserManager
         private EntityManagerInterface $em,
         private GamificationManager $gm,
         private UserPasswordHasherInterface $passwordHasher,
+        private ImageRepository $imageRepository,
     ) {}
 
     public function create(array &$data): User|false
@@ -41,6 +42,15 @@ class UserManager
                 $restriction = AlimentaryRestriction::tryFrom($restriction);
             }
             $user->setAlimentaryRestrictions($data['alimentaryRestrictions'] ?? $user->getAlimentaryRestrictions());
+        }
+
+        if (isset($data['profilePicture'])) {
+            $image = $this->imageRepository->find($data['profilePicture']);
+            if (!$image) {
+                throw new \InvalidArgumentException('La imagen no fue encontrada');
+            }
+
+            $user->setProfilePicture($data['profilePicture']);
         }
 
         $this->em->persist($user);

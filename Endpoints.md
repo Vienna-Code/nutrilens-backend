@@ -17,6 +17,7 @@
 
 - ``PATCH /users/{id}|me``: Actualizar información de un usuario. Los usuarios solo podrán actualizar /users/me
   - **alimentaryRestrictions**: string[] *(De restricciones alimentarias del usuario: ["celiac", "diabetic", "hypertensive"])*
+  - **profilePicture**: string *(UUID de la imágen de foto de perfil)*
 
 - ``GET /users/me/commerces``: Obtener comercios subidos por el usuario autenticado
 
