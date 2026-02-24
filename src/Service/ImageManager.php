@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Image;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -13,7 +14,7 @@ class ImageManager
         private readonly string $uploadDir,
     ) {}
 
-    public function create(UploadedFile $file): Image
+    public function create(UploadedFile $file, User $user): Image
     {
         if (!str_starts_with($file->getMimeType(), 'image/')) {
             throw new \InvalidArgumentException('Invalid image type.');
@@ -21,6 +22,7 @@ class ImageManager
 
         $image = new Image();
         $image->setMimeType($file->getMimeType());
+        $image->setUser($user);
 
         $this->em->persist($image);
         $this->em->flush();

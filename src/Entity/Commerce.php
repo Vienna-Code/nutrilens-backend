@@ -56,12 +56,9 @@ class Commerce
     #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update'])]
     private ?array $paymentMethods = null;
 
-    /**
-     * @var Collection<int, CommerceImage>
-     */
-    #[ORM\OneToMany(targetEntity: CommerceImage::class, mappedBy: 'commerce', orphanRemoval: true, cascade: ['persist'])]
-    #[Groups(['commerce:read'])]
-    private Collection $commerceImages;
+    #[ORM\Column(nullable: true)]
+    #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update'])]
+    private ?array $commerceImages = null;
 
     /**
      * @var Collection<int, CommerceSchedule>
@@ -99,7 +96,6 @@ class Commerce
 
     public function __construct()
     {
-        $this->commerceImages = new ArrayCollection();
         $this->commerceSchedules = new ArrayCollection();
         $this->commerceReports = new ArrayCollection();
         $this->products = new ArrayCollection();
@@ -207,32 +203,14 @@ class Commerce
         return $this;
     }
 
-    /**
-     * @return Collection<int, CommerceImage>
-     */
-    public function getCommerceImages(): Collection
+    public function getCommerceImages(): array
     {
         return $this->commerceImages;
     }
 
-    public function addCommerceImage(CommerceImage $commerceImage): static
+    public function setCommerceImages(?array $commerceImages): static
     {
-        if (!$this->commerceImages->contains($commerceImage)) {
-            $this->commerceImages->add($commerceImage);
-            $commerceImage->setCommerce($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCommerceImage(CommerceImage $commerceImage): static
-    {
-        if ($this->commerceImages->removeElement($commerceImage)) {
-            // set the owning side to null (unless already changed)
-            if ($commerceImage->getCommerce() === $this) {
-                $commerceImage->setCommerce(null);
-            }
-        }
+        $this->commerceImages = $commerceImages;
 
         return $this;
     }

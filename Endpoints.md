@@ -52,6 +52,7 @@
     - **number**: string *(Número de teléfono, ej: "+598...")*  
     - **email**: string *(Correo de contacto)*  
   - **paymentMethods**: string[] *(Métodos de pago aceptados, ej: ["credito", "debito"])*  
+  - **images**: string[] *(Array de UUIDs de imágenes. Solo se pueden utilizar imágenes subidas por el usuario)*
   - **commerceSchedules**: object[] *(Horarios del comercio)*  
     - **weekday**: int *(0 = Domingo, 1 = Lunes, ..., 6 = Sábado)*  
     - **opensAt**: string *(Fecha-hora representando la hora de apertura)*  

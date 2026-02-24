@@ -640,6 +640,13 @@ final class CommerceController extends ApiController
                     }
                 }),
             ],
+            'images' => new Assert\Optional([
+                new Assert\Type('array'),
+                new Assert\All([
+                    new Assert\Type('string'),
+                    new Assert\Uuid(),
+                ]),
+            ]),
             'verified' => [
                 new Assert\Type('bool'),
             ]

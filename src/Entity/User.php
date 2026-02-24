@@ -10,7 +10,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\UniqueConstraint;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -28,7 +27,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                       'commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update',
                       'productreport:create', 'productreport:read', 'productreport:list', 'productreport:update',
                       'post:read', 'post:list',
-                      'comment:read', 'comment:list'])]
+                      'comment:read', 'comment:list',
+                      'image:create'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 40)]
@@ -37,7 +37,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                       'commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update',
                       'productreport:create', 'productreport:read', 'productreport:list', 'productreport:update',
                       'post:read', 'post:list',
-                      'comment:read', 'comment:list'])]
+                      'comment:read', 'comment:list',
+                      'image:create'])]
     private ?string $username = null;
 
     #[ORM\Column(length: 320)]
@@ -145,6 +146,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'taggingUser')]
     private Collection $commentsTaggedOn;
 
+    /**
+     * @var Collection<int, Image>
+     */
+    #[ORM\OneToMany(targetEntity: Image::class, mappedBy: 'user')]
+    private Collection $images;
+
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
@@ -160,6 +167,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->reviewVotes = new ArrayCollection();
         $this->postVotes = new ArrayCollection();
         $this->commentsTaggedOn = new ArrayCollection();
+        $this->images = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -591,6 +599,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($commentsTaggedOn->getTaggingUser() === $this) {
                 $commentsTaggedOn->setTaggingUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Image>
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(Image $image): static
+    {
+        if (!$this->images->contains($image)) {
+            $this->images->add($image);
+            $image->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImage(Image $image): static
+    {
+        if ($this->images->removeElement($image)) {
+            // set the owning side to null (unless already changed)
+            if ($image->getUser() === $this) {
+                $image->setUser(null);
             }
         }
 

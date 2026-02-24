@@ -10,5 +10,4 @@
 
 .vscode
 /var/*
-!/var/uploads/
 !/var/uploads/.gitkeep

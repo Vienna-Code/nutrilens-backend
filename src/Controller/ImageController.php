@@ -107,12 +107,12 @@ final class ImageController extends ApiController
         }
 
         // Procesar y subir imagen
-        $image = $this->imageManager->create($file);
+        $image = $this->imageManager->create($file, $user);
 
         // Responder
         return $this->json([
-            'id' => $image->getId()->toRfc4122()
-        ], 201);
+            'data' => $image
+        ], 201, [], ['groups' => ['image:create']]);
     }
 
     #[Route('/images/{id}', methods: ['DELETE'], name: 'app_image_delete')]

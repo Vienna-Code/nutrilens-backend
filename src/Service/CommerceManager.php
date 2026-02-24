@@ -9,13 +9,16 @@ use App\Entity\User;
 use App\Enum\CommerceType;
 use App\Enum\ReportType;
 use App\Enum\UserRank;
+use App\Repository\ImageRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Uid\Uuid;
 
 class CommerceManager
 {
     public function __construct(
         private EntityManagerInterface $em,
         private GamificationManager $gm,
+        private ImageRepository $imageRepository,
     ) {}
 
     public function create(array &$data, User &$user): Commerce
@@ -46,6 +49,7 @@ class CommerceManager
             $commerce->addCommerceReport($verificationReport);
         }
         
+        // Horarios
         $data['commerceSchedules'] ??= [];
         foreach ($data['commerceSchedules'] as &$scheduleData) {
             $schedule = new CommerceSchedule();
@@ -53,6 +57,27 @@ class CommerceManager
             $schedule->setOpensAt(new \DateTimeImmutable($scheduleData['opensAt']));
             $schedule->setClosesAt(new \DateTimeImmutable($scheduleData['closesAt']));
             $commerce->addCommerceSchedule($schedule);
+        }
+
+        // Imágenes
+        $uuids = $data['images'] ?? [];
+        if (!empty($uuids)) {
+            $uuidObjects = array_map(
+                fn (string $uuid) => Uuid::fromString($uuid),
+                $uuids
+            );
+            $images = $this->imageRepository->findBy([
+                'id' => $uuidObjects,
+            ]);
+            if (\count($images) !== \count($uuids)) {
+                throw new \InvalidArgumentException('Una o más imagenes no fueron encontradas.');
+            }
+            foreach ($images as $image) {
+                if ($image->getUser() !== $user && \in_array('ROLE_ADMIN', $user->getRoles())) {
+                    throw new \InvalidArgumentException('Imagen de ID ' . $image->getId()->toRfc4122() . ' no fue subida por el usuario.');
+                }
+            }
+            $commerce->setCommerceImages($data['images']);
         }
 
         $this->em->persist($commerce);
@@ -77,6 +102,8 @@ class CommerceManager
         
         $commerce->setContactInfo($data['contactInfo'] ?? $commerce->getContactInfo());
         $commerce->setPaymentMethods($data['paymentMethods'] ?? $commerce->getPaymentMethods());
+
+        // Horarios
         if (isset($data['commerceSchedules'])) {
             foreach ($commerce->getCommerceSchedules() as $schedule) {
                 $commerce->removeCommerceSchedule($schedule);
@@ -88,6 +115,39 @@ class CommerceManager
                 $schedule->setClosesAt(new \DateTimeImmutable($scheduleData['closesAt']));
                 $commerce->addCommerceSchedule($schedule);
             }
+        }
+
+        // Imágenes
+        if (isset($data['images'])) {
+            $incoming = $data['images'] ?? [];
+            $current  = $commerce->getCommerceImages() ?? [];
+            $isAdmin  = \in_array('ROLE_ADMIN', $user->getRoles(), true);
+            $toAdd    = array_diff($incoming, $current);
+            $toRemove = array_diff($current, $incoming);
+
+            if (!$isAdmin && (!empty($toAdd) || !empty($toRemove))) {
+                $affectedUuids = array_unique(\array_merge($toAdd, $toRemove));
+                $uuidObjects = array_map(
+                    fn (string $uuid) => Uuid::fromString($uuid),
+                    $affectedUuids
+                );
+                $images = $this->imageRepository->findBy([
+                    'id' => $uuidObjects,
+                ]);
+                if (\count($images) !== \count($affectedUuids)) {
+                    throw new \InvalidArgumentException('Una o más imagenes no fueron encontradas.');
+                }
+
+                foreach ($images as $image) {
+                    if ($image->getUser() !== $user) {
+                        throw new \InvalidArgumentException(
+                            'No puedes modificar imágenes que no sean tuyas.'
+                        );
+                    }
+                }
+            }
+
+            $commerce->setCommerceImages(array_values(array_unique($incoming)));
         }
 
         // Funciones solo para admin
