@@ -5,12 +5,12 @@ namespace App\Service;
 use App\Entity\Post;
 use App\Entity\PostVote;
 use App\Entity\User;
-use App\Enum\AlimentaryRestriction;
-use App\Enum\UserRank;
 use App\Enum\Visibility;
+use App\Repository\ImageRepository;
 use App\Repository\PostVoteRepository;
 use App\Repository\TagRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Uid\Uuid;
 
 class PostManager
 {
@@ -18,6 +18,7 @@ class PostManager
         private EntityManagerInterface $em,
         private GamificationManager $gm,
         private TagRepository $tagRepository,
+        private ImageRepository $imageRepository,
 
         private PostVoteRepository $pvr,
     ) {}
@@ -36,6 +37,27 @@ class PostManager
                 return $tag;
             }
             $post->addTag($realTag);
+        }
+
+        // Imágenes
+        $uuids = $data['attachments'] ?? [];
+        if (!empty($uuids)) {
+            $uuidObjects = array_map(
+                fn (string $uuid) => Uuid::fromString($uuid),
+                $uuids
+            );
+            $images = $this->imageRepository->findBy([
+                'id' => $uuidObjects,
+            ]);
+            if (\count($images) !== \count($uuids)) {
+                throw new \InvalidArgumentException('Una o más imagenes no fueron encontradas.');
+            }
+            foreach ($images as $image) {
+                if ($image->getUser() !== $user && \in_array('ROLE_ADMIN', $user->getRoles())) {
+                    throw new \InvalidArgumentException('Imagen de ID ' . $image->getId()->toRfc4122() . ' no fue subida por el usuario.');
+                }
+            }
+            $post->setAttachments($data['attachments']);
         }
 
         $user->addPost($post);
@@ -67,6 +89,29 @@ class PostManager
                     return $tag;
                 }
                 $post->addTag($realTag);
+            }
+        }
+
+        // Imágenes
+        if (isset($data['attachments'])) {
+            $uuids = $data['attachments'] ?? [];
+            if (!empty($uuids)) {
+                $uuidObjects = array_map(
+                    fn (string $uuid) => Uuid::fromString($uuid),
+                    $uuids
+                );
+                $images = $this->imageRepository->findBy([
+                    'id' => $uuidObjects,
+                ]);
+                if (\count($images) !== \count($uuids)) {
+                    throw new \InvalidArgumentException('Una o más imagenes no fueron encontradas.');
+                }
+                foreach ($images as $image) {
+                    if ($image->getUser() !== $user && \in_array('ROLE_ADMIN', $user->getRoles())) {
+                        throw new \InvalidArgumentException('Imagen de ID ' . $image->getId()->toRfc4122() . ' no fue subida por el usuario.');
+                    }
+                }
+                $post->setAttachments($data['attachments']);
             }
         }
 

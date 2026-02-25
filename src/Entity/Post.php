@@ -70,6 +70,10 @@ class Post
     #[ORM\OneToMany(targetEntity: PostVote::class, mappedBy: 'post', cascade: ['persist'], orphanRemoval: true)]
     private Collection $postVotes;
 
+    #[ORM\Column(nullable: true)]
+    #[Groups(['post:create', 'post:read', 'post:list', 'post:update'])]
+    private ?array $attachments = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -275,5 +279,17 @@ class Post
         return $this->comments
             ->filter(fn(Comment $c) => $c->getReplyingTo() === null)
             ->count();
+    }
+
+    public function getAttachments(): ?array
+    {
+        return $this->attachments;
+    }
+
+    public function setAttachments(?array $attachments): static
+    {
+        $this->attachments = $attachments;
+
+        return $this;
     }
 }

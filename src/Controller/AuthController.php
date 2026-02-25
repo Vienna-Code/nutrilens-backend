@@ -2,26 +2,19 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
 use App\Enum\AlimentaryRestriction;
-use App\Factory\UserFactory;
 use App\Repository\UserRepository;
 use App\Service\UserManager;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use LogicException;
 use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -90,8 +83,6 @@ final class AuthController extends ApiController
 
             return $this->json(['error' => ['message' => $msg]], 409);
         }
-
-        // TODO: Verificación con mail
         $security->login($user);
 
         // Responder

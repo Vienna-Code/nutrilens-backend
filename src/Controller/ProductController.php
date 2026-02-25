@@ -480,7 +480,14 @@ final class ProductController extends ApiController
             ],
             'verified' => [
                 new Assert\Type('bool'),
-            ]
+            ],
+            'images' => new Assert\Optional([
+                new Assert\Type('array'),
+                new Assert\All([
+                    new Assert\Type('string'),
+                    new Assert\Uuid(),
+                ]),
+            ]),
         ];
 
         if (!$patch) {

@@ -115,6 +115,7 @@
   - **category**: string *(Categoría del producto, ej: "food", "drink")*
   - **price**: integer *(Precio del producto, debe ser ≥ 0)*
   - **aptFor**: string[] *(Lista de restricciones alimentarias para las que el producto es apto. Ej: ["celiac", "diabetic", "hypertensive"])*
+  - **images**: string[] *(Array de UUIDs de imágenes. Solo se pueden utilizar imágenes subidas por el usuario)*
 
 - ``PATCH /products``: Actualizar un producto
   - Lleva los mismos parametros que el POST (excepto commerceId).
@@ -147,6 +148,7 @@
   - **content**: Contenido de la publicación.
   - **tags**: Etiquetas de la publicación *(Solo tags de la tabla tags aceptados, se agregara el endpoints GET /tags luego)*
   - **visibility**: Visibilidad de la publicación *(public, delisted, private)*
+  - **attachments**: string[] *(Array de UUIDs de imágenes. Solo se pueden utilizar imágenes subidas por el usuario)*
 
 - ``PATCH /posts/{id}``: Modificar una publicación
   - Lleva los mismos parametros que el POST (excepto title).

@@ -338,7 +338,14 @@ final class PostController extends ApiController
                 new Assert\All([
                     new Assert\Type('string'),
                 ]),
-            ]
+            ],
+            'attachments' => new Assert\Optional([
+                new Assert\Type('array'),
+                new Assert\All([
+                    new Assert\Type('string'),
+                    new Assert\Uuid(),
+                ]),
+            ]),
         ];
 
         return $this->validate(

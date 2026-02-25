@@ -44,9 +44,9 @@ class Product
     #[Groups(['commerce:read', 'product:read', 'product:create', 'product:list', 'product:list:commerce', 'product:update'])]
     private ?bool $verified = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(nullable: true)]
     #[Groups(['commerce:read', 'product:read', 'product:create', 'product:list', 'product:list:commerce', 'product:update'])]
-    private ?string $imagePath = null;
+    private ?array $productImages = null;
 
     /**
      * @var Collection<int, ProductRestriction>
@@ -136,14 +136,14 @@ class Product
         return $this;
     }
 
-    public function getImagePath(): ?string
+    public function getProductImages(): array
     {
-        return $this->imagePath;
+        return $this->productImages;
     }
 
-    public function setImagePath(string $imagePath): static
+    public function setProductImages(?array $productImages): static
     {
-        $this->imagePath = $imagePath;
+        $this->productImages = $productImages;
 
         return $this;
     }

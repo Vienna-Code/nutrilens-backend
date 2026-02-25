@@ -11,14 +11,17 @@ use App\Enum\ReportType;
 use App\Enum\UserRank;
 use App\Enum\AlimentaryRestriction;
 use App\Enum\ProductCategory;
+use App\Repository\ImageRepository;
 use App\Service\GamificationManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Uid\Uuid;
 
 class ProductManager
 {
     public function __construct(
         private EntityManagerInterface $em,
         private GamificationManager $gm,
+        private ImageRepository $imageRepository,
     ) {}
 
     public function create(array &$data, User &$user, Commerce &$commerce): Product
@@ -57,6 +60,27 @@ class ProductManager
             $product->addAptFor($restriction);
         }
 
+        // Imágenes
+        $uuids = $data['images'] ?? [];
+        if (!empty($uuids)) {
+            $uuidObjects = array_map(
+                fn (string $uuid) => Uuid::fromString($uuid),
+                $uuids
+            );
+            $images = $this->imageRepository->findBy([
+                'id' => $uuidObjects,
+            ]);
+            if (\count($images) !== \count($uuids)) {
+                throw new \InvalidArgumentException('Una o más imagenes no fueron encontradas.');
+            }
+            foreach ($images as $image) {
+                if ($image->getUser() !== $user && \in_array('ROLE_ADMIN', $user->getRoles())) {
+                    throw new \InvalidArgumentException('Imagen de ID ' . $image->getId()->toRfc4122() . ' no fue subida por el usuario.');
+                }
+            }
+            $product->setProductImages($data['images']);
+        }
+
         $this->em->persist($product);
         $this->em->flush();
 
@@ -87,6 +111,37 @@ class ProductManager
                 $productRestriction->setRestriction(AlimentaryRestriction::tryFrom($restrictionData));
                 $product->addAptFor($productRestriction);
             }
+        }
+
+        // Imágenes
+        if (isset($data['images'])) {
+            $incoming = $data['images'] ?? [];
+            $current  = $product->getProductImages() ?? [];
+            $isAdmin  = \in_array('ROLE_ADMIN', $user->getRoles(), true);
+            $toAdd    = array_diff($incoming, $current);
+            $toRemove = array_diff($current, $incoming);
+
+            if (!$isAdmin && (!empty($toAdd) || !empty($toRemove))) {
+                $affectedUuids = array_unique(\array_merge($toAdd, $toRemove));
+                $uuidObjects = array_map(
+                    fn (string $uuid) => Uuid::fromString($uuid),
+                    $affectedUuids
+                );
+                $images = $this->imageRepository->findBy([
+                    'id' => $uuidObjects,
+                ]);
+                if (\count($images) !== \count($affectedUuids)) {
+                    throw new \InvalidArgumentException('Una o más imagenes no fueron encontradas.');
+                }
+
+                foreach ($images as $image) {
+                    if ($image->getUser() !== $user) {
+                        throw new \InvalidArgumentException('No puedes modificar imágenes que no sean tuyas.');
+                    }
+                }
+            }
+
+            $product->setProductImages(array_values(array_unique($incoming)));
         }
 
         // Funciones solo para admin
