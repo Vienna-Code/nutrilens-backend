@@ -35,17 +35,17 @@ class ImageManager
 
         switch ($mime) {
             case 'image/jpeg':
-                $resource = imagecreatefromjpeg($sourcePath);
+                $resource = \imagecreatefromjpeg($sourcePath);
                 imagejpeg($resource, $targetPath, 75);
                 break;
 
             case 'image/png':
-                $resource = imagecreatefrompng($sourcePath);
+                $resource = \imagecreatefrompng($sourcePath);
                 imagepng($resource, $targetPath, 6);
                 break;
 
             case 'image/webp':
-                $resource = imagecreatefromwebp($sourcePath);
+                $resource = \imagecreatefromwebp($sourcePath);
                 imagewebp($resource, $targetPath, 75);
                 break;
 

@@ -4,13 +4,8 @@ namespace App\Repository;
 
 use App\Entity\Commerce;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Query\Parameter;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\User;
-use App\Entity\Product;
-use App\Entity\Review;
-use App\Entity\ProductRestriction;
 use App\Enum\ReportType;
 
 /**
@@ -28,11 +23,9 @@ class CommerceRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('c')
             ->leftJoin('c.commerceReports', 'cr')
             ->leftJoin('c.commerceSchedules', 'cs')
-            ->leftJoin('c.commerceImages', 'ci')
             ->leftJoin('c.products', 'p')
             ->addSelect('cr')
             ->addSelect('cs')
-            ->addSelect('ci')
             ->addSelect('p');
 
         // Rango de latitud-longitud
@@ -107,7 +100,7 @@ class CommerceRepository extends ServiceEntityRepository
             [$attr, $ord] = match ($filters['orderBy'] ?? null) {
                 'name_asc'      => ['c.name', 'ASC'],
                 'name_desc'     => ['c.name', 'DESC'],
-                'rating_asc'   => ['rating', 'ASC'],
+                'rating_asc'    => ['rating', 'ASC'],
                 'rating_desc'   => ['rating', 'DESC'],
                 'price_asc'     => ['p.price', 'ASC'],
                 'price_desc'    => ['p.price', 'DESC'],
@@ -147,10 +140,8 @@ class CommerceRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('c')
             ->leftJoin('c.commerceReports', 'cr')
             ->leftJoin('c.commerceSchedules', 'cs')
-            ->leftJoin('c.commerceImages', 'ci')
             ->addSelect('cr')
             ->addSelect('cs')
-            ->addSelect('ci')
             ->andWhere('cr.type = :type AND cr.user = :user')
             ->setParameter('type', $type)
             ->setParameter('user', $user);
