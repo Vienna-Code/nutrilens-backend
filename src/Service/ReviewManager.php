@@ -43,8 +43,16 @@ class ReviewManager
         }
 
         $review->setContent($data['content'] ?? $review->getContent());
-        $review->setPositive($data['positive'] ?? $review->isPositive());
         $review->setUpdatedAt(new \DateTimeImmutable('now'));
+
+        if (isset($data['positive']) && $review->isPositive() !== $data['positive']) {
+            $review->setPositive($data['positive']);
+
+            $commerce = $review->getCommerce();
+            $sum = $data['positive'] ? 1 : -1;
+            $commerce->setPositiveReviews($commerce->getPositiveReviews() + $sum);
+        }
+
         if ($isAdmin) {
             if (isset($data['visibility'])) {
                 $visibility = $data['visibility'] === 'private' ? Visibility::PRIVATE : Visibility::PUBLIC;

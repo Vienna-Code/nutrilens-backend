@@ -89,7 +89,7 @@ final class UserController extends ApiController
         // Responder
         return $this->json([
             'data' => $reviews
-        ], 200, [], ['groups' => ['review:list']]);
+        ], 200, [], ['groups' => ['review:list','review:list:me']]);
     }
 
     #[Route('/users/me/posts', methods: ['GET'], name: 'app_user_list_posts')]

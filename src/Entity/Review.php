@@ -20,6 +20,7 @@ class Review
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'reviews')]
+    #[Groups(['review:list:me'])]
     private ?Commerce $commerce = null;
 
     #[ORM\ManyToOne(inversedBy: 'reviews')]

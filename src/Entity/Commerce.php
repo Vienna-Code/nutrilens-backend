@@ -18,13 +18,13 @@ class Commerce
     #[ORM\Column]
     #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update',
                       'commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update',
-                      'product:list:commerce'])]
+                      'product:list:commerce', 'review:list:me'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
     #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update',
                       'commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update',
-                      'product:list:commerce'])]
+                      'product:list:commerce', 'review:list:me'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 50)]
