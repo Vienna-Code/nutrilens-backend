@@ -117,7 +117,7 @@
   - **aptFor**: string[] *(Lista de restricciones alimentarias para las que el producto es apto. Ej: ["celiac", "diabetic", "hypertensive"])*
   - **images**: string[] *(Array de UUIDs de imágenes. Solo se pueden utilizar imágenes subidas por el usuario)*
 
-- ``PATCH /products``: Actualizar un producto
+- ``PATCH /products/{id}``: Actualizar un producto
   - Lleva los mismos parametros que el POST (excepto commerceId).
     - Los usuarios de rango Plata pueden modificar price y aptFor.
     - Los usuarios de rango Oro o Platino también pueden verificar o desverificar productos.

@@ -30,6 +30,7 @@ class CommerceReportRepository extends ServiceEntityRepository
                 'true'  => true,
                 'false' => false,
                 'null'  => null,
+                default => $filters['resolved'],
             };
 
             if ($resolved === null) {
