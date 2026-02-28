@@ -23,7 +23,7 @@ class CommerceReportManager
         $commerceReport = new CommerceReport();
         $commerceReport->setContent($data['content'] ?? null);
         $commerceReport->setType(ReportType::tryFrom($data['type']));
-        if ($data['image'] != null) {
+        if (isset($data['image']) && $data['image'] != null) {
             if (!$this->imageRepository->find($data['image'])) {
                 throw new \InvalidArgumentException('La imagen no fue encontrada');
             }

@@ -680,10 +680,10 @@ final class CommerceController extends ApiController
                     ReportType::ISSUE->value,
                 ]),
             ],
-            'content' => [
+            'content' => new Assert\Optional([
                 new Assert\Type('string'),
                 new Assert\Length(max: 1000),
-            ],
+            ]),
             'resolved' => [
                 new Assert\AtLeastOneOf([
                     new Assert\Type('bool'),
