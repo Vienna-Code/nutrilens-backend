@@ -121,16 +121,16 @@ class CommerceRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('c')
             ->andWhere('c.id = :id')
-            ->setParameter('id', $id)
-            ->leftJoin('c.commerceReports', 'cr')
-            ->addSelect('cr');
+            ->setParameter('id', $id);
 
         if ($resolved === null) {
-            $qb->andWhere('cr.resolved IS NULL');
+            $qb->leftJoin('c.commerceReports', 'cr', 'WITH', 'cr.resolved IS NULL');
         } else {
-            $qb->andWhere('cr.resolved = :res')
-            ->setParameter('res', $resolved);
+            $qb->leftJoin('c.commerceReports', 'cr', 'WITH', 'cr.resolved = :res')
+                ->setParameter('res', $resolved);
         }
+
+        $qb->addSelect('cr');
 
         return $qb->getQuery()->getOneOrNullResult();
     }

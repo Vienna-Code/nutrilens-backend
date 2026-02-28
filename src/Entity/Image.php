@@ -68,4 +68,10 @@ class Image
 
         return $this;
     }
+
+    #[Groups(['image:read', 'image:create'])]
+    public function getUrl(): string
+    {
+        return "http://localhost:8000/images/{$this->id}";
+    }
 }

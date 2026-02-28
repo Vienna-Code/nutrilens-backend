@@ -43,16 +43,16 @@ class ProductRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('p')
             ->andWhere('p.id = :id')
-            ->setParameter('id', $id)
-            ->leftJoin('p.productReports', 'pr')
-            ->addSelect('pr');
+            ->setParameter('id', $id);
 
         if ($resolved === null) {
-            $qb->andWhere('pr.resolved IS NULL');
+            $qb->leftJoin('p.productReports', 'pr', 'WITH', 'pr.resolved IS NULL');
         } else {
-            $qb->andWhere('pr.resolved = :res')
+            $qb->leftJoin('p.productReports', 'pr', 'WITH', 'pr.resolved = :res')
                 ->setParameter('res', $resolved);
         }
+
+        $qb->addSelect('pr');
 
         return $qb->getQuery()->getOneOrNullResult();
     }
