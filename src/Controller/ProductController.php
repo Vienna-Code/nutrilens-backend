@@ -68,6 +68,8 @@ final class ProductController extends ApiController
         ]);
 
         // Agregar si fue reportado como verificado o no
+        $product['userVerificationReport'] = null;
+        $product['submittedByUser'] = false;
         if ($user) {
             $reports = $this->pReportRepository->findBy([
                 'product' => $product,
@@ -77,10 +79,15 @@ final class ProductController extends ApiController
                 $vote = match ($report->getType()) {
                     ReportType::CONFIRMATION => true,
                     ReportType::REBUTTAL     => false,
+                    ReportType::SUBMISSION   => 'submitted',
                     default                  => $vote ?? null,
                 };
             }
-            $product['userVerificationReport'] = $vote ?? null;
+            if ($vote === 'submitted') {
+                $product['submittedByUser'] = true;
+            } else {
+                $product['userVerificationReport'] = $vote ?? null;
+            }
         }
 
         // Responder
@@ -152,6 +159,8 @@ final class ProductController extends ApiController
                 'groups' => ['product:list:commerce']
             ]);
 
+            $product['userVerificationReport'] = null;
+            $product['submittedByUser'] = false;
             if ($user) {
                 $reports = $this->pReportRepository->findBy([
                     'product' => $product,
@@ -161,10 +170,15 @@ final class ProductController extends ApiController
                     $vote = match ($report->getType()) {
                         ReportType::CONFIRMATION => true,
                         ReportType::REBUTTAL     => false,
+                        ReportType::SUBMISSION   => 'submitted',
                         default                  => $vote ?? null,
                     };
+                    if ($vote === 'submitted') {
+                        $product['submittedByUser'] = true;
+                    } else {
+                        $product['userVerificationReport'] = $vote ?? null;
+                    }
                 }
-                $product['userVerificationReport'] = $vote ?? null;
             }
         }
 

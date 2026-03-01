@@ -111,6 +111,8 @@ final class CommerceController extends ApiController
         ]);
         
         // Agregar si fue reportado como verificado o no
+        $commerce['userVerificationReport'] = null;
+        $commerce['submittedByUser'] = false;
         if ($user) {
             $reports = $this->cReportRepository->findBy([
                 'commerce' => $commerce,
@@ -120,10 +122,15 @@ final class CommerceController extends ApiController
                 $vote = match ($report->getType()) {
                     ReportType::CONFIRMATION => true,
                     ReportType::REBUTTAL     => false,
+                    ReportType::SUBMISSION   => 'submitted',
                     default                  => $vote ?? null,
                 };
             }
-            $commerce['userVerificationReport'] = $vote ?? null;
+            if ($vote === 'submitted') {
+                $commerce['submittedByUser'] = true;
+            } else {
+                $commerce['userVerificationReport'] = $vote ?? null;
+            }
         }
 
         // Responder
@@ -210,6 +217,8 @@ final class CommerceController extends ApiController
                 'groups' => ['commerce:list']
             ]);
 
+            $commerce['userVerificationReport'] = null;
+            $commerce['submittedByUser'] = false;
             if ($user) {
                 $reports = $this->cReportRepository->findBy([
                     'commerce' => $commerce,
@@ -219,10 +228,15 @@ final class CommerceController extends ApiController
                     $vote = match ($report->getType()) {
                         ReportType::CONFIRMATION => true,
                         ReportType::REBUTTAL     => false,
+                        ReportType::SUBMISSION   => 'submitted',
                         default                  => $vote ?? null,
                     };
+                    if ($vote === 'submitted') {
+                        $commerce['submittedByUser'] = true;
+                    } else {
+                        $commerce['userVerificationReport'] = $vote ?? null;
+                    }
                 }
-                $commerce['userVerificationReport'] = $vote ?? null;
             }
         }
 
