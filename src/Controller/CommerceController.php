@@ -125,11 +125,11 @@ final class CommerceController extends ApiController
                     ReportType::SUBMISSION   => 'submitted',
                     default                  => $vote ?? null,
                 };
-            }
-            if ($vote === 'submitted') {
-                $commerce['submittedByUser'] = true;
-            } else {
-                $commerce['userVerificationReport'] = $vote ?? null;
+                if ($vote === 'submitted') {
+                    $commerce['submittedByUser'] = true;
+                } else {
+                    $commerce['userVerificationReport'] = $vote ?? null;
+                }
             }
         }
 

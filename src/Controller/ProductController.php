@@ -82,11 +82,11 @@ final class ProductController extends ApiController
                     ReportType::SUBMISSION   => 'submitted',
                     default                  => $vote ?? null,
                 };
-            }
-            if ($vote === 'submitted') {
-                $product['submittedByUser'] = true;
-            } else {
-                $product['userVerificationReport'] = $vote ?? null;
+                if ($vote === 'submitted') {
+                    $product['submittedByUser'] = true;
+                } else {
+                    $product['userVerificationReport'] = $vote ?? null;
+                }
             }
         }
 
