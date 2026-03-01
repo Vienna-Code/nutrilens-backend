@@ -534,6 +534,10 @@ final class ProductController extends ApiController
             ]),
         ];
 
+        if (!isset($input['type']) || $input['type'] !== ReportType::ISSUE->value) {
+            unset($fields['content']);
+        }
+
         if (!$patch) {
             unset($fields['resolved']);
         } else {
@@ -546,7 +550,7 @@ final class ProductController extends ApiController
             new Assert\Collection([
                 'fields' => $fields,
                 'allowMissingFields' => false,
-            ])
+            ]),
         );
     }
 }

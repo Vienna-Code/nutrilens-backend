@@ -680,10 +680,10 @@ final class CommerceController extends ApiController
                     ReportType::ISSUE->value,
                 ]),
             ],
-            'content' => new Assert\Optional([
+            'content' => [
                 new Assert\Type('string'),
                 new Assert\Length(max: 1000),
-            ]),
+            ],
             'resolved' => [
                 new Assert\AtLeastOneOf([
                     new Assert\Type('bool'),
@@ -695,6 +695,10 @@ final class CommerceController extends ApiController
                 new Assert\Uuid(),
             ]),
         ];
+
+        if (!isset($input['type']) || $input['type'] !== ReportType::ISSUE->value) {
+            unset($fields['content']);
+        }
 
         if (!$patch) {
             unset($fields['resolved']);
