@@ -480,6 +480,12 @@ final class CommerceController extends ApiController
             ], 409);
         }
 
+        // Borrar reporte rebuttal si ya se subió confirmation y viceversa
+        $ogReport = $this->cReportRepository->findOppositeIfExists($data['type'], $user, $commerce);
+        if ($ogReport) {
+            $this->cReportManager->delete($ogReport);
+        }
+
         // Crear reporte
         $report = $this->cReportManager->create($data, $commerce, $user);
         

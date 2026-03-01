@@ -52,4 +52,10 @@ class ProductReportManager
 
         return $report;
     }
+
+    public function delete(ProductReport $report): void
+    {
+        $this->em->remove($report);
+        $this->em->flush();
+    }
 }

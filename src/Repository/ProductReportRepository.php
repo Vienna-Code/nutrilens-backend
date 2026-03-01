@@ -4,8 +4,10 @@ namespace App\Repository;
 
 use App\Entity\Product;
 use App\Entity\ProductReport;
+use App\Enum\ReportType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Proxies\__CG__\App\Entity\User;
 
 /**
  * @extends ServiceEntityRepository<ProductReport>
@@ -42,6 +44,29 @@ class ProductReportRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getResult();
+    }
+
+    public function findOppositeIfExists($type, User $user, Product $product): ProductReport|null
+    {
+        $type = match ($type) {
+            ReportType::CONFIRMATION->value => ReportType::REBUTTAL->value,
+            ReportType::REBUTTAL->value     => ReportType::CONFIRMATION->value,
+            default                         => null,
+        };
+
+        if (!$type) {
+            return null;
+        }
+
+        $qb = $this->createQueryBuilder('pr')
+            ->andWhere('pr.user = :user')
+            ->setParameter('user', $user)
+            ->andWhere('pr.product = :product')
+            ->setParameter('product', $product)
+            ->andWhere('pr.type = :type')
+            ->setParameter('type', $type);
+
+        return $qb->getQuery()->getOneOrNullResult();
     }
 
     //    /**

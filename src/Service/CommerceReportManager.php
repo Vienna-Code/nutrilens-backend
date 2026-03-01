@@ -79,4 +79,10 @@ class CommerceReportManager
 
         return $report;
     }
+
+    public function delete(CommerceReport $report): void
+    {
+        $this->em->remove($report);
+        $this->em->flush();
+    }
 }
