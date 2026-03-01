@@ -6,6 +6,7 @@ use App\Entity\Comment;
 use App\Entity\User;
 use App\Enum\Visibility;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -53,6 +54,7 @@ class CommentRepository extends ServiceEntityRepository
         }
 
         $qb = $this->createQueryBuilder('c')
+            ->select('DISTINCT c')
             ->andWhere('(c.visibility = :vis OR c.user = :user)')
             ->setParameter('vis', Visibility::PUBLIC)
             ->setParameter('user', $user)
@@ -70,10 +72,12 @@ class CommentRepository extends ServiceEntityRepository
             ->andWhere('c.post = :post')
             ->setParameter('post', $filters['post'])
             ->orderBy('c.createdAt', 'DESC')
-            ->setMaxResults(20)
-            ->setFirstResult(($filters['page']-1)*20);
+            ->setMaxResults(10)
+            ->setFirstResult(($filters['page']-1)*10);
 
-        return $qb->getQuery()->getResult();
+        $paginator = new Paginator($qb, true);
+
+        return iterator_to_array($paginator);
     }
 
     //    /**
