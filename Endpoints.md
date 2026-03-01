@@ -31,8 +31,8 @@
   - **lat**: string *(Rango de latitud en el mapa, dos floats divididos por una coma)*
   - **lon**: string *(Rango de longitud en el mapa, dos floats divididos por una coma)*
   - **name**: string *(Filtrar por nombre del comercio, búsqueda parcial)*
-  - **minPrice**: integer *(Precio mínimo, debe ser ≥ 0)*
-  - **maxPrice**: integer *(Precio máximo, debe ser ≥ 0)*
+  - **minPrice**: integer *(Precio mínimo)*
+  - **maxPrice**: integer *(Precio máximo)*
   - **restrictions**: string *(Lista de restricciones separadas por comas. Ej: "celiac,diabetic,hypertension", mostraría comercios que ofrecen comida apta para estas restricciones)*
   - **commerceTypes**: string *(Lista de tipos de comercio separados por comas. Ej: "kiosco,supermercado")*
   - **orderBy**: string *(Por cual atributo y como ordenar los resultados: name_asc, name_desc, rating_asc, rating_desc, price_asc, price_desc)*
@@ -104,6 +104,11 @@
 
 - ``GET /products``: Obtener lista de productos
   - **commerce**: int *(Comercio al cual pertenecen los productos)*
+  - **name**: string *(Nombre del producto)*
+  - **restrictions**: string *(Lista de restricciones separadas por comas. Ej: "celiac,diabetic,hypertension". Restricciones alimentarias a la cual tiene que ser apto el producto)*
+  - **minPrice**: int *(Precio mínimo)*
+  - **maxPrice**: int *(Precio máximo)*
+  - **category**: string *(Lista de categorias separadas por comas. Ej: "food,drink". Categoría del producto.)*
   - **unverified**: *(Agregar a la query '&unverified' para incluir productos no verificados)*
 
 - ``GET /products/{id}``: Obtener un producto

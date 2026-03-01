@@ -145,7 +145,7 @@ final class ProductController extends ApiController
         // Agregar si fue reportado como verificado o no
         foreach ($products as &$product) {
             $product = $this->normalizer->normalize($product, context: [
-                'groups' => ['product:list']
+                'groups' => ['product:list:commerce']
             ]);
 
             if ($user) {
@@ -167,7 +167,7 @@ final class ProductController extends ApiController
         // Responder
         return $this->json([
             'data' => $products
-        ], 200, [], ['groups' => ['product:list']]);
+        ], 200, [], ['groups' => ['product:list:commerce']]);
     }
 
     #[Route('/products', methods: ['POST'], name: 'app_product_post')]

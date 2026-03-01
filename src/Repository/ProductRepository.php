@@ -36,6 +36,39 @@ class ProductRepository extends ServiceEntityRepository
                 ->setParameter('verified', 1);
         }
 
+        if (isset($filters['name'])) {
+            $qb->andWhere('p.name LIKE :name')
+                ->setParameter('name', '%' . $filters['name'] . '%');
+        }
+
+        if (isset($filters['minPrice']) || isset($filters['maxPrice'])) {
+                $minPrice = $filters['minPrice'] ?? 0;
+                $maxPrice = $filters['maxPrice'] ?? 2147483647;
+    
+                $qb->andWhere('(p.price BETWEEN :minPrice AND :maxPrice)')
+                    ->setParameter('minPrice', $minPrice)
+                    ->setParameter('maxPrice', $maxPrice);
+        }
+
+        if (!empty($filters['restrictions'])) {
+            $subQb = $this->getEntityManager()->createQueryBuilder()
+                ->select('p2.id')
+                ->from(Product::class, 'p2')
+                ->leftJoin('p2.aptFor', 'pr2')
+                ->where('pr2.restriction IN (:restrictions)')
+                ->groupBy('p2.id')
+                ->having('COUNT(DISTINCT pr2.restriction) = :count');
+
+            $qb->andWhere($qb->expr()->in('p.id', $subQb->getDQL()))
+                ->setParameter('restrictions', $filters['restrictions'])
+                ->setParameter('count', count($filters['restrictions']));
+        }
+
+        if (!empty($filters['category'])) {
+            $qb->andWhere('p.category IN (:categories)')
+            ->setParameter('categories', $filters['category']);
+        }
+
         return $qb->getQuery()->getResult();
     }
 

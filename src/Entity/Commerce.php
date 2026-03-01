@@ -29,7 +29,8 @@ class Commerce
 
     #[ORM\Column(length: 50)]
     #[Groups(['commerce:create', 'commerce:read', 'commerce:list', 'commerce:update',
-                      'commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update'])]
+                      'commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update',
+                      'product:list:commerce', 'review:list:me'])]
     private ?CommerceType $type = null;
 
     #[ORM\Column]
