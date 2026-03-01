@@ -191,6 +191,10 @@ final class CommerceController extends ApiController
                             new Assert\Choice(array_column(CommerceType::cases(), 'value')),
                         ]),
                     ],
+                    'page' => [
+                        new Assert\Type(['type' => 'digit']),
+                        new Assert\Positive(),
+                    ],
                     'unverified' => [],
                 ],
                 'allowMissingFields' => true,

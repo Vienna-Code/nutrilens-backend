@@ -7,6 +7,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\User;
 use App\Enum\ReportType;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 /**
  * @extends ServiceEntityRepository<Commerce>
@@ -21,12 +22,11 @@ class CommerceRepository extends ServiceEntityRepository
     public function findByFilters(array $filters): array
     {
         $qb = $this->createQueryBuilder('c')
+            ->select('DISTINCT c')
             ->leftJoin('c.commerceReports', 'cr')
             ->leftJoin('c.commerceSchedules', 'cs')
             ->leftJoin('c.products', 'p')
-            ->addSelect('cr')
-            ->addSelect('cs')
-            ->addSelect('p');
+            ->addSelect('cr', 'cs', 'p');
 
         // Rango de latitud-longitud
         if (isset($filters['lat'], $filters['lon'])) {
@@ -114,7 +114,14 @@ class CommerceRepository extends ServiceEntityRepository
             $qb->andWhere('c.verified = :verified')->setParameter('verified', 1);
         }
 
-        return $qb->getQuery()->getResult();
+        if (isset($filters['page'])) {
+            $qb->setMaxResults(10)
+            ->setFirstResult(($filters['page'] - 1) * 10);
+        }
+
+        $paginator = new Paginator($qb, true);
+
+        return iterator_to_array($paginator);
     }
 
     public function findWithReports(int $id, ?bool $resolved = null): ?Commerce

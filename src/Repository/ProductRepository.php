@@ -6,6 +6,7 @@ use App\Entity\Product;
 use App\Entity\User;
 use App\Enum\ReportType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -21,6 +22,7 @@ class ProductRepository extends ServiceEntityRepository
     public function findByFilters($filters): array
     {
         $qb = $this->createQueryBuilder('p')
+            ->select('DISTINCT p')
             ->leftJoin('p.commerce', 'c')
             ->leftJoin('p.aptFor', 'pr')
             ->addSelect('c')
@@ -61,15 +63,22 @@ class ProductRepository extends ServiceEntityRepository
 
             $qb->andWhere($qb->expr()->in('p.id', $subQb->getDQL()))
                 ->setParameter('restrictions', $filters['restrictions'])
-                ->setParameter('count', count($filters['restrictions']));
+                ->setParameter('count', \count($filters['restrictions']));
         }
 
         if (!empty($filters['category'])) {
             $qb->andWhere('p.category IN (:categories)')
-            ->setParameter('categories', $filters['category']);
+                ->setParameter('categories', $filters['category']);
         }
 
-        return $qb->getQuery()->getResult();
+        if (isset($filters['page'])) {
+            $qb->setMaxResults(10)
+            ->setFirstResult(($filters['page'] - 1) * 10);
+        }
+
+        $paginator = new Paginator($qb, true);
+
+        return iterator_to_array($paginator);
     }
 
     public function findWithReports(int $id, ?bool $resolved = null): ?Product

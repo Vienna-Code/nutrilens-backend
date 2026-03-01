@@ -133,6 +133,10 @@ final class ProductController extends ApiController
                             new Assert\Choice(array_column(ProductCategory::cases(), 'value')),
                         ]),
                     ],
+                    'page' => [
+                        new Assert\Type(['type' => 'digit']),
+                        new Assert\Positive(),
+                    ],
                     'unverified' => [],
                 ],
                 'allowMissingFields' => true,
