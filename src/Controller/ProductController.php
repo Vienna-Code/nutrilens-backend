@@ -98,6 +98,12 @@ final class ProductController extends ApiController
         $data = $request->query->all();
 
         // Validación
+        if (isset($data['restrictions'])) {
+            $data['restrictions'] = array_filter(array_map('trim', explode(',', $data['restrictions'])));
+        }
+        if (isset($data['category'])) {
+            $data['category'] = array_filter(array_map('trim', explode(',', $data['category'])));
+        }
         $data = $this->validate(
             $data,
             new Assert\Collection([
@@ -105,6 +111,27 @@ final class ProductController extends ApiController
                     'commerce' => [
                         new Assert\Type(['type' => 'digit']),
                         new Assert\Positive(),
+                    ],
+                    'name' => [
+                        new Assert\Type('string'),
+                    ],
+                    'restrictions' => [
+                        new Assert\Type('array'),
+                        new Assert\All([
+                            new Assert\Choice(array_column(AlimentaryRestriction::cases(), 'value')),
+                        ]),
+                    ],
+                    'minPrice' => [
+                        new Assert\Type(['type' => 'numeric']),
+                    ],
+                    'maxPrice' => [
+                        new Assert\Type(['type' => 'numeric']),
+                    ],
+                    'category' => [
+                        new Assert\Type('array'),
+                        new Assert\All([
+                            new Assert\Choice(array_column(ProductCategory::cases(), 'value')),
+                        ]),
                     ],
                     'unverified' => [],
                 ],

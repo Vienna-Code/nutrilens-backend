@@ -163,14 +163,14 @@ final class CommerceController extends ApiController
                             message: 'This value should follow the format "float,float"'
                         ),
                     ],
-                    'name' => [],
+                    'name' => [
+                        new Assert\Type('string'),
+                    ],
                     'minPrice' => [
                         new Assert\Type(['type' => 'numeric']),
-                        new Assert\Positive(),
                     ],
                     'maxPrice' => [
                         new Assert\Type(['type' => 'numeric']),
-                        new Assert\Positive(),
                     ],
                     'restrictions' => [
                         new Assert\Type('array'),
