@@ -7,7 +7,7 @@ use App\Entity\ProductReport;
 use App\Enum\ReportType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Proxies\__CG__\App\Entity\User;
+use App\Entity\User;
 
 /**
  * @extends ServiceEntityRepository<ProductReport>
