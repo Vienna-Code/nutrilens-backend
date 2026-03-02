@@ -89,7 +89,21 @@ class CommerceRepository extends ServiceEntityRepository
         }
 
         // Orden
-        if (isset($filters['orderBy'])) {
+        if (!isset($filters['orderBy']) && isset($filters['name'])) {
+            $qb->addSelect("
+                CASE
+                    WHEN c.name LIKE :start THEN 1
+                    WHEN c.name LIKE :like THEN 2
+                    ELSE 3
+                END AS HIDDEN relevance
+            ")
+            ->setParameter('start', $filters['name'] . '%')
+            ->setParameter('like', '%' . $filters['name'] . '%')
+            ->orderBy('relevance', 'ASC')
+            ->addOrderBy('c.name', 'ASC');
+        } else {
+            $filters['orderBy'] ??= '';
+
             if (str_contains($filters['orderBy'], 'rating')) {
                 $qb->addSelect('(c.positiveReviews / NULLIF(c.totalReviews, 0)) * 100 AS HIDDEN rating')
                     ->andWhere('c.positiveReviews > 0');
@@ -97,7 +111,7 @@ class CommerceRepository extends ServiceEntityRepository
             if (str_contains($filters['orderBy'], 'price')) {
                 $qb->andWhere('p.id IS NOT NULL');
             }
-            [$attr, $ord] = match ($filters['orderBy'] ?? null) {
+            [$attr, $ord] = match ($filters['orderBy']) {
                 'name_asc'      => ['c.name', 'ASC'],
                 'name_desc'     => ['c.name', 'DESC'],
                 'rating_asc'    => ['rating', 'ASC'],

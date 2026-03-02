@@ -71,6 +71,30 @@ class ProductRepository extends ServiceEntityRepository
                 ->setParameter('categories', $filters['category']);
         }
 
+        // Orden
+        if (!isset($filters['orderBy']) && isset($filters['name'])) {
+            $qb->addSelect("
+                CASE
+                    WHEN p.name LIKE :start THEN 1
+                    WHEN p.name LIKE :like THEN 2
+                    ELSE 3
+                END AS HIDDEN relevance
+            ")
+            ->setParameter('start', $filters['name'] . '%')
+            ->setParameter('like', '%' . $filters['name'] . '%')
+            ->orderBy('relevance', 'ASC')
+            ->addOrderBy('p.name', 'ASC');
+        } else {
+            [$attr, $ord] = match ($filters['orderBy'] ?? null) {
+                'name_asc'      => ['p.name', 'ASC'],
+                'name_desc'     => ['p.name', 'DESC'],
+                'price_asc'     => ['p.price', 'ASC'],
+                'price_desc'    => ['p.price', 'DESC'],
+                default         => ['p.id', 'ASC'],
+            };
+            $qb->orderBy($attr, $ord);
+        }
+
         if (isset($filters['page'])) {
             $qb->setMaxResults(10)
             ->setFirstResult(($filters['page'] - 1) * 10);

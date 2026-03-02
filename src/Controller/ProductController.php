@@ -144,6 +144,12 @@ final class ProductController extends ApiController
                         new Assert\Type(['type' => 'digit']),
                         new Assert\Positive(),
                     ],
+                    'orderBy' => [
+                        new Assert\Choice([
+                            'name_asc', 'name_desc',
+                            'price_asc', 'price_desc'
+                        ]),
+                    ],
                     'unverified' => [],
                 ],
                 'allowMissingFields' => true,

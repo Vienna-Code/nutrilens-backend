@@ -36,6 +36,7 @@
   - **restrictions**: string *(Lista de restricciones separadas por comas. Ej: "celiac,diabetic,hypertension", mostraría comercios que ofrecen comida apta para estas restricciones)*
   - **commerceTypes**: string *(Lista de tipos de comercio separados por comas. Ej: "kiosco,supermercado")*
   - **orderBy**: string *(Por cual atributo y como ordenar los resultados: name_asc, name_desc, rating_asc, rating_desc, price_asc, price_desc)*
+  - **page**: Página, si no se incluye este parametro, no se paginará
   - **unverified**: *(Agregar a la query '&unverified' para incluir comercios no verificados)*
 
 - ``GET /commerces/{id}``: Obtener un comercio & sus imagenes
@@ -109,6 +110,8 @@
   - **minPrice**: int *(Precio mínimo)*
   - **maxPrice**: int *(Precio máximo)*
   - **category**: string *(Lista de categorias separadas por comas. Ej: "food,drink". Categoría del producto.)*
+  - **page**: Página, si no se incluye este parametro, no se paginará
+  - **orderBy**: string *(Por cual atributo y como ordenar los resultados: name_asc, name_desc, price_asc, price_desc)*
   - **unverified**: *(Agregar a la query '&unverified' para incluir productos no verificados)*
 
 - ``GET /products/{id}``: Obtener un producto
