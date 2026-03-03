@@ -612,16 +612,16 @@ final class CommerceController extends ApiController
                             ],
                             'opensAt' => [
                                 new Assert\NotBlank(),
-                                new Assert\DateTime(
-                                    format: \DateTimeInterface::ATOM,
-                                    message: 'opensAt must be a valid datetime'
+                                new Assert\Time(
+                                    message: 'closesAt must be a valid time (HH:MM)',
+                                    withSeconds: false
                                 ),
                             ],
                             'closesAt' => [
                                 new Assert\NotBlank(),
-                                new Assert\DateTime(
-                                    format: \DateTimeInterface::ATOM,
-                                    message: 'closesAt must be a valid datetime'
+                                new Assert\Time(
+                                    message: 'closesAt must be a valid time (HH:MM)',
+                                    withSeconds: false
                                 ),
                             ],
                         ],
