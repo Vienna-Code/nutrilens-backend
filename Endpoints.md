@@ -36,7 +36,7 @@
   - **restrictions**: string *(Lista de restricciones separadas por comas. Ej: "celiac,diabetic,hypertension", mostraría comercios que ofrecen comida apta para estas restricciones)*
   - **commerceTypes**: string *(Lista de tipos de comercio separados por comas. Ej: "kiosco,supermercado")*
   - **orderBy**: string *(Por cual atributo y como ordenar los resultados: name_asc, name_desc, rating_asc, rating_desc, price_asc, price_desc)*
-  - **page**: Página, si no se incluye este parametro, no se paginará
+  - **page**: int *(Página, si no se incluye este parametro, no se paginará)*
   - **unverified**: *(Agregar a la query '&unverified' para incluir comercios no verificados)*
 
 - ``GET /commerces/{id}``: Obtener un comercio & sus imagenes
@@ -113,7 +113,7 @@
   - **minPrice**: int *(Precio mínimo)*
   - **maxPrice**: int *(Precio máximo)*
   - **category**: string *(Lista de categorias separadas por comas. Ej: "food,drink". Categoría del producto.)*
-  - **page**: Página, si no se incluye este parametro, no se paginará
+  - **page**: int *(Página, si no se incluye este parametro, no se paginará)*
   - **orderBy**: string *(Por cual atributo y como ordenar los resultados: name_asc, name_desc, price_asc, price_desc)*
   - **unverified**: *(Agregar a la query '&unverified' para incluir productos no verificados)*
 
@@ -159,7 +159,10 @@
   - **page**: int *(Página, si no se incluye este parametro, se setea a la página 1.)*
   
 - ``GET /posts``: Retorna una lista de publicaciones
-  - **page**: *(Página, si no se incluye este parametro, se setea a la página 1.)*
+  - **page**: int *(Página, si no se incluye este parametro, se setea a la página 1.)*
+  - **visibility**: string *(Lista de visibilidades separadas por comas. Ej: "public,private", mostraría todas las publicaciones. Solo administradores)*
+
+- ``GET /posts/stats``: Retorna estadísticas sobre las publicaciones. Solo administradores.
 
 - ``GET /posts/{id}``: Retorna un post en específico
   - Retorna un atributo adicional **liked** para indicar el voto que el usuario le puso a la reseña (true, null, false)

@@ -74,6 +74,23 @@ class PostRepository extends ServiceEntityRepository
         return iterator_to_array($paginator);
     }
 
+    public function countAll(): int
+    {
+        return (int) $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countByVisibility(): array
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p.visibility as visibility, COUNT(p.id) as total')
+            ->groupBy('p.visibility')
+            ->getQuery()
+            ->getArrayResult();
+    }
+
 //    /**
 //     * @return Post[] Returns an array of Post objects
 //     */
