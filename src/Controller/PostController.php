@@ -95,10 +95,22 @@ final class PostController extends ApiController
         $data = $request->query->all();
 
         // Validación
+        if (isset($data['visibility'])) {
+            if (!\in_array('ROLE_ADMIN', $user->getRoles())) {
+                return $this->json(['error' => ['message' => 'No tienes permisos suficientes para utilizar el atributo "visibility"']], 403);
+            }
+            $data['visibility'] = array_filter(array_map('trim', explode(',', $data['visibility'])));
+        }
         $data = $this->validate(
             $data,
             new Assert\Collection([
                 'fields' => [
+                    'visibility' => [
+                        new Assert\Type('array'),
+                        new Assert\All([
+                            new Assert\Choice(array_column(Visibility::cases(), 'value')),
+                        ]),
+                    ],
                     'page' => [
                         new Assert\Type(['type' => 'digit']),
                         new Assert\Positive(),

@@ -46,13 +46,19 @@ class PostRepository extends ServiceEntityRepository
         }
 
         $qb = $this->createQueryBuilder('p')
-            ->select('DISTINCT p')
-            ->andWhere('p.visibility = :vis OR p.user = :user')
-            ->setParameter('vis', Visibility::PUBLIC)
-            ->setParameter('user', $user)
+            ->select('DISTINCT p');
 
-            // post author
-            ->leftJoin('p.user', 'pu')
+        if (isset($filters['visibility'])) {
+            $qb->andWhere('p.visibility IN (:visibilities)')
+                ->setParameter('visibilities', $filters['visibility']);
+        } else {
+            $qb->andWhere('p.visibility = :vis OR p.user = :user')
+                ->setParameter('vis', Visibility::PUBLIC)
+                ->setParameter('user', $user);
+        }
+
+        // post author
+        $qb->leftJoin('p.user', 'pu')
             ->addSelect('pu')
 
             // tags
