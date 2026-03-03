@@ -8,6 +8,7 @@ use App\Enum\ReportType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\User;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 /**
  * @extends ServiceEntityRepository<ProductReport>
@@ -19,15 +20,20 @@ class ProductReportRepository extends ServiceEntityRepository
         parent::__construct($registry, ProductReport::class);
     }
 
-    public function findByFilters(array $filters, Product $product): array
+    public function findByFilters(array $filters, Product|null $product): array
     {
         $qb = $this->createQueryBuilder('pr')
             ->leftJoin('pr.user', 'u')
             ->addSelect('u')
-            ->andWhere('pr.product = :product')
-            ->setParameter('product', $product);
+            ->leftJoin('pr.product', 'p')
+            ->addSelect('p');
 
-        if (\array_key_exists('resolved', $filters)) {
+        if ($product !== null) {
+            $qb->andWhere('pr.product = :product')
+                ->setParameter('product', $product);
+        }
+
+        if (isset($filters['resolved'])) {
             $resolved = match ($filters['resolved']) {
                 'true'  => true,
                 'false' => false,
@@ -39,11 +45,30 @@ class ProductReportRepository extends ServiceEntityRepository
                 $qb->andWhere('pr.resolved IS NULL');
             } else {
                 $qb->andWhere('pr.resolved = :resolved')
-                ->setParameter('resolved', $resolved);
+                    ->setParameter('resolved', $resolved);
             }
         }
 
-        return $qb->getQuery()->getResult();
+        if (isset($filters['user'])) {
+            $qb->andWhere('pr.user = :user')
+                ->setParameter('user', $filters['user']);
+        }
+
+        // Orden
+        $filters['orderBy'] ??= 'date_desc';
+        [$attr, $ord] = match ($filters['orderBy'] ?? null) {
+            'date_asc'      => ['pr.date', 'ASC'],
+            'date_desc'     => ['pr.date', 'DESC'],
+        };
+        $qb->orderBy($attr, $ord);
+
+        // Página
+        $filters['page'] ??= 1;
+        $qb->setMaxResults(10)
+            ->setFirstResult(($filters['page'] - 1) * 10);
+        $paginator = new Paginator($qb, true);
+
+        return iterator_to_array($paginator);
     }
 
     public function findOppositeIfExists($type, User $user, Product $product): ProductReport|null

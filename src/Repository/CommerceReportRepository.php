@@ -7,6 +7,7 @@ use App\Entity\CommerceReport;
 use App\Entity\User;
 use App\Enum\ReportType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -19,15 +20,20 @@ class CommerceReportRepository extends ServiceEntityRepository
         parent::__construct($registry, CommerceReport::class);
     }
 
-    public function findByFilters(array $filters, Commerce $commerce): array
+    public function findByFilters(array $filters, Commerce|null $commerce): array
     {
         $qb = $this->createQueryBuilder('cr')
             ->leftJoin('cr.user', 'u')
             ->addSelect('u')
-            ->andWhere('cr.commerce = :commerce')
-            ->setParameter('commerce', $commerce);
+            ->leftJoin('cr.commerce', 'c')
+            ->addSelect('c');
 
-        if (\array_key_exists('resolved', $filters)) {
+        if ($commerce !== null) {
+            $qb->andWhere('cr.commerce = :commerce')
+                ->setParameter('commerce', $commerce);
+        }
+
+        if (isset($filters['resolved'])) {
             $resolved = match ($filters['resolved']) {
                 'true'  => true,
                 'false' => false,
@@ -43,7 +49,26 @@ class CommerceReportRepository extends ServiceEntityRepository
             }
         }
 
-        return $qb->getQuery()->getResult();
+        if (isset($filters['user'])) {
+            $qb->andWhere('cr.user = :user')
+                ->setParameter('user', $filters['user']);
+        }
+
+        // Orden
+        $filters['orderBy'] ??= 'date_desc';
+        [$attr, $ord] = match ($filters['orderBy'] ?? null) {
+            'date_asc'      => ['cr.date', 'ASC'],
+            'date_desc'     => ['cr.date', 'DESC'],
+        };
+        $qb->orderBy($attr, $ord);
+
+        // Página
+        $filters['page'] ??= 1;
+        $qb->setMaxResults(10)
+            ->setFirstResult(($filters['page'] - 1) * 10);
+        $paginator = new Paginator($qb, true);
+
+        return iterator_to_array($paginator);
     }
 
     public function findOppositeIfExists($type, User $user, Commerce $commerce): CommerceReport|null

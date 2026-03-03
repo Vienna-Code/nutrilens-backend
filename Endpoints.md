@@ -94,6 +94,9 @@
 
 - ``GET /commerces/{id}/reports``: Obtener lista de reportes de un comercio, solo administradores
   - **resolved**: string *("true", "false" o "null")*
+  - **user**: int *(Filtrar reportes por quién lo subió)*
+  - **orderBy**: string *(Por cual atributo y como ordenar los resultados: name_asc, name_desc, price_asc, price_desc)*
+  - **page**: int *(Página, si no se incluye este parametro, se setea a la página 1.)*
 
 - ``POST /commerces/{id}/reports``: Publicar un reporte para un comercio
   - **content**: string *(Contenido textual del reporte)*
@@ -136,17 +139,27 @@
 
 - ``GET /products/{id}/reports``: Obtener lista de reportes de un producto, solo administradores
   - **resolved**: string *("true", "false" o "null")*
+  - **user**: int *(Filtrar reportes por quién lo subió)*
+  - **orderBy**: string *(Por cual atributo y como ordenar los resultados: name_asc, name_desc, price_asc, price_desc)*
+  - **page**: int *(Página, si no se incluye este parametro, se setea a la página 1.)*
 
 - ``POST /products/{id}/reports``: Publicar un reporte para un producto
   - **content**: string *(Contenido textual del reporte)*
   - **type**: Enum *(En el caso de que se este reportando un producto no verificado, 'type' se setea a "confirmation" o "rebuttal" para confirmar o denegar la existencia. También se puede setear a "issue" si solo se está reportando un problema)*
   - **image**: string *(UUID de una imágen para adjuntar, opcional)*
 
-- ``PATCH /commerces/{id}/reports/{id}``: Modificar un reporte de un producto, solo para administradores
+- ``PATCH /products/{id}/reports/{id}``: Modificar un reporte de un producto, solo para administradores
   - **resolved**: bool|null *(Si se valida o no el reporte del usuario. Validar un reporte le otorgará puntos de gamificación al usuario)*
 
+- ``GET /reports``: Obtener lista de reportes, solo administradores
+  - **resource**: string *("commerces" o "products". Obligatorio)*
+  - **resolved**: string *("true", "false" o "null")*
+  - **user**: int *(Filtrar reportes por quién lo subió)*
+  - **orderBy**: string *(Por cual atributo y como ordenar los resultados: name_asc, name_desc, price_asc, price_desc)*
+  - **page**: int *(Página, si no se incluye este parametro, se setea a la página 1.)*
+  
 - ``GET /posts``: Retorna una lista de publicaciones
-  - **page**: Página, si no se incluye este parametro, se setea a la página 1.
+  - **page**: *(Página, si no se incluye este parametro, se setea a la página 1.)*
 
 - ``GET /posts/{id}``: Retorna un post en específico
   - Retorna un atributo adicional **liked** para indicar el voto que el usuario le puso a la reseña (true, null, false)

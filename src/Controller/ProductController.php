@@ -380,7 +380,21 @@ final class ProductController extends ApiController
                     'resolved' => [
                         new Assert\Type('string'),
                         new Assert\Choice(['true', 'null', 'false']),
-                    ]
+                    ],
+                    'user' => [
+                        new Assert\Type('digit'),
+                        new Assert\Positive(),
+                    ],
+                    'orderBy' => [
+                        new Assert\Type('string'),
+                        new Assert\Choice([
+                            'date_asc', 'date_desc',
+                        ]),
+                    ],
+                    'page' => [
+                        new Assert\Type(['type' => 'digit']),
+                        new Assert\Positive(),
+                    ],
                 ],
                 'allowExtraFields' => true,
                 'allowMissingFields' => true,
