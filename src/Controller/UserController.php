@@ -156,6 +156,38 @@ final class UserController extends ApiController
         ], 200, [], ['groups' => ['review:list','review:list:me']]);
     }
 
+    #[Route('/users/me/reviews/stats', methods: ['GET'], name: 'app_users_list_reviews_stats')]
+    public function listReviewsStats(): JsonResponse
+    {
+        // Autenticación
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json([
+                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
+            ], 401);
+        }
+
+        // Obtener stats
+        $total = $this->reviewRepository->countAllByUser($user);
+        $byPositive = $this->reviewRepository->countByPositive($user);
+        $data = [
+            'total' => $total,
+            'positive' => 0,
+            'negative' => 0,
+        ];
+        foreach ($byPositive as $row) {
+            if ($row['positive']) {
+                $data['positive'] = (int) $row['total'];
+            } else {
+                $data['negative'] = (int) $row['total'];
+            }
+        }
+
+        return $this->json([
+            'data' => $data
+        ], 200);
+    }
+
     #[Route('/users/me/posts', methods: ['GET'], name: 'app_user_list_posts')]
     public function listPosts(): JsonResponse
     {

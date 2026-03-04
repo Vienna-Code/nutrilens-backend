@@ -183,7 +183,7 @@ class CommerceRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
-    public function countByVerified(User $user): mixed
+    public function countByVerified(User $user): array
     {
         return $this->createQueryBuilder('c')
             ->select('c.verified as verified, COUNT(c.id) as total')

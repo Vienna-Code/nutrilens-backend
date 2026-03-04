@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Review;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -41,6 +42,27 @@ class ReviewRepository extends ServiceEntityRepository
             ->setParameter('commerceId', $data['commerceId']);
 
         return $qb->getQuery()->getResult();
+    }
+
+    public function countAllByUser(User $user): int
+    {
+        return (int) $this->createQueryBuilder('r')
+            ->select('COUNT(DISTINCT r.id)')
+            ->andWhere('r.user = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countByPositive(User $user): array
+    {
+        return  $this->createQueryBuilder('r')
+            ->select('r.positive as positive, COUNT(r.id) as total')
+            ->groupBy('r.positive')
+            ->andWhere('r.user = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getArrayResult();
     }
 
 //    /**
