@@ -52,6 +52,39 @@ final class UserController extends ApiController
         ], 200, [], ['groups' => ['commerce:list']]);
     }
 
+    #[Route('/users/me/commerces/stats', methods: ['GET'], name: 'app_users_list_commerces_stats')]
+    public function listCommercesStats(): JsonResponse
+    {
+        // Autenticación
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json([
+                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
+            ], 401);
+        }
+
+        // Obtener stats
+        $total = $this->commerceRepository->countAllByUser($user);
+        $byVerified = $this->commerceRepository->countByVerified($user);
+        $data = [
+            'total' => $total,
+            'verified' => 0,
+            'unverified' => 0,
+        ];
+        foreach ($byVerified as $row) {
+            if ($row['verified']) {
+                $data['verified'] = (int) $row['total'];
+            } else {
+                $data['unverified'] = (int) $row['total'];
+            }
+        }
+
+        return $this->json([
+            'data' => $data
+        ], 200);
+    }
+
+
     #[Route('/users/me/products', methods: ['GET'], name: 'app_users_list_products')]
     public function listProducts(): JsonResponse
     {

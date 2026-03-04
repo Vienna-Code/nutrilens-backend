@@ -130,7 +130,7 @@ class CommerceRepository extends ServiceEntityRepository
 
         if (isset($filters['page'])) {
             $qb->setMaxResults(10)
-            ->setFirstResult(($filters['page'] - 1) * 10);
+                ->setFirstResult(($filters['page'] - 1) * 10);
         }
 
         $paginator = new Paginator($qb, true);
@@ -168,6 +168,33 @@ class CommerceRepository extends ServiceEntityRepository
             ->setParameter('user', $user);
 
         return $qb->getQuery()->getResult();
+    }
+
+    public function countAllByUser(User $user): int
+    {
+        return (int) $this->createQueryBuilder('c')
+            ->select('COUNT(DISTINCT c.id)')
+            ->innerJoin('c.commerceReports', 'cr')
+            ->andWhere('cr.type = :type')
+            ->andWhere('cr.user = :user')
+            ->setParameter('type', ReportType::SUBMISSION)
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countByVerified(User $user): mixed
+    {
+        return $this->createQueryBuilder('c')
+            ->select('c.verified as verified, COUNT(c.id) as total')
+            ->groupBy('c.verified')
+            ->innerJoin('c.commerceReports', 'cr')
+            ->andWhere('cr.type = :type')
+            ->andWhere('cr.user = :user')
+            ->setParameter('type', ReportType::SUBMISSION)
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getArrayResult();
     }
 
     //    /**
