@@ -137,6 +137,33 @@ class ProductRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    public function countAllByUser(User $user): int
+    {
+        return (int) $this->createQueryBuilder('p')
+            ->select('COUNT(DISTINCT p.id)')
+            ->innerJoin('p.productReports', 'pr')
+            ->andWhere('pr.type = :type')
+            ->andWhere('pr.user = :user')
+            ->setParameter('type', ReportType::SUBMISSION)
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countByVerified(User $user): mixed
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p.verified as verified, COUNT(p.id) as total')
+            ->groupBy('p.verified')
+            ->innerJoin('p.productReports', 'pr')
+            ->andWhere('pr.type = :type')
+            ->andWhere('pr.user = :user')
+            ->setParameter('type', ReportType::SUBMISSION)
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getArrayResult();
+    }
+
     //    /**
     //     * @return Product[] Returns an array of Product objects
     //     */
