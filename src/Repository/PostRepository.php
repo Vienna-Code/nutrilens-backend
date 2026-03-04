@@ -91,6 +91,16 @@ class PostRepository extends ServiceEntityRepository
             ->getArrayResult();
     }
 
+    public function countAllByUser(User $user): array
+    {
+        return $this->createQueryBuilder('p')
+            ->select('COUNT(p.id) as total, SUM(p.views) as totalViews')
+            ->andWhere('p.user = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getArrayResult();
+    }
+
 //    /**
 //     * @return Post[] Returns an array of Post objects
 //     */

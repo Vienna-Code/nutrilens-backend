@@ -208,6 +208,29 @@ final class UserController extends ApiController
         ], 200, [], ['groups' => ['post:list']]);
     }
 
+    #[Route('/users/me/posts/stats', methods: ['GET'], name: 'app_users_list_posts_stats')]
+    public function listPostsStats(): JsonResponse
+    {
+        // Autenticación
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json([
+                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
+            ], 401);
+        }
+
+        // Obtener stats
+        $data = $this->postRepository->countAllByUser($user);
+        $data = [
+            'total' => $data[0]['total'],
+            'totalViews' => (int) $data[0]['totalViews']
+        ];
+
+        return $this->json([
+            'data' => $data
+        ], 200);
+    }
+
     #[Route('/users/{id}', methods: ['GET'], name: 'app_user_get')]
     public function get(string $id): JsonResponse
     {
