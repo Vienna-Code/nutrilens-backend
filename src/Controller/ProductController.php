@@ -36,6 +36,39 @@ final class ProductController extends ApiController
         private NormalizerInterface $normalizer,
     ) {}
 
+    #[Route('/products/stats', methods: ['GET'], name: 'app_product_stats')]
+    public function stats(Request $request): JsonResponse
+    {
+        // Control de acceso (SOLO ADMINS)
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json(['error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']], 401);
+        }
+        if (!\in_array('ROLE_ADMIN', $user->getRoles())) {
+            return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
+        }
+
+        // Obtener stats
+        $total = $this->productRepository->countAllByUser();
+        $byVerified = $this->productRepository->countByVerified();
+        $data = [
+            'total' => $total,
+            'verified' => 0,
+            'unverified' => 0,
+        ];
+        foreach ($byVerified as $row) {
+            if ($row['verified']) {
+                $data['verified'] = (int) $row['total'];
+            } else {
+                $data['unverified'] = (int) $row['total'];
+            }
+        }
+
+        return $this->json([
+            'data' => $data
+        ], 200);
+    }
+
     #[Route('/products/{id}', methods: ['GET'], name: 'app_product_get')]
     public function get(string $id): JsonResponse
     {

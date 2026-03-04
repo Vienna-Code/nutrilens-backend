@@ -170,31 +170,37 @@ class CommerceRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function countAllByUser(User $user): int
+    public function countAllByUser(?User $user = null): int
     {
-        return (int) $this->createQueryBuilder('c')
+        $qb = $this->createQueryBuilder('c')
             ->select('COUNT(DISTINCT c.id)')
             ->innerJoin('c.commerceReports', 'cr')
             ->andWhere('cr.type = :type')
-            ->andWhere('cr.user = :user')
-            ->setParameter('type', ReportType::SUBMISSION)
-            ->setParameter('user', $user)
-            ->getQuery()
-            ->getSingleScalarResult();
+            ->setParameter('type', ReportType::SUBMISSION);
+
+        if ($user) {
+            $qb->andWhere('cr.user = :user')
+                ->setParameter('user', $user);
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
     }
 
-    public function countByVerified(User $user): array
+    public function countByVerified(?User $user = null): array
     {
-        return $this->createQueryBuilder('c')
+        $qb = $this->createQueryBuilder('c')
             ->select('c.verified as verified, COUNT(c.id) as total')
             ->groupBy('c.verified')
             ->innerJoin('c.commerceReports', 'cr')
             ->andWhere('cr.type = :type')
-            ->andWhere('cr.user = :user')
-            ->setParameter('type', ReportType::SUBMISSION)
-            ->setParameter('user', $user)
-            ->getQuery()
-            ->getArrayResult();
+            ->setParameter('type', ReportType::SUBMISSION);
+
+        if ($user) {
+            $qb->andWhere('cr.user = :user')
+                ->setParameter('user', $user);
+        }
+
+        return $qb->getQuery()->getArrayResult();
     }
 
     //    /**

@@ -52,15 +52,34 @@ final class UserController extends ApiController
         ], 200, [], ['groups' => ['commerce:list']]);
     }
 
-    #[Route('/users/me/commerces/stats', methods: ['GET'], name: 'app_users_list_commerces_stats')]
-    public function listCommercesStats(): JsonResponse
+    #[Route('/users/{id}/commerces/stats', methods: ['GET'], name: 'app_users_list_commerces_stats')]
+    public function listCommercesStats(string $id): JsonResponse
     {
-        // Autenticación
-        $user = $this->getUser(); /** @var \App\Entity\User $user */
-        if ($user === null) {
+        // Validación
+        $this->validate(
+            ['id' => $id],
+        new Assert\Collection([
+                'fields' => [
+                    'id' => new Assert\AtLeastOneOf([
+                        'constraints' => [
+                            new Assert\Sequentially([
+                                new Assert\Type('digit'),
+                                new Assert\Positive(),
+                            ]),
+                            new Assert\IdenticalTo('me'),
+                        ],
+                    ]),
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
+
+        // Encontrar usuario
+        $user = ($id === 'me') ? $this->getUser() : $this->userRepository->find($id);
+        if (!$user) {
             return $this->json([
-                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
-            ], 401);
+                'error' => ['message' => 'Usuario no encontrado.']
+            ], 404);
         }
 
         // Obtener stats
@@ -104,15 +123,34 @@ final class UserController extends ApiController
         ], 200, [], ['groups' => ['product:list:commerce']]);
     }
 
-    #[Route('/users/me/products/stats', methods: ['GET'], name: 'app_users_list_products_stats')]
-    public function listProductsStats(): JsonResponse
+    #[Route('/users/{id}/products/stats', methods: ['GET'], name: 'app_users_list_products_stats')]
+    public function listProductsStats(string $id): JsonResponse
     {
-        // Autenticación
-        $user = $this->getUser(); /** @var \App\Entity\User $user */
-        if ($user === null) {
+        // Validación
+        $this->validate(
+            ['id' => $id],
+        new Assert\Collection([
+                'fields' => [
+                    'id' => new Assert\AtLeastOneOf([
+                        'constraints' => [
+                            new Assert\Sequentially([
+                                new Assert\Type('digit'),
+                                new Assert\Positive(),
+                            ]),
+                            new Assert\IdenticalTo('me'),
+                        ],
+                    ]),
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
+
+        // Encontrar usuario
+        $user = ($id === 'me') ? $this->getUser() : $this->userRepository->find($id);
+        if (!$user) {
             return $this->json([
-                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
-            ], 401);
+                'error' => ['message' => 'Usuario no encontrado.']
+            ], 404);
         }
 
         // Obtener stats
@@ -156,15 +194,34 @@ final class UserController extends ApiController
         ], 200, [], ['groups' => ['review:list','review:list:me']]);
     }
 
-    #[Route('/users/me/reviews/stats', methods: ['GET'], name: 'app_users_list_reviews_stats')]
-    public function listReviewsStats(): JsonResponse
+    #[Route('/users/{id}/reviews/stats', methods: ['GET'], name: 'app_users_list_reviews_stats')]
+    public function listReviewsStats(string $id): JsonResponse
     {
-        // Autenticación
-        $user = $this->getUser(); /** @var \App\Entity\User $user */
-        if ($user === null) {
+        // Validación
+        $this->validate(
+            ['id' => $id],
+        new Assert\Collection([
+                'fields' => [
+                    'id' => new Assert\AtLeastOneOf([
+                        'constraints' => [
+                            new Assert\Sequentially([
+                                new Assert\Type('digit'),
+                                new Assert\Positive(),
+                            ]),
+                            new Assert\IdenticalTo('me'),
+                        ],
+                    ]),
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
+
+        // Encontrar usuario
+        $user = ($id === 'me') ? $this->getUser() : $this->userRepository->find($id);
+        if (!$user) {
             return $this->json([
-                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
-            ], 401);
+                'error' => ['message' => 'Usuario no encontrado.']
+            ], 404);
         }
 
         // Obtener stats
@@ -208,15 +265,34 @@ final class UserController extends ApiController
         ], 200, [], ['groups' => ['post:list']]);
     }
 
-    #[Route('/users/me/posts/stats', methods: ['GET'], name: 'app_users_list_posts_stats')]
-    public function listPostsStats(): JsonResponse
+    #[Route('/users/{id}/posts/stats', methods: ['GET'], name: 'app_users_list_posts_stats')]
+    public function listPostsStats(string $id): JsonResponse
     {
-        // Autenticación
-        $user = $this->getUser(); /** @var \App\Entity\User $user */
-        if ($user === null) {
+        // Validación
+        $this->validate(
+            ['id' => $id],
+        new Assert\Collection([
+                'fields' => [
+                    'id' => new Assert\AtLeastOneOf([
+                        'constraints' => [
+                            new Assert\Sequentially([
+                                new Assert\Type('digit'),
+                                new Assert\Positive(),
+                            ]),
+                            new Assert\IdenticalTo('me'),
+                        ],
+                    ]),
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
+
+        // Encontrar usuario
+        $user = ($id === 'me') ? $this->getUser() : $this->userRepository->find($id);
+        if (!$user) {
             return $this->json([
-                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
-            ], 401);
+                'error' => ['message' => 'Usuario no encontrado.']
+            ], 404);
         }
 
         // Obtener stats

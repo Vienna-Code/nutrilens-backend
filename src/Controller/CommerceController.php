@@ -37,6 +37,39 @@ final class CommerceController extends ApiController
         private NormalizerInterface $normalizer,
     ) {}
 
+    #[Route('/commerces/stats', methods: ['GET'], name: 'app_commerce_stats')]
+    public function stats(Request $request): JsonResponse
+    {
+        // Control de acceso (SOLO ADMINS)
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json(['error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']], 401);
+        }
+        if (!\in_array('ROLE_ADMIN', $user->getRoles())) {
+            return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
+        }
+
+        // Obtener stats
+        $total = $this->commerceRepository->countAllByUser();
+        $byVerified = $this->commerceRepository->countByVerified();
+        $data = [
+            'total' => $total,
+            'verified' => 0,
+            'unverified' => 0,
+        ];
+        foreach ($byVerified as $row) {
+            if ($row['verified']) {
+                $data['verified'] = (int) $row['total'];
+            } else {
+                $data['unverified'] = (int) $row['total'];
+            }
+        }
+
+        return $this->json([
+            'data' => $data
+        ], 200);
+    }
+
     #[Route('/commerces/check-location', methods: ['GET'], name: 'app_commerce_check_location')]
     public function checkLocation(Request $request): JsonResponse
     {
