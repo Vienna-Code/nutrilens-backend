@@ -28,7 +28,7 @@ class ImageManager
         $this->em->flush();
 
         $filename = $image->getId()->toRfc4122();
-        $targetPath = $this->uploadDir . '/' . $filename;
+        $targetPath = $this->uploadDir . $filename;
 
         $mime = $file->getMimeType();
         $sourcePath = $file->getPathname();
@@ -59,7 +59,7 @@ class ImageManager
     public function delete(Image $image): void
     {
         $filename = $image->getId()->toRfc4122();
-        $path = $this->uploadDir . '/' . $filename;
+        $path = $this->uploadDir . $filename;
 
         if (file_exists($path)) {
             unlink($path);
