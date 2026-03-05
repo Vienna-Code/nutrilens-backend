@@ -617,7 +617,7 @@ final class CommerceController extends ApiController
             'address' => [
                 new Assert\Type('string'),
             ],
-            'contactInfo' => [
+            'contactInfo' => new Assert\Optional([
                 new Assert\Type('array'),
                 new Assert\Unique(),
                 new Assert\Collection([
@@ -635,14 +635,14 @@ final class CommerceController extends ApiController
                     'allowMissingFields' => true,
                     'allowExtraFields' => false,
                 ]),
-            ],
-            'paymentMethods' => [
+            ]),
+            'paymentMethods' => new Assert\Optional([
                 new Assert\Type('array'),
                 new Assert\Unique(),
                 new Assert\All([
                     new Assert\Choice(array_column(PaymentMethod::cases(), 'value')),
                 ]),
-            ],
+            ]),
             'commerceSchedules' => [
                 new Assert\Type('array'),
                 new Assert\All([

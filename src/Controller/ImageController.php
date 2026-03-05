@@ -49,8 +49,7 @@ final class ImageController extends ApiController
             ], 404);
         }
 
-        $path = $this->getParameter('kernel.project_dir')
-            . '/var/uploads/'
+        $path = $this->getParameter('kernel.upload_dir')
             . $image->getId()->toRfc4122();
 
         if (!file_exists($path)) {
