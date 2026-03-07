@@ -11,4 +11,8 @@ enum CommerceType: string
     case KIOSK = 'kiosk';
     case RESTAURANT = 'restaurant';
     case BAKERY = 'bakery';
+    case ICE_CREAM_PARLOR = 'ice cream parlor';
+    case WAREHOUSE = 'warehouse';
+    case BAR = 'bar';
+    case ENTREPRENEURSHIP = 'Entrepreneurship';
 }
