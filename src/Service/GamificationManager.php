@@ -37,9 +37,12 @@ class GamificationManager
         private ProductReportRepository $prr,
     ) {}
 
-    public function verifyCommerce(Commerce &$commerce, bool $resolved = true): void
+    public function verifyCommerce(Commerce &$commerce, ?bool $resolved = null): void
     {
-        $commerceReports = $this->crr->findByFilters(['resolved' => $resolved], $commerce);
+        $commerceReports = $this->crr->findBy([
+            'resolved' => $resolved,
+            'commerce' => $commerce
+        ]);
         foreach ($commerceReports as $report) {
             $gamification = new UserGamification();
             $user = $report->getUser();
@@ -59,12 +62,16 @@ class GamificationManager
 
             $this->em->persist($user);
             $this->em->persist($report);
+            $this->em->flush();
         }
     }
 
-    public function verifyProduct(Product &$product, bool $resolved = false): void
+    public function verifyProduct(Product &$product, ?bool $resolved = null): void
     {
-        $productReports = $this->prr->findByFilters(['resolved' => $resolved], $product);
+        $productReports = $this->prr->findBy([
+            'resolved' => $resolved,
+            'product' => $product
+        ]);
         foreach ($productReports as $report) {
             $gamification = new UserGamification();
             $user = $report->getUser();
@@ -84,6 +91,7 @@ class GamificationManager
 
             $this->em->persist($user);
             $this->em->persist($report);
+            $this->em->flush();
         }
     }
 
