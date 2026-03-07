@@ -19,7 +19,35 @@ final class ReportController extends ApiController
         private ProductReportRepository $pReportRepository,
     ) {}
 
-    #[Route('/reports', name: 'app_reports_list')]
+    #[Route('/reports/stats', methods: ['GET'], name: 'app_reports_stats')]
+    public function stats(): JsonResponse
+    {
+        // Control de acceso
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json([
+                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
+            ], 401);
+        }
+        if (!\in_array('ROLE_ADMIN', $user->getRoles())) {
+            return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
+        }
+
+        // Obtener stats
+        $cTotal = $this->cReportRepository->countAll();
+        $pTotal = $this->pReportRepository->countAll();
+        $data = [
+            'total' => $cTotal + $pTotal,
+            'commerce' => $cTotal,
+            'product' => $pTotal,
+        ];
+
+        return $this->json([
+            'data' => $data
+        ], 200);
+    }
+
+    #[Route('/reports', methods: ['GET'], name: 'app_reports_list')]
     public function list(Request $request): JsonResponse
     {
         // Control de acceso

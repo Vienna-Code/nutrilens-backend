@@ -20,7 +20,7 @@ class ProductReportRepository extends ServiceEntityRepository
         parent::__construct($registry, ProductReport::class);
     }
 
-    public function findByFilters(array $filters, Product|null $product): array
+    public function findByFilters(array $filters, ?Product $product): array
     {
         $qb = $this->createQueryBuilder('pr')
             ->leftJoin('pr.user', 'u')
@@ -92,6 +92,14 @@ class ProductReportRepository extends ServiceEntityRepository
             ->setParameter('type', $type);
 
         return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    public function countAll(): int
+    {
+        return (int) $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     //    /**

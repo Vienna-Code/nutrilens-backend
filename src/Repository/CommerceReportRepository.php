@@ -20,7 +20,7 @@ class CommerceReportRepository extends ServiceEntityRepository
         parent::__construct($registry, CommerceReport::class);
     }
 
-    public function findByFilters(array $filters, Commerce|null $commerce): array
+    public function findByFilters(array $filters, ?Commerce $commerce): array
     {
         $qb = $this->createQueryBuilder('cr')
             ->leftJoin('cr.user', 'u')
@@ -92,6 +92,14 @@ class CommerceReportRepository extends ServiceEntityRepository
             ->setParameter('type', $type);
 
         return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    public function countAll(): int
+    {
+        return (int) $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     //    /**
