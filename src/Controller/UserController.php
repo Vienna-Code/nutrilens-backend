@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Enum\AlimentaryRestriction;
 use App\Enum\ReportType;
+use App\Enum\UserRank;
 use App\Repository\CommerceRepository;
 use App\Repository\PostRepository;
 use App\Repository\ProductRepository;
@@ -31,6 +32,96 @@ final class UserController extends ApiController
 
         private UserManager $userManager,
     ) {}
+
+    #[Route('/users', methods: ['GET'], name: 'app_users_list')]
+    public function list(Request $request): JsonResponse
+    {
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json([
+                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
+            ], 401);
+        }
+        if (!\in_array('ROLE_ADMIN', $user->getRoles())) {
+            return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
+        }
+
+        // Obtener parametros URL
+        $data = $request->query->all();
+
+        // Validación
+        $data = $this->validate(
+            $data,
+            new Assert\Collection([
+                'fields' => [
+                    'username' => [
+                        new Assert\Type('string'),
+                    ],
+                    'email' => [
+                        new Assert\Type('string'),
+                    ],
+                    'minPoints' => [
+                        new Assert\Type(['type' => 'numeric']),
+                    ],
+                    'maxPoints' => [
+                        new Assert\Type(['type' => 'numeric']),
+                    ],
+                    'page' => [
+                        new Assert\Type(['type' => 'digit']),
+                        new Assert\Positive(),
+                    ],
+                    'orderBy' => [
+                        new Assert\Choice([
+                            'date_asc', 'date_desc',
+                            'points_asc', 'points_desc',
+                        ]),
+                    ],
+                ],
+                'allowMissingFields' => true,
+            ])
+        );
+
+        // Encontrar usuarios
+        $users = $this->userRepository->findByFilters($data);
+
+        // Responder
+        return $this->json([
+            'data' => $users
+        ], 200, [], ['groups' => ['user:list']]);
+    }
+
+    #[Route('/users/stats', methods: ['GET'], name: 'app_users_stats')]
+    public function stats(Request $request): JsonResponse
+    {
+        // Control de acceso (SOLO ADMINS)
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json([
+                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
+            ], 401);
+        }
+        if (!\in_array('ROLE_ADMIN', $user->getRoles())) {
+            return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
+        }
+
+        // Obtener stats
+        $total = $this->userRepository->countAll();
+        $byRank = $this->userRepository->countByRank();
+        $data = [
+            'total' => $total,
+            'bronze' => 0,
+            'silver' => 0,
+            'gold' => 0,
+            'platinum' => 0,
+        ];
+        foreach ($byRank as $row) {
+            $data[$row['rank']] = (int) $row['total'];
+        }
+
+        return $this->json([
+            'data' => $data
+        ], 200);
+    }
 
     #[Route('/users/me/commerces', methods: ['GET'], name: 'app_users_list_commerces')]
     public function listCommerces(): JsonResponse

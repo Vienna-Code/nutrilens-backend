@@ -13,19 +13,37 @@
 
 - ``GET /auth/me``: Retorna información de la cookie enviada
 
+- ``GET /users``: Obtener una lista de usuarios
+- **username**: string *(Nombre de usuario a buscar)*
+- **email**: string *(Email a buscar)*
+- **minPoints**: int *(Puntos mínimos)*
+- **maxPoints**: int *(Puntos máxmios)*
+- **page**: int *(Página, si no se incluye este parametro, se setea a la página 1.)*
+- **orderBy**: string *(Por cual atributo y como ordenar los resultados: 'date_asc', 'date_desc', 'points_asc', 'points_desc')*
+
+- ``GET /users/stats``: Retorna estadísticas sobre los usuarios. Solo administradores.
+
 - ``GET /users/{id}|me``: Obtener un usuario
 
 - ``PATCH /users/{id}|me``: Actualizar información de un usuario. Los usuarios solo podrán actualizar /users/me
   - **alimentaryRestrictions**: string[] *(De restricciones alimentarias del usuario: ["celiac", "diabetic", "hypertensive"])*
   - **profilePicture**: string *(UUID de la imágen de foto de perfil)*
 
-- ``GET /users/me/commerces``: Obtener comercios subidos por el usuario autenticado
+- ``GET /users/me/commerces``: Obtener comercios subidos por el usuario autenticado.
 
-- ``GET /users/me/products``: Obtener productos subidos por el usuario autenticado
+- ``GET /users/me/commerces/stats``: Obtener estadísticas de los comercios subidos por el usuario en cuestión.
 
-- ``GET /users/me/reviews``: Obtener reseñas subidas por el usuario autenticado
+- ``GET /users/me/products``: Obtener productos subidos por el usuario autenticado.
 
-- ``GET /users/me/posts``: Obtener publicaciones subidas por el usuario autenticado
+- ``GET /users/me/products/stats``: Obtener estadísticas de los productos subidos por el usuario en cuestión.
+
+- ``GET /users/me/reviews``: Obtener reseñas subidas por el usuario autenticado.
+
+- ``GET /users/me/reviews/stats``: Obtener estadísticas de las reseñas subidos por el usuario en cuestión.
+
+- ``GET /users/me/posts``: Obtener publicaciones subidas por el usuario autenticado.
+
+- ``GET /users/me/posts/stats``: Obtener estadísticas de las publicaciones subidos por el usuario en cuestión.
 
 - `GET /commerces`: Obtener lista de comercios
   - **lat**: string *(Rango de latitud en el mapa, dos floats divididos por una coma)*

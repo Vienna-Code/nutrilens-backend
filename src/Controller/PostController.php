@@ -30,7 +30,7 @@ final class PostController extends ApiController
         private NormalizerInterface $normalizer,
     ) {}
 
-    #[Route('/posts/stats', methods: ['GET'], name: 'app_post_vote_stats')]
+    #[Route('/posts/stats', methods: ['GET'], name: 'app_post_stats')]
     public function stats(Request $request): JsonResponse
     {
         // Control de acceso (SOLO ADMINS)

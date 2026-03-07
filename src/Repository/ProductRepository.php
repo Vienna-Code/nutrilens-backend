@@ -19,7 +19,7 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
-    public function findByFilters($filters): array
+    public function findByFilters(array $filters): array
     {
         $qb = $this->createQueryBuilder('p')
             ->select('DISTINCT p')
@@ -44,12 +44,12 @@ class ProductRepository extends ServiceEntityRepository
         }
 
         if (isset($filters['minPrice']) || isset($filters['maxPrice'])) {
-                $minPrice = $filters['minPrice'] ?? 0;
-                $maxPrice = $filters['maxPrice'] ?? 2147483647;
-    
-                $qb->andWhere('(p.price BETWEEN :minPrice AND :maxPrice)')
-                    ->setParameter('minPrice', $minPrice)
-                    ->setParameter('maxPrice', $maxPrice);
+            $minPrice = $filters['minPrice'] ?? 0;
+            $maxPrice = $filters['maxPrice'] ?? 2147483647;
+
+            $qb->andWhere('(p.price BETWEEN :minPrice AND :maxPrice)')
+                ->setParameter('minPrice', $minPrice)
+                ->setParameter('maxPrice', $maxPrice);
         }
 
         if (!empty($filters['restrictions'])) {
@@ -97,7 +97,7 @@ class ProductRepository extends ServiceEntityRepository
 
         if (isset($filters['page'])) {
             $qb->setMaxResults(10)
-            ->setFirstResult(($filters['page'] - 1) * 10);
+                ->setFirstResult(($filters['page'] - 1) * 10);
         }
 
         $paginator = new Paginator($qb, true);

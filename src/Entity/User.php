@@ -22,7 +22,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['user:create', 'user:read', 'user:update',
+    #[Groups(['user:create', 'user:read', 'user:list', 'user:update',
                       'review:create', 'review:read', 'review:list', 'review:update',
                       'commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update',
                       'productreport:create', 'productreport:read', 'productreport:list', 'productreport:update',
@@ -32,7 +32,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 40)]
-    #[Groups(['user:create', 'user:read', 'user:update',
+    #[Groups(['user:create', 'user:read', 'user:list', 'user:update',
                       'review:create', 'review:read', 'review:list', 'review:update',
                       'commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update',
                       'productreport:create', 'productreport:read', 'productreport:list', 'productreport:update',
@@ -42,7 +42,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $username = null;
 
     #[ORM\Column(length: 320)]
-    #[Groups(['user:create', 'user:update'])]
+    #[Groups(['user:create', 'user:list', 'user:update'])]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
@@ -52,10 +52,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $verification = null;
 
     #[ORM\Column]
-    #[Groups(['user:create', 'user:read', 'user:update'])]
+    #[Groups(['user:create', 'user:read', 'user:list', 'user:update'])]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[Groups(['user:create', 'user:read', 'user:update',
+    #[Groups(['user:create', 'user:read', 'user:list', 'user:update',
                       'review:create', 'review:read', 'review:list', 'review:update',
                       'commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update',
                       'productreport:create', 'productreport:read', 'productreport:list', 'productreport:update',
@@ -67,15 +67,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var list<string> The user roles
      */
     #[ORM\Column]
-    #[Groups(['user:create', 'user:read', 'user:update'])]
+    #[Groups(['user:create', 'user:read', 'user:list', 'user:update'])]
     private array $roles = [];
 
     #[ORM\Column(type: Types::JSON, enumType: AlimentaryRestriction::class)]
-    #[Groups(['user:create', 'user:read', 'user:update'])]
+    #[Groups(['user:create', 'user:read', 'user:list', 'user:update'])]
     private array $alimentaryRestrictions = [];
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['user:create', 'user:read', 'user:update',
+    #[Groups(['user:create', 'user:read', 'user:list', 'user:update',
                       'review:create', 'review:read', 'review:list', 'review:update',
                       'commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update',
                       'productreport:create', 'productreport:read', 'productreport:list', 'productreport:update',
@@ -84,7 +84,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $profilePicture = null;
 
     #[ORM\Column]
-    #[Groups(['user:create', 'user:read', 'user:update',
+    #[Groups(['user:create', 'user:read', 'user:list', 'user:update',
                       'review:create', 'review:read', 'review:list', 'review:update',
                       'commercereport:create', 'commercereport:read', 'commercereport:list', 'commercereport:update',
                       'productreport:create', 'productreport:read', 'productreport:list', 'productreport:update',
@@ -302,6 +302,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->points < 100   => UserRank::BRONZE,
             $this->points < 400   => UserRank::SILVER,
             $this->points < 1000  => UserRank::GOLD,
+            default               => UserRank::PLATINUM,
+        };
+    }
+
+    public static function userRankFromPoints(int $points): ?UserRank
+    {
+        return match (true) {
+            $points < 100   => UserRank::BRONZE,
+            $points < 400   => UserRank::SILVER,
+            $points < 1000  => UserRank::GOLD,
             default               => UserRank::PLATINUM,
         };
     }
