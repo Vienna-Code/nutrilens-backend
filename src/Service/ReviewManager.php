@@ -106,6 +106,8 @@ class ReviewManager
         };
         $review->setUseful($review->getUseful() + $delta);
 
+        $this->gm->rewardReviewPoints($review);
+
         $this->em->persist($review);
         $this->em->persist($user);
         $this->em->flush();

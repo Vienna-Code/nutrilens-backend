@@ -74,6 +74,9 @@ class Post
     #[Groups(['post:create', 'post:read', 'post:list', 'post:update'])]
     private ?array $attachments = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $passThreshold = false;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -289,6 +292,18 @@ class Post
     public function setAttachments(?array $attachments): static
     {
         $this->attachments = $attachments;
+
+        return $this;
+    }
+
+    public function isPassThreshold(): ?bool
+    {
+        return $this->passThreshold;
+    }
+
+    public function setPassThreshold(?bool $passThreshold): static
+    {
+        $this->passThreshold = $passThreshold;
 
         return $this;
     }

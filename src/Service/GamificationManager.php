@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use App\Entity\Post;
+use App\Entity\Review;
 use App\Entity\User;
 use App\Entity\UserGamification;
 use App\Entity\Commerce;
@@ -27,9 +29,10 @@ class GamificationManager
             'confirmation' => 20,
             'validation' => 15,
         ],
-        'review' => 3,
-        'post' => 1,
+        'review' => 5,
+        'post' => 2,
     ];
+    private $threshold = 10;
 
     public function __construct(
         private EntityManagerInterface $em,
@@ -128,5 +131,51 @@ class GamificationManager
 
         $gamification->setPoints($reward);
         $user->addUserGamification($gamification);
+    }
+
+    public function rewardReviewPoints(Review $review): void
+    {
+        if (!$review->isPassThreshold() && $review->getUseful() >= $this->threshold) {
+            // Obtuvo los votos para obtener puntos
+            $review->setPassThreshold(true);
+            $user = $review->getUser();
+            $gamification = new UserGamification();
+            $gamification->setEvent("Review of ID {$review->getId()} reached 10 upvotes.");
+            $gamification->setPoints($this->points['review']);
+            $user->addUserGamification($gamification);
+            $this->em->persist($user);
+        } else if ($review->isPassThreshold() && $review->getUseful() <= $this->threshold-1) {
+            // Fell off
+            $review->setPassThreshold(false);
+            $user = $review->getUser();
+            $gamification = new UserGamification();
+            $gamification->setEvent("Review of ID {$review->getId()} went under 10 upvotes.");
+            $gamification->setPoints(-($this->points['review']));
+            $user->addUserGamification($gamification);
+            $this->em->persist($user);
+        }
+    }
+
+    public function rewardPostPoints(Post $post): void
+    {
+        if (!$post->isPassThreshold() && $post->getUpvotes() >= $this->threshold) {
+            // Obtuvo los votos para obtener puntos
+            $post->setPassThreshold(true);
+            $user = $post->getUser();
+            $gamification = new UserGamification();
+            $gamification->setEvent("Post of ID {$post->getId()} reached 10 upvotes.");
+            $gamification->setPoints($this->points['post']);
+            $user->addUserGamification($gamification);
+            $this->em->persist($user);
+        } else if ($post->isPassThreshold() && $post->getUpvotes() <= $this->threshold-1) {
+            // Fell off
+            $post->setPassThreshold(false);
+            $user = $post->getUser();
+            $gamification = new UserGamification();
+            $gamification->setEvent("Post of ID {$post->getId()} went under 10 upvotes.");
+            $gamification->setPoints(-($this->points['post']));
+            $user->addUserGamification($gamification);
+            $this->em->persist($user);
+        }
     }
 }

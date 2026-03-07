@@ -63,6 +63,9 @@ class Review
     #[ORM\OneToMany(targetEntity: ReviewVote::class, mappedBy: 'review', cascade: ['persist'], orphanRemoval: true)]
     private Collection $reviewVotes;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $passThreshold = false;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -198,6 +201,18 @@ class Review
                 $reviewVote->setReview(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isPassThreshold(): ?bool
+    {
+        return $this->passThreshold;
+    }
+
+    public function setPassThreshold(?bool $passThreshold): static
+    {
+        $this->passThreshold = $passThreshold;
 
         return $this;
     }

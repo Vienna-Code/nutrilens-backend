@@ -164,6 +164,8 @@ class PostManager
         };
         $post->setUpvotes($post->getUpvotes() + $delta);
 
+        $this->gm->rewardPostPoints($post);
+
         $this->em->persist($post);
         $this->em->persist($user);
         $this->em->flush();
