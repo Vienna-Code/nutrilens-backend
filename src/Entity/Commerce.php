@@ -84,7 +84,7 @@ class Commerce
     /**
      * @var Collection<int, Review>
      */
-    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'commerce', cascade: ['persist'])]
+    #[ORM\OneToMany(targetEntity: Review::class, orphanRemoval: true, mappedBy: 'commerce', cascade: ['persist'])]
     private Collection $reviews;
 
     #[ORM\Column]
