@@ -54,6 +54,11 @@ class CommerceReportRepository extends ServiceEntityRepository
                 ->setParameter('user', $filters['user']);
         }
 
+        if (isset($filters['types'])) {
+            $qb->andWhere('cr.type IN (:types)')
+                ->setParameter('types', $filters['types']);
+        }
+
         // Orden
         $filters['orderBy'] ??= 'date_desc';
         [$attr, $ord] = match ($filters['orderBy'] ?? null) {
@@ -94,10 +99,17 @@ class CommerceReportRepository extends ServiceEntityRepository
         return $qb->getQuery()->getOneOrNullResult();
     }
 
-    public function countAll(): int
+    public function countAll(?array $types): int
     {
-        return (int) $this->createQueryBuilder('r')
-            ->select('COUNT(r.id)')
+        $qb = $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)');
+
+        if (!empty($types)) {
+            $qb->andWhere('r.type IN (:types)')
+            ->setParameter('types', $types);
+        }
+
+        return (int) $qb
             ->getQuery()
             ->getSingleScalarResult();
     }

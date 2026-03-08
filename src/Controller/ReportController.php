@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Enum\ReportType;
 use App\Repository\CommerceReportRepository;
 use App\Repository\ProductReportRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,7 +21,7 @@ final class ReportController extends ApiController
     ) {}
 
     #[Route('/reports/stats', methods: ['GET'], name: 'app_reports_stats')]
-    public function stats(): JsonResponse
+    public function stats(Request $request): JsonResponse
     {
         // Control de acceso
         $user = $this->getUser(); /** @var \App\Entity\User $user */
@@ -33,9 +34,32 @@ final class ReportController extends ApiController
             return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
         }
 
+        // Obtener parametros URL
+        $data = $request->query->all();
+
+        // Validación
+        if (isset($data['types'])) {
+            $data['types'] = array_filter(array_map('trim', explode(',', $data['types'])));
+        }
+        $data = $this->validate(
+            $data,
+            new Assert\Collection([
+                'fields' => [
+                    'types' => new Assert\Optional([
+                        new Assert\Type('array'),
+                        new Assert\Unique(),
+                        new Assert\All([
+                            new Assert\Choice(array_column(ReportType::cases(), 'value')),
+                        ]),
+                    ]),
+                ],
+                'allowExtraFields' => true,
+            ])
+        );
+
         // Obtener stats
-        $cTotal = $this->cReportRepository->countAll();
-        $pTotal = $this->pReportRepository->countAll();
+        $cTotal = $this->cReportRepository->countAll($data['types'] ?? null);
+        $pTotal = $this->pReportRepository->countAll($data['types'] ?? null);
         $data = [
             'total' => $cTotal + $pTotal,
             'commerce' => $cTotal,
@@ -65,6 +89,9 @@ final class ReportController extends ApiController
         $data = $request->query->all();
 
         // Validación
+        if (isset($data['types'])) {
+            $data['types'] = array_filter(array_map('trim', explode(',', $data['types'])));
+        }
         $data = $this->validate(
             $data,
             new Assert\Collection([
@@ -80,6 +107,13 @@ final class ReportController extends ApiController
                     'user' => new Assert\Optional([
                         new Assert\Type('digit'),
                         new Assert\Positive(),
+                    ]),
+                    'types' => new Assert\Optional([
+                        new Assert\Type('array'),
+                        new Assert\Unique(),
+                        new Assert\All([
+                            new Assert\Choice(array_column(ReportType::cases(), 'value')),
+                        ]),
                     ]),
                     'orderBy' => new Assert\Optional([
                         new Assert\Type('string'),

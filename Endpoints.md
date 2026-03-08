@@ -173,8 +173,12 @@
   - **resource**: string *("commerces" o "products". Obligatorio)*
   - **resolved**: string *("true", "false" o "null")*
   - **user**: int *(Filtrar reportes por quién lo subió)*
+  - **types**: string *(Lista de tipos de reportes separadas por comas. Ej: "confirmation,rebuttal,submission" para mostrar solo reportes de esos tipos)*
   - **orderBy**: string *(Por cual atributo y como ordenar los resultados: name_asc, name_desc, price_asc, price_desc)*
   - **page**: int *(Página, si no se incluye este parametro, se setea a la página 1.)*
+
+- ``GET /reports/types``: Obtener estadísticas de reportes, solo administradores
+  - **types**: string *(Lista de tipos de reportes separadas por comas. Ej: "confirmation,rebuttal,submission" para filtrar estadísticas de solo esos tipos)*
   
 - ``GET /posts``: Retorna una lista de publicaciones
   - **page**: int *(Página, si no se incluye este parametro, se setea a la página 1.)*
