@@ -99,19 +99,30 @@ class ProductReportRepository extends ServiceEntityRepository
         return $qb->getQuery()->getOneOrNullResult();
     }
 
-    public function countAll(?array $types): int
+    public function countAll(?array $data = []): int
     {
         $qb = $this->createQueryBuilder('r')
             ->select('COUNT(r.id)');
 
-        if (!empty($types)) {
+        if (isset($data['types']) && !empty($data['types'])) {
             $qb->andWhere('r.type IN (:types)')
-            ->setParameter('types', $types);
+            ->setParameter('types', $data['types']);
         }
 
-        return (int) $qb
-            ->getQuery()
-            ->getSingleScalarResult();
+        if (isset($data['resolved'])) {
+            if ($data['resolved'] === 'null') {
+                $qb->andWhere('r.resolved IS NULL');
+            } else {
+                $data['resolved'] = match ($data['resolved']) {
+                    'true' => true,
+                    'false' => false,
+                };
+                $qb->andWhere('r.resolved = :res')
+                ->setParameter('res', $data['resolved']);
+            }
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
     }
 
     //    /**

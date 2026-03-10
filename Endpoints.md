@@ -192,6 +192,7 @@
 
 - ``GET /reports/stats``: Obtener estadísticas de reportes, solo administradores
   - **types**: string *(Lista de tipos de reportes separadas por comas. Ej: "confirmation,rebuttal,submission" para filtrar estadísticas de solo esos tipos)*
+  - **resolved**: string *("true", "false" o "null")*
   
 - ``GET /posts``: Retorna una lista de publicaciones
   - **page**: int *(Página, si no se incluye este parametro, se setea a la página 1.)*

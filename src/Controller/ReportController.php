@@ -52,14 +52,18 @@ final class ReportController extends ApiController
                             new Assert\Choice(array_column(ReportType::cases(), 'value')),
                         ]),
                     ]),
+                    'resolved' => new Assert\Optional([
+                        new Assert\Type('string'),
+                        new Assert\Choice(['true', 'null', 'false']),
+                    ]),
                 ],
                 'allowExtraFields' => true,
             ])
         );
 
         // Obtener stats
-        $cTotal = $this->cReportRepository->countAll($data['types'] ?? null);
-        $pTotal = $this->pReportRepository->countAll($data['types'] ?? null);
+        $cTotal = $this->cReportRepository->countAll($data);
+        $pTotal = $this->pReportRepository->countAll($data);
         $data = [
             'total' => $cTotal + $pTotal,
             'commerce' => $cTotal,
