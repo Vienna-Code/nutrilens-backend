@@ -4,13 +4,8 @@ namespace App\Service;
 
 use App\Entity\Comment;
 use App\Entity\Post;
-use App\Entity\PostVote;
 use App\Entity\User;
-use App\Enum\AlimentaryRestriction;
-use App\Enum\UserRank;
 use App\Enum\Visibility;
-use App\Repository\PostVoteRepository;
-use App\Repository\TagRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -26,6 +21,7 @@ class CommentManager
         $comment->setContent($data['content']);
 
         if ($parent) {
+            // Agregar como respuesta a otro comentario
             if ($parent->getReplyingTo() !== null) {
                 $comment->setTaggingUser($parent->getUser());
                 $parent = $parent->getReplyingTo();
@@ -37,6 +33,7 @@ class CommentManager
         $user->addComment($comment);
         $post->addComment($comment);
 
+        // Estos métodos actualizan la base de datos
         $this->em->persist($user);
         $this->em->persist($post);
         $this->em->flush();

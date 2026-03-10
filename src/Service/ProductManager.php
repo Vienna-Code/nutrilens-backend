@@ -130,14 +130,9 @@ class ProductManager
                 $images = $this->imageRepository->findBy([
                     'id' => $uuidObjects,
                 ]);
+                
                 if (\count($images) !== \count($affectedUuids)) {
                     throw new \InvalidArgumentException('Una o más imagenes no fueron encontradas.');
-                }
-
-                foreach ($images as $image) {
-                    if ($image->getUser() !== $user) {
-                        throw new \InvalidArgumentException('No puedes modificar imágenes que no sean tuyas.');
-                    }
                 }
             }
 

@@ -72,6 +72,6 @@ class Image
     #[Groups(['image:read', 'image:create'])]
     public function getUrl(): string
     {
-        return "http://localhost:8000/images/{$this->id}";
+        return "http://{$_SERVER['SERVER_NAME']}:4173/api/images/{$this->id}";
     }
 }

@@ -95,23 +95,32 @@ class PostManager
         // Imágenes
         if (isset($data['attachments'])) {
             $uuids = $data['attachments'] ?? [];
+            
             if (!empty($uuids)) {
                 $uuidObjects = array_map(
                     fn (string $uuid) => Uuid::fromString($uuid),
                     $uuids
                 );
+
                 $images = $this->imageRepository->findBy([
                     'id' => $uuidObjects,
                 ]);
+
                 if (\count($images) !== \count($uuids)) {
                     throw new \InvalidArgumentException('Una o más imagenes no fueron encontradas.');
                 }
+
                 foreach ($images as $image) {
-                    if ($image->getUser() !== $user && \in_array('ROLE_ADMIN', $user->getRoles())) {
-                        throw new \InvalidArgumentException('Imagen de ID ' . $image->getId()->toRfc4122() . ' no fue subida por el usuario.');
+                    if ($image->getUser() !== $user && !\in_array('ROLE_ADMIN', $user->getRoles())) {
+                        throw new \InvalidArgumentException(
+                            'Imagen de ID ' . $image->getId()->toRfc4122() . ' no fue subida por el usuario.'
+                        );
                     }
                 }
+
                 $post->setAttachments($data['attachments']);
+            } else {
+                $post->setAttachments([]);
             }
         }
 
