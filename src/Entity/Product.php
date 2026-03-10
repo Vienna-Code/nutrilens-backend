@@ -138,7 +138,7 @@ class Product
 
     public function getProductImages(): array
     {
-        return $this->productImages;
+        return $this->productImages ?? [];
     }
 
     public function setProductImages(?array $productImages): static

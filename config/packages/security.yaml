@@ -20,8 +20,8 @@ security:
                 username_path: username
                 password_path: password
             logout:
-                path: /auth/logout
-                target: /auth/logout-success
+                path: /api/auth/logout
+                target: /api/auth/logout-success
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
