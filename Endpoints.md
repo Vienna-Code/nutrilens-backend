@@ -31,6 +31,8 @@
   - **roles**: enum[] *(Roles del usuario, ej: ["ROLE_USER", "ROLE_ADMIN"]. Solo para administradores)*
   - **newPassword**: string *(Nueva contraseña del usuario)*
   - **currentPassword**: string *(Contraseña actual, necesario para cambiar la contraseña)*
+  - **username**: string *(SOLO ADMINS: Cambiar nombre de usuario)*
+  - **email**: string *(SOLO ADMINS: Cambiar correo)*
 
 - ``GET /users/me/commerces``: Obtener comercios subidos por el usuario autenticado.
 

@@ -93,6 +93,11 @@ class UserManager
             $user->setPassword($hashedPassword);
         }
 
+        if ($isAdmin) {
+            $user->setUsername($data['username'] ?? $user->getUsername());
+            $user->setEmail($data['email'] ?? $user->getEmail());
+        }
+
         $this->em->persist($user);
         $this->em->flush();
         return $user;

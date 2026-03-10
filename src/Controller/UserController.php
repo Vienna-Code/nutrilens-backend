@@ -560,6 +560,18 @@ final class UserController extends ApiController
                             new Assert\Choice(array_column(UserRole::cases(), 'value')),
                         ]),
                     ],
+                    'username' => [
+                        new Assert\Type('string'),
+                        new Assert\Length(min: 3, max: 40),
+                        new Assert\Regex([
+                            'pattern' => '/^[a-zA-Z0-9_.-]+$/',
+                            'message' => 'Username can only contain letters, numbers, underscores (_), hyphens (-), and dots (.)',
+                        ]),
+                    ],
+                    'email' => [
+                        new Assert\Type('string'),
+                        new Assert\Email
+                    ],
                     'currentPassword' => [
                         new Assert\Type('string'),
                     ],
