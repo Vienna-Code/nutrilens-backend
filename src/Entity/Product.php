@@ -22,7 +22,7 @@ class Product
 
     #[ORM\ManyToOne(inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['product:list:commerce'])]
+    #[Groups(['productreport:list', 'product:list:commerce'])]
     private ?Commerce $commerce = null;
 
     #[ORM\Column(length: 50)]
