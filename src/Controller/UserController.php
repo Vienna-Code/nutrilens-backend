@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Enum\AlimentaryRestriction;
 use App\Enum\ReportType;
-use App\Enum\UserRank;
 use App\Enum\UserRole;
 use App\Repository\CommerceRepository;
 use App\Repository\PostRepository;
@@ -12,6 +11,8 @@ use App\Repository\ProductRepository;
 use App\Repository\ReviewRepository;
 use App\Repository\UserRepository;
 use App\Service\UserManager;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use LogicException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -145,7 +146,7 @@ final class UserController extends ApiController
     }
 
     #[Route('/users', methods: ['POST'], name: 'app_users_post')]
-    public function post(): JsonResponse
+    public function post(Request $request): JsonResponse
     {
         // Control de acceso (SOLO ADMINS)
         $user = $this->getUser(); /** @var \App\Entity\User $user */
@@ -158,7 +159,72 @@ final class UserController extends ApiController
             return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
         }
 
-        return $this->json(['wip'], 503);
+        // Parseo del request JSON
+        $data = json_decode($request->getContent(), true);
+        
+        // Validación
+        $data = $this->validate(
+            $data,
+            new Assert\Collection([
+                'fields' => [
+                    'username' => new Assert\Required([
+                        new Assert\Type('string'),
+                        new Assert\Length(min: 3, max: 40),
+                        new Assert\Regex([
+                            'pattern' => '/^[a-zA-Z0-9_.-]+$/',
+                            'message' => 'Username can only contain letters, numbers, underscores (_), hyphens (-), and dots (.)',
+                        ]),
+                    ]),
+                    'email' => new Assert\Required([
+                        new Assert\Type('string'),
+                        new Assert\Email
+                    ]),
+                    'password' => new Assert\Required([
+                        new Assert\Type('string'),
+                    ]),
+                    'alimentaryRestrictions' => new Assert\Optional([
+                        new Assert\Type('array'),
+                        new Assert\Unique(),
+                        new Assert\All([
+                            new Assert\Choice(array_column(AlimentaryRestriction::cases(), 'value')),
+                        ]),
+                    ]),
+                    'profilePicture' => new Assert\Optional([
+                        new Assert\Type('string'),
+                        new Assert\Uuid(),
+                    ]),
+                    'roles' => new Assert\Optional([
+                        new Assert\Type('array'),
+                        new Assert\Unique(),
+                        new Assert\All([
+                            new Assert\Choice(array_column(UserRole::cases(), 'value')),
+                        ]),
+                    ]),
+                ],
+            ])
+        );
+        
+        // Crear usuario
+        try {
+            $user = $this->userManager->create($data, $user->getRoles());
+        } catch (UniqueConstraintViolationException $e) {
+            $msg = $e->getMessage();
+            if (str_contains($msg, 'username_unique_idx')) {
+                $msg = 'Un usuario bajo el nombre ' . $data['username'] . ' ya existe.';
+            } elseif (str_contains($msg, 'email_unique_idx')) {
+                $msg = 'El email ' . $data['email'] . ' ya está registrado.';
+            } else {
+                throw new LogicException('Undefined unique index checked.');
+            }
+
+            return $this->json(['error' => ['message' => $msg]], 409);
+        }
+
+        // Responder
+        return $this->json([
+            'message' => 'Usuario registrado correctamente.',
+            'data' => $user,
+        ], 201, [], ['groups' => ['user:create']]);
     }
 
     #[Route('/users/{id}/commerces/stats', methods: ['GET'], name: 'app_users_list_commerces_stats')]

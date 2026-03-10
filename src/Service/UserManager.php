@@ -17,7 +17,7 @@ class UserManager
         private ImageRepository $imageRepository,
     ) {}
 
-    public function create(array &$data): User|false
+    public function create(array &$data, array $privileges): User|false
     {
         $user = new User();
         $user->setUsername($data['username']);
@@ -28,6 +28,20 @@ class UserManager
 
         $hashedPassword = $this->passwordHasher->hashPassword($user, $data['password']);
         $user->setPassword($hashedPassword);
+
+        if (isset($data['profilePicture'])) {
+            $image = $this->imageRepository->find($data['profilePicture']);
+            if (!$image) {
+                throw new \InvalidArgumentException('La imagen no fue encontrada');
+            }
+
+            $user->setProfilePicture($data['profilePicture']);
+        }
+
+        if (isset($data['roles']) && \in_array('ROLE_ADMIN', $privileges)) {
+            $roles = array_unique(array_merge($data['roles'], ['ROLE_USER']));
+            $user->setRoles($roles);
+        }
 
         $this->em->persist($user);
         $this->em->flush();
