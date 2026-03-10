@@ -35,7 +35,7 @@ class UserManager
         return $user;
     }
 
-    public function update(array &$data, User &$user): User|false
+    public function update(array &$data, User &$user, array $privileges): User|false
     {
         if (isset($data['alimentaryRestrictions'])) {
             foreach ($data['alimentaryRestrictions'] as &$restriction) {
@@ -51,6 +51,11 @@ class UserManager
             }
 
             $user->setProfilePicture($data['profilePicture']);
+        }
+
+        if (isset($data['roles']) && \in_array('ROLE_ADMIN', $privileges)) {
+            $roles = array_unique(array_merge($data['roles'], ['ROLE_USER']));
+            $user->setRoles($roles);
         }
 
         $this->em->persist($user);

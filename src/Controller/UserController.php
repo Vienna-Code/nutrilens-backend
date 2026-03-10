@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Enum\AlimentaryRestriction;
 use App\Enum\ReportType;
 use App\Enum\UserRank;
+use App\Enum\UserRole;
 use App\Repository\CommerceRepository;
 use App\Repository\PostRepository;
 use App\Repository\ProductRepository;
@@ -141,6 +142,23 @@ final class UserController extends ApiController
         return $this->json([
             'data' => $commerces
         ], 200, [], ['groups' => ['commerce:list']]);
+    }
+
+    #[Route('/users', methods: ['POST'], name: 'app_users_post')]
+    public function post(): JsonResponse
+    {
+        // Control de acceso (SOLO ADMINS)
+        $user = $this->getUser(); /** @var \App\Entity\User $user */
+        if ($user === null) {
+            return $this->json([
+                'error' => ['message' => 'Se requiere autenticación para acceder a este endpoint.']
+            ], 401);
+        }
+        if (!\in_array('ROLE_ADMIN', $user->getRoles())) {
+            return $this->json(['error' => ['message' => 'No tienes permisos suficientes para acceder a este endpoint.']], 403);
+        }
+
+        return $this->json(['wip'], 503);
     }
 
     #[Route('/users/{id}/commerces/stats', methods: ['GET'], name: 'app_users_list_commerces_stats')]
@@ -469,13 +487,20 @@ final class UserController extends ApiController
                         new Assert\Type('string'),
                         new Assert\Uuid(),
                     ],
+                    'roles' => [
+                        new Assert\Type('array'),
+                        new Assert\Unique(),
+                        new Assert\All([
+                            new Assert\Choice(array_column(UserRole::cases(), 'value')),
+                        ]),
+                    ]
                 ],
                 'allowMissingFields' => true,
             ])
         );
 
         // Modificar usuario
-        $user = $this->userManager->update($data, $user);
+        $user = $this->userManager->update($data, $user, $me->getRoles());
         
         // Responder
         return $this->json([
