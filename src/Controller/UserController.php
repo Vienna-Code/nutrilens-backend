@@ -559,14 +559,20 @@ final class UserController extends ApiController
                         new Assert\All([
                             new Assert\Choice(array_column(UserRole::cases(), 'value')),
                         ]),
-                    ]
+                    ],
+                    'currentPassword' => [
+                        new Assert\Type('string'),
+                    ],
+                    'newPassword' => [
+                        new Assert\Type('string'),
+                    ],
                 ],
                 'allowMissingFields' => true,
             ])
         );
 
         // Modificar usuario
-        $user = $this->userManager->update($data, $user, $me->getRoles());
+        $user = $this->userManager->update($data, $user, $me);
         
         // Responder
         return $this->json([

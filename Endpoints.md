@@ -29,6 +29,8 @@
   - **alimentaryRestrictions**: string[] *(De restricciones alimentarias del usuario: ["celiac", "diabetic", "hypertensive"])*
   - **profilePicture**: string *(UUID de la imágen de foto de perfil)*
   - **roles**: enum[] *(Roles del usuario, ej: ["ROLE_USER", "ROLE_ADMIN"]. Solo para administradores)*
+  - **newPassword**: string *(Nueva contraseña del usuario)*
+  - **currentPassword**: string *(Contraseña actual, necesario para cambiar la contraseña)*
 
 - ``GET /users/me/commerces``: Obtener comercios subidos por el usuario autenticado.
 

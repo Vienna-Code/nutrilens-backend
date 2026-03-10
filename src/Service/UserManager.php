@@ -6,6 +6,8 @@ use App\Entity\User;
 use App\Enum\AlimentaryRestriction;
 use App\Repository\ImageRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserManager
@@ -17,7 +19,7 @@ class UserManager
         private ImageRepository $imageRepository,
     ) {}
 
-    public function create(array &$data, array $privileges): User|false
+    public function create(array &$data, array $privileges = []): User|false
     {
         $user = new User();
         $user->setUsername($data['username']);
@@ -49,7 +51,7 @@ class UserManager
         return $user;
     }
 
-    public function update(array &$data, User &$user, array $privileges): User|false
+    public function update(array &$data, User &$user, User $operator): User|false
     {
         if (isset($data['alimentaryRestrictions'])) {
             foreach ($data['alimentaryRestrictions'] as &$restriction) {
@@ -67,9 +69,28 @@ class UserManager
             $user->setProfilePicture($data['profilePicture']);
         }
 
-        if (isset($data['roles']) && \in_array('ROLE_ADMIN', $privileges)) {
+        $isAdmin = \in_array('ROLE_ADMIN', $operator->getRoles());
+
+        if (isset($data['roles']) && $isAdmin) {
             $roles = array_unique(array_merge($data['roles'], ['ROLE_USER']));
             $user->setRoles($roles);
+        }
+
+        if (isset($data['newPassword'])) {
+            $canBypass = $isAdmin && $operator !== $user;
+
+            if (!$canBypass) {
+                if (!isset($data['currentPassword'])) {
+                    throw new BadRequestHttpException('Current password required');
+                }
+    
+                if (!$this->passwordHasher->isPasswordValid($operator, $data['currentPassword'])) {
+                    throw new UnauthorizedHttpException('Current password is incorrect');
+                }
+            }
+
+            $hashedPassword = $this->passwordHasher->hashPassword($user, $data['newPassword']);
+            $user->setPassword($hashedPassword);
         }
 
         $this->em->persist($user);

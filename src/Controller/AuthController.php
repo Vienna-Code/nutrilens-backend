@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Enum\AlimentaryRestriction;
-use App\Enum\UserRole;
 use App\Repository\UserRepository;
 use App\Service\UserManager;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
