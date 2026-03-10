@@ -573,6 +573,7 @@ final class CommerceController extends ApiController
 
         // Parseo del request JSON
         $data = json_decode($request->getContent(), true);
+        $data['commerceId'] = $idc;
 
         // Validación
         $data = $this->validateCommerceReport($data, true);
