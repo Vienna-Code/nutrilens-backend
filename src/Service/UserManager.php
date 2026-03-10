@@ -84,7 +84,7 @@ class UserManager
                     throw new BadRequestHttpException('Current password required');
                 }
     
-                if (!$this->passwordHasher->isPasswordValid($operator, $data['currentPassword'])) {
+                if (!$this->passwordHasher->isPasswordValid($user, $data['currentPassword'])) {
                     throw new UnauthorizedHttpException('Current password is incorrect');
                 }
             }
