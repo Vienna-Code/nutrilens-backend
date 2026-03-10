@@ -85,7 +85,7 @@ class UserManager
                 }
     
                 if (!$this->passwordHasher->isPasswordValid($user, $data['currentPassword'])) {
-                    throw new UnauthorizedHttpException('Current password is incorrect');
+                    throw new UnauthorizedHttpException('', message: 'Current password is incorrect');
                 }
             }
 
